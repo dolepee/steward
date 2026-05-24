@@ -34,7 +34,7 @@ npm run build --prefix web
 
 ## Frontend
 
-The web app is a single proof page in `web/`. It reads the live `Steward.voteRequests(1698384)` state and `MiniGovernor.votes(1, Steward)` directly from Somnia Testnet.
+The web app is a single proof page in `web/`. It reads live `Steward.voteRequests(...)` and `MiniGovernor.votes(...)` state for the YES, NO, and ABSTAIN examples directly from Somnia Testnet.
 
 Live frontend: `https://steward-ashy.vercel.app`
 
@@ -56,14 +56,17 @@ npm run build --prefix web
 | Hello request id | `1697263` |
 | MiniGovernor | `0xa3773Ff7B2008bAb2E553E13e1E0ADE08a15f389` |
 | MiniGovernor deploy tx | `0x83b77eaad7965c9adf410052c11f0638c488a7a6d7a6b9a8ce5f90169040d62e` |
-| Proposal creation tx | `0xb31236f41cab27998bbf5593a1fbd8eda3f330eaf1c4b6b34523e5161d30852b` |
 | Steward | `0x6932C7827E7BFd9f0015Ed93fA120379E0d20541` |
 | Steward deploy tx | `0x723f8717b19a48b524858c5f1a1416be2016a2d393427a788e9e7b80af506147` |
 | Delegation tx | `0xdf49c68c630deef7a319b8d0f6daaefa392be433343784295c8833f9460fd45b` |
-| Steward vote request tx | `0x63c34767e59cc6988fd2ab5ecef9d1089e9f4445e1b1e18a9b490b0d0efc77ef` |
-| Steward callback + vote tx | `0xb74e25845472a2f591aa91eefe84e5e2828b41ac11acc78b41ceb1015500c52b` |
-| Steward request id | `1698384` |
-| Final result | `voteRequests(1698384)` is `Cast`, support `1`, reason `YES`; `MiniGovernor.votes(1, Steward)` is `1` |
+
+### Steward vote proofs
+
+| Outcome | Proposal | Request id | Proposal tx | Request tx | Callback + vote tx | Final state |
+| --- | --- | --- | --- | --- | --- | --- |
+| `YES` | `1` | `1698384` | `0xb31236f41cab27998bbf5593a1fbd8eda3f330eaf1c4b6b34523e5161d30852b` | `0x63c34767e59cc6988fd2ab5ecef9d1089e9f4445e1b1e18a9b490b0d0efc77ef` | `0xb74e25845472a2f591aa91eefe84e5e2828b41ac11acc78b41ceb1015500c52b` | `voteRequests(1698384)` is `Cast`, support `1`; `MiniGovernor.votes(1, Steward)` is `1` |
+| `NO` | `2` | `1738101` | `0xebc1961f3aa23078bb1d54e99d61fc4e8647caae1bae5e4e9f4ec48f2df53b3d` | `0x6d32b090d9ebacc6dd1dd46c01e0036bff3e684df4a28d3817823cd3747959fc` | `0xe14303e64f6a5db3d74919c94f42d3c14df3183e225f9996cc29cba86cc66dc3` | `voteRequests(1738101)` is `Cast`, support `2`; `MiniGovernor.votes(2, Steward)` is `2` |
+| `ABSTAIN` | `3` | `1738108` | `0x758f8dbc8cadf4887b301e33ab55c068ad983a4d507bd6cb9c5caa48b7060e53` | `0xa01f30ee06dbfa66b4a60414469d4f0e6406440f11e625a1197de88d797e851d` | `0xa157564585f473503627c801d6fb5992900dab3d5efcb31d4f15383c16487603` | `voteRequests(1738108)` is `Cast`, support `3`; `MiniGovernor.votes(3, Steward)` is `3` |
 
 Explorer base: `https://shannon-explorer.somnia.network`
 

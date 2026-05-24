@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 160" role="img" aria-label="Steward">
+  <rect width="520" height="160" rx="42" fill="#10120d"/>
+  <rect x="28" y="28" width="104" height="104" rx="30" fill="#6bff7d"/>
+  <path d="M56 98c12 10 49 10 60-7 9-14-2-33-25-35-22-2-34 8-34 22h22c0-6 5-10 13-10 9 1 13 7 8 14-6 10-31 10-44 2v14Z" fill="#10120d"/>
+  <path d="M56 49h58v15H56z" fill="#10120d"/>
+  <text x="158" y="96" fill="#f8f4e6" font-family="Arial, sans-serif" font-size="54" font-weight="900" letter-spacing="-3">Steward</text>
+  <text x="160" y="124" fill="#b9ff75" font-family="Arial, sans-serif" font-size="16" font-weight="800" letter-spacing="4">VERIFIABLE DAO AGENTS</text>
+</svg>

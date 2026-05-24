@@ -4,6 +4,8 @@ out/
 web/dist/
 web/node_modules/
 web/tsconfig.tsbuildinfo
+.vercel/
+web/.vercel/
 
 # Ignores local deployment artifacts. Live proof txs belong in README, not raw
 # Foundry cache/broadcast folders.

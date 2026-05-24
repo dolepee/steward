@@ -36,6 +36,8 @@ npm run build --prefix web
 
 The web app is a single proof page in `web/`. It reads the live `Steward.voteRequests(1698384)` state and `MiniGovernor.votes(1, Steward)` directly from Somnia Testnet.
 
+Live frontend: `https://steward-ashy.vercel.app`
+
 ```shell
 npm install --prefix web
 npm run dev --prefix web

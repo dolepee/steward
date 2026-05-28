@@ -46,6 +46,7 @@ main {
   width: min(1180px, calc(100% - 32px));
   margin: 0 auto;
   padding: 28px 0 56px;
+  overflow-x: clip;
 }
 
 .nav {
@@ -83,18 +84,26 @@ main {
 
 .hero {
   display: grid;
-  grid-template-columns: 0.9fr 1.1fr;
-  gap: 44px;
+  grid-template-columns: minmax(0, 0.9fr) minmax(440px, 1.1fr);
+  gap: clamp(24px, 3vw, 44px);
   align-items: center;
   min-height: 690px;
 }
 
+.copy,
+.receipt,
+.voteCard,
+.live div,
+.grid article {
+  min-width: 0;
+}
+
 .copy h1 {
   margin: 0;
-  max-width: 680px;
-  font-size: clamp(72px, 10vw, 132px);
+  max-width: min(100%, 620px);
+  font-size: clamp(60px, 6.2vw, 96px);
   line-height: 0.82;
-  letter-spacing: -0.085em;
+  letter-spacing: -0.075em;
 }
 
 .eyebrow {
@@ -170,6 +179,7 @@ main {
 
 .receiptTop {
   display: flex;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 20px;
   margin-bottom: 34px;
@@ -178,6 +188,12 @@ main {
   font-weight: 950;
   letter-spacing: 0.2em;
   text-transform: uppercase;
+}
+
+.receiptTop strong {
+  max-width: 58%;
+  text-align: right;
+  line-height: 1.2;
 }
 
 .criteria,
@@ -234,7 +250,8 @@ main {
 }
 
 .voteCard > div:first-child {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: baseline;
   justify-content: space-between;
   gap: 18px;
@@ -242,9 +259,10 @@ main {
 
 .voteCard strong {
   color: #f8f4e6;
-  font-size: clamp(42px, 6vw, 76px);
+  font-size: clamp(40px, 4.8vw, 68px);
   line-height: 0.85;
   letter-spacing: -0.08em;
+  white-space: nowrap;
 }
 
 .voteCard.yes strong {
@@ -344,6 +362,7 @@ main {
   margin-top: 8px;
   color: #f8f4e6;
   font-size: 20px;
+  overflow-wrap: anywhere;
 }
 
 .error {
@@ -351,6 +370,18 @@ main {
   border-radius: 18px;
   background: #ffded8;
   color: #5e140b;
+}
+
+@media (max-width: 1080px) {
+  .hero {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    padding: 70px 0 28px;
+  }
+
+  .copy h1 {
+    max-width: 900px;
+  }
 }
 
 @media (max-width: 900px) {
@@ -367,14 +398,8 @@ main {
     font-size: 12px;
   }
 
-  .hero {
-    grid-template-columns: 1fr;
-    min-height: auto;
-    padding: 70px 0 28px;
-  }
-
   .copy h1 {
-    font-size: clamp(58px, 18vw, 94px);
+    font-size: clamp(48px, 13vw, 62px);
   }
 
   .receipt {
@@ -385,5 +410,25 @@ main {
   .grid,
   .live {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .voteCard > div:first-child,
+  .receiptTop {
+    display: block;
+  }
+
+  .receiptTop strong {
+    display: block;
+    max-width: none;
+    margin-top: 10px;
+    text-align: left;
+  }
+
+  .voteCard strong {
+    display: block;
+    margin-top: 10px;
+    font-size: clamp(44px, 15vw, 72px);
   }
 }

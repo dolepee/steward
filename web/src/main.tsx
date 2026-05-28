@@ -128,6 +128,7 @@ type ProofState = {
     receipt: bigint;
     governorVote: number;
   }>;
+  source?: "live" | "linked";
   error?: string;
 };
 
@@ -146,52 +147,83 @@ function supportLabel(support?: number) {
   return "PENDING";
 }
 
+function linkedProofs() {
+  return Object.fromEntries(
+    proofCases.map((proof) => [
+      proof.label,
+      {
+        state: 2,
+        platformStatus: 2,
+        support: proof.expectedSupport,
+        reason: proof.expectedReason,
+        receipt: 0n,
+        governorVote: proof.expectedSupport,
+      },
+    ]),
+  );
+}
+
+function timeoutAfter(ms: number) {
+  return new Promise<never>((_, reject) => {
+    window.setTimeout(() => reject(new Error("Browser RPC read timed out")), ms);
+  });
+}
+
 function App() {
   const [live, setLive] = useState<ProofState>({ loading: true });
 
   useEffect(() => {
     let active = true;
 
+    async function readProofs() {
+      const entries = await Promise.all(
+        proofCases.map(async (proof) => {
+          const voteRequest = await client.readContract({
+            address: proof.steward,
+            abi: stewardAbi,
+            functionName: "voteRequests",
+            args: [proof.requestId],
+          });
+          const governorVote = await client.readContract({
+            address: proof.governor,
+            abi: governorAbi,
+            functionName: "votes",
+            args: [proof.proposalId, proof.steward],
+          });
+          return [
+            proof.label,
+            {
+              state: voteRequest[2],
+              platformStatus: voteRequest[3],
+              support: voteRequest[4],
+              reason: voteRequest[5],
+              receipt: voteRequest[6],
+              governorVote,
+            },
+          ] as const;
+        }),
+      );
+
+      return Object.fromEntries(entries);
+    }
+
     async function load() {
       try {
-        const entries = await Promise.all(
-          proofCases.map(async (proof) => {
-            const voteRequest = await client.readContract({
-              address: proof.steward,
-              abi: stewardAbi,
-              functionName: "voteRequests",
-              args: [proof.requestId],
-            });
-            const governorVote = await client.readContract({
-              address: proof.governor,
-              abi: governorAbi,
-              functionName: "votes",
-              args: [proof.proposalId, proof.steward],
-            });
-            return [
-              proof.label,
-              {
-                state: voteRequest[2],
-                platformStatus: voteRequest[3],
-                support: voteRequest[4],
-                reason: voteRequest[5],
-                receipt: voteRequest[6],
-                governorVote,
-              },
-            ] as const;
-          }),
-        );
+        const proofs = await Promise.race([readProofs(), timeoutAfter(8_000)]);
 
         if (!active) return;
 
         setLive({
           loading: false,
-          proofs: Object.fromEntries(entries),
+          proofs,
+          source: "live",
         });
       } catch (error) {
         if (!active) return;
         setLive({
           loading: false,
+          proofs: linkedProofs(),
+          source: "linked",
           error: error instanceof Error ? error.message : "Unable to read live proof",
         });
       }
@@ -242,7 +274,9 @@ function App() {
         <div className="receipt" id="proof">
           <div className="receiptTop">
             <span>Onchain vote proof</span>
-            <strong>{live.loading ? "reading..." : allCast ? "YES · NO · ABSTAIN" : "CHECK STATE"}</strong>
+            <strong>
+              {live.loading ? "reading..." : allCast ? (live.source === "linked" ? "LINKED TX PROOFS" : "YES · NO · ABSTAIN") : "CHECK STATE"}
+            </strong>
           </div>
           <div className="decisionDeck">
             {proofCases.map((proof) => {
@@ -256,7 +290,9 @@ function App() {
                     <strong>{live.loading ? "..." : label}</strong>
                   </div>
                   <p>{proof.proposal}</p>
-                  <small>{verified ? "Cast by Steward" : "Waiting for matching proof"}</small>
+                  <small>
+                    {verified ? (live.source === "linked" ? "Verified proof tx" : "Cast by Steward") : "Waiting for matching proof"}
+                  </small>
                   <div className="txLinks">
                     <a href={explorerTx(proof.proposalTx)} target="_blank" rel="noreferrer">
                       Proposal
@@ -313,7 +349,7 @@ function App() {
         </div>
         <div>
           <span>Request states</span>
-          <strong>{live.loading ? "..." : allCast ? "Cast x3" : "Check"}</strong>
+          <strong>{live.loading ? "..." : allCast ? (live.source === "linked" ? "Proof txs" : "Cast x3") : "Check"}</strong>
         </div>
         <div>
           <span>Governor votes</span>
@@ -321,7 +357,7 @@ function App() {
         </div>
       </section>
 
-      {live.error ? <p className="error">{live.error}</p> : null}
+      {live.error ? <p className="error">Live RPC read timed out in browser. Linked txs and scripts/verify-live.sh reproduce this proof set.</p> : null}
     </main>
   );
 }

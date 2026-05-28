@@ -2,14 +2,14 @@
 
 Verifiable DAO governance proxy on Somnia. A user delegates voting criteria, a proposal appears, a Somnia Agent reasons against the criteria, and the callback path records a YES, NO, or ABSTAIN decision onchain.
 
-The first milestone is deliberately small: prove Somnia's `createRequest -> handleResponse` loop with the live LLM Inference agent before building the governor surface.
+The current MVP proves the full loop: `Steward` invokes the live Somnia LLM Inference agent, receives the async callback, casts a MiniGovernor vote, and stores the result onchain.
 
 ## Live Somnia Testnet Constants
 
 | Surface | Value |
 | --- | --- |
 | Chain | Somnia Testnet `50312` |
-| RPC | `https://api.infra.testnet.somnia.network` |
+| RPC | `https://dream-rpc.somnia.network` |
 | SomniaAgents requester | `0x037Bb9C718F3f7fe5eCBDB0b600D607b52706776` |
 | AgentRegistry | `0x08D1Fc808f1983d2Ea7B63a28ECD4d8C885Cd02A` |
 | LLM Inference agent ID | `12847293847561029384` |

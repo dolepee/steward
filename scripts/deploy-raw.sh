@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-RPC_URL="${SOMNIA_TESTNET_RPC:-https://api.infra.testnet.somnia.network}"
+RPC_URL="${SOMNIA_TESTNET_RPC:-https://dream-rpc.somnia.network}"
 SOMNIA_AGENTS="${SOMNIA_AGENTS:-0x037Bb9C718F3f7fe5eCBDB0b600D607b52706776}"
 LLM_AGENT_ID="${LLM_AGENT_ID:-12847293847561029384}"
 GAS_PRICE="${GAS_PRICE:-6000000000}"

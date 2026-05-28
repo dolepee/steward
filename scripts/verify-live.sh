@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-RPC_URL="${SOMNIA_TESTNET_RPC:-https://api.infra.testnet.somnia.network}"
+RPC_URL="${SOMNIA_TESTNET_RPC:-https://dream-rpc.somnia.network}"
 STEWARD="${STEWARD:-0x6932C7827E7BFd9f0015Ed93fA120379E0d20541}"
 MINI_GOVERNOR="${MINI_GOVERNOR:-0xa3773Ff7B2008bAb2E553E13e1E0ADE08a15f389}"
 REQUEST_ID="${REQUEST_ID:-1698384}"

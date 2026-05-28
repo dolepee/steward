@@ -85,7 +85,13 @@ const primaryProof = proofCases[0];
 const proofAddresses = {
   steward: "0x6932C7827E7BFd9f0015Ed93fA120379E0d20541",
   governor: "0xa3773Ff7B2008bAb2E553E13e1E0ADE08a15f389",
+  somniaAgents: "0x037Bb9C718F3f7fe5eCBDB0b600D607b52706776",
+  agentRegistry: "0x08D1Fc808f1983d2Ea7B63a28ECD4d8C885Cd02A",
 };
+
+const llmAgentId = "12847293847561029384";
+const llmAgentUrl = `https://agents.testnet.somnia.network/agent/${llmAgentId}`;
+const agentMonitoringUrl = "https://agents.testnet.somnia.network/monitoring";
 
 const stewardAbi = [
   {
@@ -136,6 +142,10 @@ function explorerTx(hash: string) {
   return `https://shannon-explorer.somnia.network/tx/${hash}`;
 }
 
+function explorerAddress(address: string) {
+  return `https://shannon-explorer.somnia.network/address/${address}`;
+}
+
 function shortAddress(value: string) {
   return `${value.slice(0, 6)}...${value.slice(-4)}`;
 }
@@ -170,7 +180,11 @@ function timeoutAfter(ms: number) {
 }
 
 function App() {
-  const [live, setLive] = useState<ProofState>({ loading: true });
+  const [live, setLive] = useState<ProofState>({
+    loading: false,
+    proofs: linkedProofs(),
+    source: "linked",
+  });
 
   useEffect(() => {
     let active = true;
@@ -262,11 +276,11 @@ function App() {
             reasons against the mandate, and casts a DAO vote onchain through an async callback.
           </p>
           <div className="actions">
-            <a href={explorerTx(primaryProof.callbackTx)} target="_blank" rel="noreferrer">
-              Open YES vote tx
+            <a href={explorerTx(primaryProof.requestTx)} target="_blank" rel="noreferrer">
+              Open Somnia agent request
             </a>
-            <a className="secondary" href="#proof">
-              View all outcomes
+            <a className="secondary" href={llmAgentUrl} target="_blank" rel="noreferrer">
+              Open LLM agent
             </a>
           </div>
         </div>
@@ -291,17 +305,18 @@ function App() {
                   </div>
                   <p>{proof.proposal}</p>
                   <small>
-                    {verified ? (live.source === "linked" ? "Verified proof tx" : "Cast by Steward") : "Waiting for matching proof"}
+                    Request #{proof.requestId.toString()} ·{" "}
+                    {verified ? (live.source === "linked" ? "Verified tx trail" : "Cast by Steward") : "Waiting for matching proof"}
                   </small>
                   <div className="txLinks">
                     <a href={explorerTx(proof.proposalTx)} target="_blank" rel="noreferrer">
                       Proposal
                     </a>
                     <a href={explorerTx(proof.requestTx)} target="_blank" rel="noreferrer">
-                      Request
+                      Agent request
                     </a>
                     <a href={explorerTx(proof.callbackTx)} target="_blank" rel="noreferrer">
-                      Vote
+                      Callback vote
                     </a>
                   </div>
                 </article>
@@ -311,6 +326,24 @@ function App() {
           <div className="criteria">
             <span>Delegated criteria</span>
             <p>{primaryProof.criteria}</p>
+          </div>
+          <div className="criteria agentProof">
+            <span>Somnia agent receipt path</span>
+            <p>
+              Request txs open the SomniaAgents <code>RequestCreated</code> logs for the live LLM
+              agent. Callback txs show the async platform response writing the final vote into Steward.
+            </p>
+            <div className="txLinks">
+              <a href={llmAgentUrl} target="_blank" rel="noreferrer">
+                LLM agent
+              </a>
+              <a href={explorerAddress(proofAddresses.somniaAgents)} target="_blank" rel="noreferrer">
+                SomniaAgents
+              </a>
+              <a href={agentMonitoringUrl} target="_blank" rel="noreferrer">
+                Monitoring
+              </a>
+            </div>
           </div>
         </div>
       </section>
@@ -324,7 +357,7 @@ function App() {
         <article>
           <span>2</span>
           <h2>Invoke</h2>
-          <p>Steward calls SomniaAgents with proposal text, criteria, and allowed votes.</p>
+          <p>Steward calls SomniaAgents request #{primaryProof.requestId.toString()} with proposal text, criteria, and allowed votes.</p>
         </article>
         <article>
           <span>3</span>
@@ -342,6 +375,14 @@ function App() {
         <div>
           <span>Steward</span>
           <strong>{shortAddress(proofAddresses.steward)}</strong>
+        </div>
+        <div>
+          <span>LLM agent</span>
+          <strong>
+            <a href={llmAgentUrl} target="_blank" rel="noreferrer">
+              {llmAgentId}
+            </a>
+          </strong>
         </div>
         <div>
           <span>Request IDs</span>

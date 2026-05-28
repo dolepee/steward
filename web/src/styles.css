@@ -228,6 +228,12 @@ main {
   line-height: 1.35;
 }
 
+.criteria code {
+  font-family: inherit;
+  font-weight: 950;
+  color: #f0ff77;
+}
+
 .decision strong {
   display: block;
   margin-top: 10px;
@@ -343,7 +349,7 @@ main {
 
 .live {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 12px;
   margin-top: 16px;
   padding: 14px;
@@ -363,6 +369,12 @@ main {
   color: #f8f4e6;
   font-size: 20px;
   overflow-wrap: anywhere;
+}
+
+.live a {
+  color: inherit;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
 }
 
 .error {

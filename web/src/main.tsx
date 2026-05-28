@@ -92,6 +92,7 @@ const proofAddresses = {
 const llmAgentId = "12847293847561029384";
 const llmAgentUrl = `https://agents.testnet.somnia.network/agent/${llmAgentId}`;
 const agentMonitoringUrl = "https://agents.testnet.somnia.network/monitoring";
+const receiptServiceBase = "https://receipts.testnet.agents.somnia.host/agent-receipts";
 
 const stewardAbi = [
   {
@@ -144,6 +145,15 @@ function explorerTx(hash: string) {
 
 function explorerAddress(address: string) {
   return `https://shannon-explorer.somnia.network/address/${address}`;
+}
+
+function agentReceiptUrl(requestId: bigint) {
+  const params = new URLSearchParams({
+    requestId: requestId.toString(),
+    contractAddress: proofAddresses.somniaAgents,
+    type: "minimal",
+  });
+  return `${receiptServiceBase}?${params.toString()}`;
 }
 
 function shortAddress(value: string) {
@@ -315,6 +325,9 @@ function App() {
                     <a href={explorerTx(proof.requestTx)} target="_blank" rel="noreferrer">
                       Agent request
                     </a>
+                    <a href={agentReceiptUrl(proof.requestId)} target="_blank" rel="noreferrer">
+                      Agent receipt
+                    </a>
                     <a href={explorerTx(proof.callbackTx)} target="_blank" rel="noreferrer">
                       Callback vote
                     </a>
@@ -331,11 +344,16 @@ function App() {
             <span>Somnia agent receipt path</span>
             <p>
               Request txs open the SomniaAgents <code>RequestCreated</code> logs for the live LLM
-              agent. Callback txs show the async platform response writing the final vote into Steward.
+              agent. Receipt JSON shows the validator runner receipts, token usage, and decoded
+              <code>llm_response</code> step. Callback txs show the async platform response writing the
+              final vote into Steward.
             </p>
             <div className="txLinks">
               <a href={llmAgentUrl} target="_blank" rel="noreferrer">
                 LLM agent
+              </a>
+              <a href={agentReceiptUrl(primaryProof.requestId)} target="_blank" rel="noreferrer">
+                YES receipt JSON
               </a>
               <a href={explorerAddress(proofAddresses.somniaAgents)} target="_blank" rel="noreferrer">
                 SomniaAgents

@@ -30,6 +30,7 @@ forge build
 forge test -vvv
 npm run build --prefix web
 ./scripts/verify-live.sh
+node scripts/verify-agent-receipts.mjs
 ```
 
 ## Frontend
@@ -74,13 +75,13 @@ Explorer base: `https://shannon-explorer.somnia.network`
 
 The durable judge trail is the SomniaAgents request transaction plus the async callback vote transaction. Each request tx contains the platform `RequestCreated` log with the LLM agent id, payload, and selected subcommittee. Each callback tx shows SomniaAgents calling `Steward.handleResponse`, after which Steward records the final vote and emits `StewardVoteCast`.
 
-| Outcome | Agent request | Callback vote | Agent surface |
-| --- | --- | --- | --- |
-| `YES` | [`RequestCreated #1698384`](https://shannon-explorer.somnia.network/tx/0x63c34767e59cc6988fd2ab5ecef9d1089e9f4445e1b1e18a9b490b0d0efc77ef) | [`StewardVoteCast`](https://shannon-explorer.somnia.network/tx/0xb74e25845472a2f591aa91eefe84e5e2828b41ac11acc78b41ceb1015500c52b) | [`LLM agent`](https://agents.testnet.somnia.network/agent/12847293847561029384) |
-| `NO` | [`RequestCreated #1738101`](https://shannon-explorer.somnia.network/tx/0x6d32b090d9ebacc6dd1dd46c01e0036bff3e684df4a28d3817823cd3747959fc) | [`StewardVoteCast`](https://shannon-explorer.somnia.network/tx/0xe14303e64f6a5db3d74919c94f42d3c14df3183e225f9996cc29cba86cc66dc3) | [`LLM agent`](https://agents.testnet.somnia.network/agent/12847293847561029384) |
-| `ABSTAIN` | [`RequestCreated #1738108`](https://shannon-explorer.somnia.network/tx/0xa01f30ee06dbfa66b4a60414469d4f0e6406440f11e625a1197de88d797e851d) | [`StewardVoteCast`](https://shannon-explorer.somnia.network/tx/0xa157564585f473503627c801d6fb5992900dab3d5efcb31d4f15383c16487603) | [`LLM agent`](https://agents.testnet.somnia.network/agent/12847293847561029384) |
+| Outcome | Agent request | Agent execution receipt | Callback vote | Agent surface |
+| --- | --- | --- | --- | --- |
+| `YES` | [`RequestCreated #1698384`](https://shannon-explorer.somnia.network/tx/0x63c34767e59cc6988fd2ab5ecef9d1089e9f4445e1b1e18a9b490b0d0efc77ef) | [`receipt JSON`](https://receipts.testnet.agents.somnia.host/agent-receipts?requestId=1698384&contractAddress=0x037Bb9C718F3f7fe5eCBDB0b600D607b52706776&type=minimal) | [`StewardVoteCast`](https://shannon-explorer.somnia.network/tx/0xb74e25845472a2f591aa91eefe84e5e2828b41ac11acc78b41ceb1015500c52b) | [`LLM agent`](https://agents.testnet.somnia.network/agent/12847293847561029384) |
+| `NO` | [`RequestCreated #1738101`](https://shannon-explorer.somnia.network/tx/0x6d32b090d9ebacc6dd1dd46c01e0036bff3e684df4a28d3817823cd3747959fc) | [`receipt JSON`](https://receipts.testnet.agents.somnia.host/agent-receipts?requestId=1738101&contractAddress=0x037Bb9C718F3f7fe5eCBDB0b600D607b52706776&type=minimal) | [`StewardVoteCast`](https://shannon-explorer.somnia.network/tx/0xe14303e64f6a5db3d74919c94f42d3c14df3183e225f9996cc29cba86cc66dc3) | [`LLM agent`](https://agents.testnet.somnia.network/agent/12847293847561029384) |
+| `ABSTAIN` | [`RequestCreated #1738108`](https://shannon-explorer.somnia.network/tx/0xa01f30ee06dbfa66b4a60414469d4f0e6406440f11e625a1197de88d797e851d) | [`receipt JSON`](https://receipts.testnet.agents.somnia.host/agent-receipts?requestId=1738108&contractAddress=0x037Bb9C718F3f7fe5eCBDB0b600D607b52706776&type=minimal) | [`StewardVoteCast`](https://shannon-explorer.somnia.network/tx/0xa157564585f473503627c801d6fb5992900dab3d5efcb31d4f15383c16487603) | [`LLM agent`](https://agents.testnet.somnia.network/agent/12847293847561029384) |
 
-The deployed Steward contract also stores the platform response receipt field when SomniaAgents returns one. The current live examples finalized with `receipt = 0`, so the public proof intentionally uses the transaction-level SomniaAgents request logs and callback logs rather than inventing a nonzero receipt id.
+The receipt JSON is served by Somnia's public receipt service. It shows the validator runner receipts, request metadata, token usage, and decoded `llm_response` steps. The deployed Steward contract also stores the platform response receipt field when SomniaAgents returns one. The current live examples finalized with onchain `receipt = 0`, so the public proof uses the receipt service plus transaction-level SomniaAgents request and callback logs rather than inventing a nonzero onchain receipt id.
 
 ## Deploy Callback Proof
 

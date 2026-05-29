@@ -407,6 +407,88 @@ main {
   line-height: 1.45;
 }
 
+.product {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.productLead,
+.useCases article {
+  border: 1px solid rgba(16, 18, 13, 0.12);
+  background: rgba(255, 255, 255, 0.42);
+}
+
+.productLead {
+  padding: clamp(24px, 3vw, 36px);
+  border-radius: 36px;
+}
+
+.productLead h2 {
+  max-width: 620px;
+  margin: 0;
+  font-size: clamp(42px, 5vw, 74px);
+  line-height: 0.88;
+  letter-spacing: -0.07em;
+}
+
+.productLead p:not(.eyebrow) {
+  max-width: 620px;
+  margin: 24px 0 0;
+  color: rgba(16, 18, 13, 0.68);
+  font-size: 19px;
+  line-height: 1.45;
+}
+
+.productLead a {
+  display: inline-flex;
+  margin-top: 28px;
+  padding: 14px 18px;
+  border-radius: 999px;
+  background: #10120d;
+  color: #f5f2e8;
+  font-size: 14px;
+  font-weight: 950;
+  text-decoration: none;
+}
+
+.useCases {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.useCases article {
+  min-height: 180px;
+  padding: 20px;
+  border-radius: 26px;
+}
+
+.useCases span {
+  display: block;
+  color: rgba(16, 18, 13, 0.5);
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.useCases strong {
+  display: block;
+  margin-top: 24px;
+  color: #10120d;
+  font-size: 28px;
+  line-height: 0.96;
+  letter-spacing: -0.05em;
+}
+
+.useCases p {
+  margin: 14px 0 0;
+  color: rgba(16, 18, 13, 0.64);
+  line-height: 1.42;
+}
+
 .judge {
   display: grid;
   grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
@@ -574,8 +656,10 @@ main {
 
   .grid,
   .live,
+  .product,
   .judge,
   .scorecard,
+  .useCases,
   .agentRail {
     grid-template-columns: 1fr;
   }

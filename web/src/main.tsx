@@ -95,6 +95,7 @@ const llmAgentUrl = `https://agents.testnet.somnia.network/agent/${llmAgentId}`;
 const agentMonitoringUrl = "https://agents.testnet.somnia.network/monitoring";
 const receiptServiceBase = "https://receipts.testnet.agents.somnia.host/agent-receipts";
 const judgeGuideUrl = "https://github.com/dolepee/steward/blob/master/JUDGE_GUIDE.md";
+const productNoteUrl = "https://github.com/dolepee/steward/blob/master/PRODUCT.md";
 
 const stewardAbi = [
   {
@@ -379,6 +380,7 @@ function App() {
         <strong className="brand">Steward</strong>
         <a href="#proof">Proof</a>
         <a href="#loop">Loop</a>
+        <a href="#product">Product</a>
         <a href={judgeGuideUrl} target="_blank" rel="noreferrer">
           Guide
         </a>
@@ -519,6 +521,44 @@ function App() {
           <h2>Vote</h2>
           <p>Steward casts the vote in MiniGovernor and emits an indexable audit trail.</p>
         </article>
+      </section>
+
+      <section className="product" id="product">
+        <div className="productLead">
+          <p className="eyebrow">Product wedge</p>
+          <h2>Routine DAO votes should not disappear into private bots.</h2>
+          <p>
+            Steward starts with low-risk governance automation: grants, parameter changes,
+            contributor approvals, and recurring votes where abstention is common but manual review
+            is still expensive. The value is not just that an agent votes; it is that anyone can
+            audit why and how that vote reached the chain.
+          </p>
+          <a href={productNoteUrl} target="_blank" rel="noreferrer">
+            Read product note
+          </a>
+        </div>
+        <div className="useCases">
+          <article>
+            <span>Passive DAO voters</span>
+            <strong>Criteria instead of silence</strong>
+            <p>Voters can delegate explicit mandates and inspect how the agent applied them.</p>
+          </article>
+          <article>
+            <span>Treasury councils</span>
+            <strong>Consistent routine votes</strong>
+            <p>Grant renewals and budget checks get a repeatable receipt-backed path.</p>
+          </article>
+          <article>
+            <span>Governance providers</span>
+            <strong>Transparent automation</strong>
+            <p>Service teams can automate low-risk votes without asking users to trust server logs.</p>
+          </article>
+          <article>
+            <span>Agent builders</span>
+            <strong>Consequential proof</strong>
+            <p>The agent does not just chat. It creates a request, returns a vote, and leaves a verifiable trail.</p>
+          </article>
+        </div>
       </section>
 
       <section className="judge">

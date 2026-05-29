@@ -1,0 +1,101 @@
+name: URL Pipeline Proof
+
+permissions: {}
+
+on:
+  workflow_dispatch:
+    inputs:
+      steward_url_pipeline:
+        description: Deployed StewardUrlPipeline address
+        required: true
+        type: string
+      from_block:
+        description: First block to scan, usually deploy or seed block
+        required: true
+        type: string
+      mini_governor:
+        description: MiniGovernor address
+        required: false
+        type: string
+        default: "0xa3773Ff7B2008bAb2E553E13e1E0ADE08a15f389"
+      rpc_url:
+        description: Somnia RPC URL
+        required: false
+        type: string
+        default: "https://dream-rpc.somnia.network"
+      to_block:
+        description: Optional final block to scan
+        required: false
+        type: string
+      scan_blocks:
+        description: Collector fallback scan window
+        required: false
+        type: string
+        default: "300000"
+      log_chunk:
+        description: eth_getLogs chunk size
+        required: false
+        type: string
+        default: "50000"
+      expected_cases:
+        description: Comma-separated proof labels expected from the seeded URLs
+        required: false
+        type: string
+        default: "YES,NO,ABSTAIN"
+      criteria_text:
+        description: Delegated criteria used in the URL proof run
+        required: false
+        type: string
+        default: "Vote YES for community grants under 1M, NO for team token unlocks, ABSTAIN if unclear."
+
+jobs:
+  verify:
+    name: URL pipeline proof
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    env:
+      SOMNIA_TESTNET_RPC: ${{ inputs.rpc_url }}
+      STEWARD_URL_PIPELINE: ${{ inputs.steward_url_pipeline }}
+      MINI_GOVERNOR: ${{ inputs.mini_governor }}
+      URL_PIPELINE_FROM_BLOCK: ${{ inputs.from_block }}
+      URL_PIPELINE_TO_BLOCK: ${{ inputs.to_block }}
+      URL_PIPELINE_SCAN_BLOCKS: ${{ inputs.scan_blocks }}
+      URL_PIPELINE_LOG_CHUNK: ${{ inputs.log_chunk }}
+      URL_PIPELINE_CRITERIA: ${{ inputs.criteria_text }}
+      URL_PIPELINE_EXPECT_CASES: ${{ inputs.expected_cases }}
+
+    steps:
+      - uses: actions/checkout@v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@v6.4.0
+        with:
+          node-version: 22
+
+      - name: Collect URL pipeline proof env
+        run: |
+          set -euo pipefail
+          node scripts/collect-url-pipeline-proof-env.mjs > "$RUNNER_TEMP/url-pipeline.env"
+          cat "$RUNNER_TEMP/url-pipeline.env"
+
+      - name: Verify URL pipeline proof
+        run: |
+          set -euo pipefail
+          # shellcheck disable=SC1090
+          source "$RUNNER_TEMP/url-pipeline.env"
+
+          IFS=',' read -ra expected_cases <<< "$URL_PIPELINE_EXPECT_CASES"
+          for expected_case in "${expected_cases[@]}"; do
+            expected_case="${expected_case//[[:space:]]/}"
+            [[ -z "$expected_case" ]] && continue
+            if [[ ",$URL_PIPELINE_CASES," != *",$expected_case,"* ]]; then
+              echo "ERROR: expected case $expected_case not found in collected cases $URL_PIPELINE_CASES" >&2
+              exit 1
+            fi
+          done
+
+          node scripts/verify-url-pipeline-trail.mjs

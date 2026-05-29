@@ -109,6 +109,13 @@ Future V2 URL pipeline live proof, after deploying `StewardUrlPipeline` and fill
 node scripts/verify-url-pipeline-trail.mjs
 ```
 
+Public GitHub verifier path after deployment: open the
+[`URL Pipeline Proof`](https://github.com/dolepee/steward/actions/workflows/url-pipeline-proof.yml)
+workflow, provide the deployed `StewardUrlPipeline` address and the deploy or
+seed `from_block`, then run it. The workflow collects the URL pipeline logs,
+exports the proof environment, checks that the seeded URLs produced the expected
+`YES`, `NO`, and `ABSTAIN` cases, and runs `node scripts/verify-url-pipeline-trail.mjs`.
+
 Seed three URL-pipeline proof jobs against the public proposal source pages:
 
 ```shell

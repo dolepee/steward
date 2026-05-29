@@ -59,3 +59,24 @@ jobs:
 
       - name: Build frontend
         run: npm run build --prefix web
+
+  proof-scripts:
+    name: Proof scripts
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@v6.4.0
+        with:
+          node-version: 22
+
+      - name: Check shell scripts
+        run: find scripts -name '*.sh' -print -exec bash -n {} \;
+
+      - name: Check Node proof scripts
+        run: find scripts -name '*.mjs' -print -exec node --check {} \;

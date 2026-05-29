@@ -54,6 +54,12 @@ Expected final marker:
 STEWARD_URL_PIPELINE_TRAIL_VALID
 ```
 
+For a public proof artifact, use the
+[`URL Pipeline Proof`](https://github.com/dolepee/steward/actions/workflows/url-pipeline-proof.yml)
+GitHub Actions workflow after deployment. It takes the deployed pipeline address
+and `from_block`, collects the proof environment from live logs, verifies the
+expected cases, and runs the same strict verifier in CI.
+
 To avoid manually copying event fields from the explorer, collect the verifier
 environment from the deployed pipeline logs:
 

@@ -97,6 +97,7 @@ const receiptServiceBase = "https://receipts.testnet.agents.somnia.host/agent-re
 const judgeGuideUrl = "https://github.com/dolepee/steward/blob/master/JUDGE_GUIDE.md";
 const productNoteUrl = "https://github.com/dolepee/steward/blob/master/PRODUCT.md";
 const parseWebsiteDocsUrl = "https://docs.somnia.network/agents/base-agents/llm-parse-website";
+const urlPipelineWorkflowUrl = "https://github.com/dolepee/steward/actions/workflows/url-pipeline-proof.yml";
 const stewardSystemPrompt =
   "You are Steward, an autonomous DAO voting delegate. Choose exactly one allowed value.";
 const allowedVoteOutputs = ["YES", "NO", "ABSTAIN"];
@@ -710,6 +711,9 @@ function App() {
             </a>
             <a href="https://github.com/dolepee/steward/blob/master/PROOF.md" target="_blank" rel="noreferrer">
               URL proof guide
+            </a>
+            <a href={urlPipelineWorkflowUrl} target="_blank" rel="noreferrer">
+              Public verifier
             </a>
           </div>
         </div>

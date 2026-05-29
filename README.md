@@ -65,6 +65,14 @@ The stronger product direction is not a private bot that copies proposal text in
 
 This V2 path is additive and does not replace the live proof above. The current live proof remains the source-verified `Steward` loop. The URL pipeline is implemented and locally tested so it can become a separate live proof once deployed and funded.
 
+The frontend also publishes three plain-HTML proposal source pages for the URL pipeline proof run:
+
+| Expected vote | Source URL |
+| --- | --- |
+| `YES` | `https://steward-ashy.vercel.app/proposals/community-grants.html` |
+| `NO` | `https://steward-ashy.vercel.app/proposals/team-token-unlock.html` |
+| `ABSTAIN` | `https://steward-ashy.vercel.app/proposals/ecosystem-working-group.html` |
+
 ## Local Verification
 
 Prerequisites:

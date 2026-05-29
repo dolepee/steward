@@ -99,6 +99,29 @@ const productNoteUrl = "https://github.com/dolepee/steward/blob/master/PRODUCT.m
 const stewardSystemPrompt =
   "You are Steward, an autonomous DAO voting delegate. Choose exactly one allowed value.";
 const allowedVoteOutputs = ["YES", "NO", "ABSTAIN"];
+const proposalSources = [
+  {
+    label: "Grant proposal",
+    outcome: "YES",
+    title: "Q3 Community Grants Program",
+    url: "/proposals/community-grants.html",
+    fact: "500,000 USDC community grants budget",
+  },
+  {
+    label: "Unlock proposal",
+    outcome: "NO",
+    title: "Early Foundation Team Token Unlock",
+    url: "/proposals/team-token-unlock.html",
+    fact: "10% team token unlock, six months early",
+  },
+  {
+    label: "Research proposal",
+    outcome: "ABSTAIN",
+    title: "Ecosystem Partnerships Working Group",
+    url: "/proposals/ecosystem-working-group.html",
+    fact: "exploratory group, no committed budget",
+  },
+];
 
 const stewardAbi = [
   {
@@ -629,6 +652,31 @@ function App() {
           <h2>Vote</h2>
           <p>Steward casts the vote in MiniGovernor and emits an indexable audit trail.</p>
         </article>
+      </section>
+
+      <section className="urlPipeline" aria-labelledby="url-pipeline-heading">
+        <div className="urlPipelineLead">
+          <p className="eyebrow">V2 URL pipeline</p>
+          <h2 id="url-pipeline-heading">Proposal URL in. Somnia agents out. Vote onchain.</h2>
+          <p>
+            The next live proof path is a two-agent pipeline: Somnia's Parse Website agent reads a
+            public proposal page, then the LLM Inference agent applies the delegate mandate and
+            casts the final MiniGovernor vote through a callback.
+          </p>
+        </div>
+        <div className="proposalSources">
+          {proposalSources.map((source) => (
+            <article key={source.url} className={source.outcome.toLowerCase()}>
+              <span>{source.label}</span>
+              <strong>{source.outcome}</strong>
+              <h3>{source.title}</h3>
+              <p>{source.fact}</p>
+              <a href={source.url} target="_blank" rel="noreferrer">
+                Open source URL
+              </a>
+            </article>
+          ))}
+        </div>
       </section>
 
       <section className="product" id="product">

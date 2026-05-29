@@ -95,6 +95,12 @@ V2 URL pipeline local test:
 forge test --match-contract StewardUrlPipelineTest -vvv
 ```
 
+Future V2 URL pipeline live proof, after deploying `StewardUrlPipeline` and filling the `URL_PIPELINE_*` values in `.env`:
+
+```shell
+node scripts/verify-url-pipeline-trail.mjs
+```
+
 ## Frontend
 
 The web app is a single proof page in `web/`. It reads live `Steward.voteRequests(...)` and `MiniGovernor.votes(...)` state for the YES, NO, and ABSTAIN examples directly from Somnia Testnet, reads Somnia's public receipt service to display validator receipt quorum, runner count, timing, and token usage for each agent decision, and links both source-verified contracts from the proof strip. The repo verifier handles the deeper payload-level proof.

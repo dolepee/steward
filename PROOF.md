@@ -34,6 +34,32 @@ STEWARD_SOURCE_VERIFICATION_VALID
 STEWARD_FULL_PROOF_VALID
 ```
 
+## V2 URL Pipeline Proof Verifier
+
+`StewardUrlPipeline` is implemented and locally tested, but it is intentionally
+not included in the current live proof until it has its own deployed contract
+and three live transactions: pipeline start, Parse Website callback, and LLM vote
+callback.
+
+After those transactions exist, set the `URL_PIPELINE_*` values from
+`.env.example` and run:
+
+```shell
+node scripts/verify-url-pipeline-trail.mjs
+```
+
+Expected final marker:
+
+```text
+STEWARD_URL_PIPELINE_TRAIL_VALID
+```
+
+That verifier checks the full two-agent trail: the start transaction must create
+a Somnia `LLM Parse Website` request with the expected URL extraction payload,
+the parse callback must create the second `LLM Inference` vote request with the
+extracted proposal facts, and the final callback must cast the MiniGovernor vote
+from `StewardUrlPipeline`.
+
 ## Proof Set
 
 | Outcome | Request ID | Agent request | Receipt JSON | Callback vote |

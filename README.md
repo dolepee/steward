@@ -109,6 +109,12 @@ Future V2 URL pipeline live proof, after deploying `StewardUrlPipeline` and fill
 node scripts/verify-url-pipeline-trail.mjs
 ```
 
+Seed three URL-pipeline proof jobs against the public proposal source pages:
+
+```shell
+forge script script/SeedUrlPipelineProofs.s.sol --rpc-url "$SOMNIA_TESTNET_RPC" --broadcast --legacy
+```
+
 ## Frontend
 
 The web app is a single proof page in `web/`. It reads live `Steward.voteRequests(...)` and `MiniGovernor.votes(...)` state for the YES, NO, and ABSTAIN examples directly from Somnia Testnet, reads Somnia's public receipt service to display validator receipt quorum, runner count, timing, and token usage for each agent decision, and links both source-verified contracts from the proof strip. The repo verifier handles the deeper payload-level proof.

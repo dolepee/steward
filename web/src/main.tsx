@@ -96,6 +96,9 @@ const agentMonitoringUrl = "https://agents.testnet.somnia.network/monitoring";
 const receiptServiceBase = "https://receipts.testnet.agents.somnia.host/agent-receipts";
 const judgeGuideUrl = "https://github.com/dolepee/steward/blob/master/JUDGE_GUIDE.md";
 const productNoteUrl = "https://github.com/dolepee/steward/blob/master/PRODUCT.md";
+const stewardSystemPrompt =
+  "You are Steward, an autonomous DAO voting delegate. Choose exactly one allowed value.";
+const allowedVoteOutputs = ["YES", "NO", "ABSTAIN"];
 
 const stewardAbi = [
   {
@@ -474,6 +477,33 @@ function App() {
             <span>Delegated criteria</span>
             <p>{primaryProof.criteria}</p>
           </div>
+          <div className="decodedPayloads">
+            <span>Decoded request payloads</span>
+            <div className="payloadDeck">
+              {proofCases.map((proof) => (
+                <article key={`${proof.label}-payload`}>
+                  <strong>{proof.expectedReason}</strong>
+                  <p>
+                    <b>Proposal</b>
+                    {proof.proposal}
+                  </p>
+                  <p>
+                    <b>Criteria</b>
+                    {proof.criteria}
+                  </p>
+                  <small>
+                    inferString(prompt, system, false, [{allowedVoteOutputs.join(", ")}])
+                  </small>
+                  <a href={explorerTx(proof.requestTx)} target="_blank" rel="noreferrer">
+                    Request #{proof.requestId.toString()}
+                  </a>
+                </article>
+              ))}
+            </div>
+            <p>
+              System prompt: <code>{stewardSystemPrompt}</code>
+            </p>
+          </div>
           <div className="criteria agentProof">
             <span>Somnia agent receipt path</span>
             <p>
@@ -565,7 +595,7 @@ function App() {
       <section className="judge">
         <div>
           <p className="eyebrow">Judge path</p>
-          <h2>One delegate. Three proposals. Nine agent receipts.</h2>
+          <h2>One delegate. Three proposals. Nine receipts. Three decoded prompts.</h2>
           <p>
             Steward is built around Somnia's agent callback path: the contract invokes the LLM
             agent, the subcommittee produces execution receipts, and the callback writes a binding

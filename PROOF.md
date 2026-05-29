@@ -10,6 +10,7 @@ Steward's strongest claim is simple: one delegated voting mandate produced three
 | Agent-first governance action | Steward does not cast a vote until SomniaAgents calls back with `YES`, `NO`, or `ABSTAIN`. |
 | Async callback execution | Each final vote is written by `Steward.handleResponse` after the SomniaAgents callback. |
 | Public agent receipt trail | Somnia's receipt service returns validator runner receipts for each request. |
+| Transaction-level event trail | The verifier checks `ProposalCreated`, `RequestCreated`, `VoteRequested`, `RequestFinalized`, `VoteCast`, and `StewardVoteCast` logs for all three outcomes. |
 | Verifiable final state | `MiniGovernor.votes(proposalId, Steward)` matches the agent-returned support value. |
 
 ## Fast Verification
@@ -28,6 +29,7 @@ Expected final markers:
 ```text
 STEWARD_LIVE_PROOF_VALID
 STEWARD_AGENT_RECEIPTS_VALID
+STEWARD_TX_TRAIL_VALID
 STEWARD_SOURCE_VERIFICATION_VALID
 STEWARD_FULL_PROOF_VALID
 ```

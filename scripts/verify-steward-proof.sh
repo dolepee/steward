@@ -16,6 +16,7 @@ done
 
 "$ROOT_DIR/scripts/verify-live.sh"
 node "$ROOT_DIR/scripts/verify-agent-receipts.mjs"
+node "$ROOT_DIR/scripts/verify-transaction-trail.mjs"
 node "$ROOT_DIR/scripts/verify-source.mjs"
 
 echo "STEWARD_FULL_PROOF_VALID"

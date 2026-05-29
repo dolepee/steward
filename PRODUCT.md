@@ -25,7 +25,7 @@ A normal governance bot can read a proposal, call an LLM, and submit a vote, but
 - The vote request is created through SomniaAgents, not a private backend.
 - The LLM agent response is tied to a request id and public receipt path.
 - The final vote is written by the callback path, not by a frontend-supplied vote button.
-- The verifier checks the onchain state, receipt service, and source-verified contracts.
+- The verifier checks the onchain state, transaction logs, receipt service, and source-verified contracts.
 
 ## Why Somnia Matters
 
@@ -60,4 +60,4 @@ The hackathon MVP proves one delegate, one governor target, and three outcomes. 
 - Delegate reputation and slashing for repeated bad outcomes.
 - UI for humans to approve or revoke criteria before expiry.
 
-The current proof is intentionally smaller: live Somnia contracts, three agent requests, nine validator receipts, three callback-cast votes, source verification, and one reproducible proof command.
+The current proof is intentionally smaller: live Somnia contracts, three agent requests, nine validator receipts, transaction-level event verification, three callback-cast votes, source verification, and one reproducible proof command.

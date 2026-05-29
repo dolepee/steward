@@ -578,6 +578,26 @@ main {
   text-transform: uppercase;
 }
 
+.proofCoverage {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.proofCoverage span {
+  display: block;
+  padding: 10px 12px;
+  border: 1px solid rgba(16, 18, 13, 0.12);
+  border-radius: 999px;
+  background: rgba(107, 255, 125, 0.16);
+  color: #17351d;
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
 .live {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -660,6 +680,7 @@ main {
   .judge,
   .scorecard,
   .useCases,
+  .proofCoverage,
   .agentRail {
     grid-template-columns: 1fr;
   }

@@ -599,6 +599,12 @@ function App() {
             <span>Reproduce proof</span>
             <code>./scripts/verify-steward-proof.sh</code>
             <small>Expected: STEWARD_FULL_PROOF_VALID</small>
+            <div className="proofCoverage" aria-label="Verifier coverage">
+              <span>Live state</span>
+              <span>Agent receipts</span>
+              <span>Tx event trail</span>
+              <span>Verified source</span>
+            </div>
           </div>
         </div>
       </section>

@@ -96,9 +96,33 @@ const agentMonitoringUrl = "https://agents.testnet.somnia.network/monitoring";
 const receiptServiceBase = "https://receipts.testnet.agents.somnia.host/agent-receipts";
 const judgeGuideUrl = "https://github.com/dolepee/steward/blob/master/JUDGE_GUIDE.md";
 const productNoteUrl = "https://github.com/dolepee/steward/blob/master/PRODUCT.md";
+const parseWebsiteDocsUrl = "https://docs.somnia.network/agents/base-agents/llm-parse-website";
 const stewardSystemPrompt =
   "You are Steward, an autonomous DAO voting delegate. Choose exactly one allowed value.";
 const allowedVoteOutputs = ["YES", "NO", "ABSTAIN"];
+const urlPipelineProofCommand = "./scripts/run-url-pipeline-proof.sh";
+const urlPipelineSteps = [
+  {
+    tag: "Source",
+    title: "Proposal URL",
+    detail: "A public governance page is the input. No private operator copies proposal text into the prompt.",
+  },
+  {
+    tag: "Agent 1",
+    title: "Parse Website",
+    detail: "Somnia's browser-backed extraction agent reads the page and returns factual proposal details.",
+  },
+  {
+    tag: "Agent 2",
+    title: "LLM vote",
+    detail: "The inference agent applies the delegate mandate and must choose YES, NO, or ABSTAIN.",
+  },
+  {
+    tag: "Callback",
+    title: "Onchain vote",
+    detail: "StewardUrlPipeline casts the MiniGovernor vote only after the Somnia callback finalizes.",
+  },
+];
 const proposalSources = [
   {
     label: "Grant proposal",
@@ -304,6 +328,21 @@ function App() {
   });
 
   useEffect(() => {
+    if (!window.location.hash) return;
+
+    const scrollToHash = () => {
+      try {
+        document.querySelector(window.location.hash)?.scrollIntoView({ block: "start" });
+      } catch {
+        // Ignore malformed hash fragments; normal navigation still works.
+      }
+    };
+
+    window.setTimeout(scrollToHash, 250);
+    window.setTimeout(scrollToHash, 1_500);
+  }, []);
+
+  useEffect(() => {
     let active = true;
 
     async function readProofs() {
@@ -457,6 +496,7 @@ function App() {
         <div className="mark">S</div>
         <strong className="brand">Steward</strong>
         <a href="#proof">Proof</a>
+        <a href="#url-pipeline">URL Pipeline</a>
         <a href="#loop">Loop</a>
         <a href="#product">Product</a>
         <a href={judgeGuideUrl} target="_blank" rel="noreferrer">
@@ -654,28 +694,58 @@ function App() {
         </article>
       </section>
 
-      <section className="urlPipeline" aria-labelledby="url-pipeline-heading">
+      <section className="urlPipeline" id="url-pipeline" aria-labelledby="url-pipeline-heading">
         <div className="urlPipelineLead">
-          <p className="eyebrow">V2 URL pipeline</p>
-          <h2 id="url-pipeline-heading">Proposal URL in. Somnia agents out. Vote onchain.</h2>
+          <p className="eyebrow">V2 URL pipeline · deployment-ready</p>
+          <h2 id="url-pipeline-heading">A proposal URL becomes a vote, not a screenshot.</h2>
           <p>
-            The next live proof path is a two-agent pipeline: Somnia's Parse Website agent reads a
-            public proposal page, then the LLM Inference agent applies the delegate mandate and
-            casts the final MiniGovernor vote through a callback.
+            The upgraded path chains two Somnia agents: Parse Website reads the public proposal
+            page, then LLM Inference applies the delegate mandate and casts the final MiniGovernor
+            vote through a callback. The proof runner fails unless the known source URL produces
+            the expected YES, NO, or ABSTAIN outcome.
           </p>
+          <div className="urlActions">
+            <a href={parseWebsiteDocsUrl} target="_blank" rel="noreferrer">
+              Parse Website docs
+            </a>
+            <a href="https://github.com/dolepee/steward/blob/master/PROOF.md" target="_blank" rel="noreferrer">
+              URL proof guide
+            </a>
+          </div>
         </div>
-        <div className="proposalSources">
-          {proposalSources.map((source) => (
-            <article key={source.url} className={source.outcome.toLowerCase()}>
-              <span>{source.label}</span>
-              <strong>{source.outcome}</strong>
-              <h3>{source.title}</h3>
-              <p>{source.fact}</p>
-              <a href={source.url} target="_blank" rel="noreferrer">
-                Open source URL
-              </a>
-            </article>
-          ))}
+        <div className="urlPipelineBoard">
+          <div className="pipelineSteps">
+            {urlPipelineSteps.map((step) => (
+              <article key={step.tag}>
+                <span>{step.tag}</span>
+                <strong>{step.title}</strong>
+                <p>{step.detail}</p>
+              </article>
+            ))}
+          </div>
+          <div className="urlProofCommand">
+            <span>Strict proof runner</span>
+            <code>{urlPipelineProofCommand}</code>
+            <p>
+              Seeds three proposal URLs, waits for parse and vote callbacks, collects live logs,
+              then verifies URL source, extracted summary, LLM prompt, vote reason, and governor
+              state.
+            </p>
+            <small>Expected: STEWARD_URL_PIPELINE_PROOF_RUN_VALID</small>
+          </div>
+          <div className="proposalSources">
+            {proposalSources.map((source) => (
+              <article key={source.url} className={source.outcome.toLowerCase()}>
+                <span>{source.label}</span>
+                <strong>{source.outcome}</strong>
+                <h3>{source.title}</h3>
+                <p>{source.fact}</p>
+                <a href={source.url} target="_blank" rel="noreferrer">
+                  Open source URL
+                </a>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 

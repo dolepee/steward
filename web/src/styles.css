@@ -547,13 +547,15 @@ main {
 
 .urlPipeline {
   display: grid;
-  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+  grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
   gap: 16px;
   margin-top: 16px;
 }
 
 .urlPipelineLead,
-.proposalSources article {
+.proposalSources article,
+.pipelineSteps article,
+.urlProofCommand {
   border: 1px solid rgba(16, 18, 13, 0.12);
   background: rgba(255, 255, 255, 0.42);
 }
@@ -577,6 +579,120 @@ main {
   color: rgba(16, 18, 13, 0.68);
   font-size: 19px;
   line-height: 1.45;
+}
+
+.urlActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 26px;
+}
+
+.urlActions a {
+  display: inline-flex;
+  padding: 12px 15px;
+  border: 1px solid rgba(16, 18, 13, 0.16);
+  border-radius: 999px;
+  background: #10120d;
+  color: #f5f2e8;
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.urlActions a + a {
+  background: rgba(255, 255, 255, 0.42);
+  color: #10120d;
+}
+
+.urlPipelineBoard {
+  display: grid;
+  gap: 12px;
+}
+
+.pipelineSteps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.pipelineSteps article {
+  min-width: 0;
+  min-height: 210px;
+  padding: 18px;
+  border-radius: 26px;
+}
+
+.pipelineSteps span,
+.urlProofCommand span {
+  display: block;
+  color: rgba(16, 18, 13, 0.5);
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.pipelineSteps strong {
+  display: block;
+  margin-top: 22px;
+  color: #10120d;
+  font-size: 30px;
+  line-height: 0.95;
+  letter-spacing: -0.06em;
+}
+
+.pipelineSteps p {
+  margin: 14px 0 0;
+  color: rgba(16, 18, 13, 0.66);
+  font-size: 14px;
+  line-height: 1.38;
+}
+
+.urlProofCommand {
+  padding: 22px;
+  border-radius: 28px;
+  background:
+    linear-gradient(135deg, rgba(16, 18, 13, 0.94), rgba(31, 48, 27, 0.94)),
+    #10120d;
+  color: #f8f4e6;
+}
+
+.urlProofCommand span {
+  color: rgba(248, 244, 230, 0.62);
+}
+
+.urlProofCommand code {
+  display: block;
+  margin-top: 10px;
+  color: #6bff7d;
+  font-size: clamp(22px, 3vw, 42px);
+  font-weight: 950;
+  letter-spacing: -0.05em;
+  overflow-wrap: anywhere;
+}
+
+.urlProofCommand p {
+  max-width: 760px;
+  margin: 14px 0 0;
+  color: rgba(248, 244, 230, 0.78);
+  font-size: 16px;
+  line-height: 1.42;
+}
+
+.urlProofCommand small {
+  display: inline-flex;
+  margin-top: 16px;
+  padding: 9px 12px;
+  border: 1px solid rgba(107, 255, 125, 0.26);
+  border-radius: 999px;
+  color: #b9ff75;
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
 }
 
 .proposalSources {
@@ -916,6 +1032,7 @@ main {
   .judge,
   .scorecard,
   .useCases,
+  .pipelineSteps,
   .proposalSources,
   .proofCoverage,
   .payloadDeck,

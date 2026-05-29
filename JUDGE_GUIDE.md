@@ -77,5 +77,6 @@ The current live examples finalized with onchain `receipt = 0`, so the proof use
 ## Supporting Docs
 
 - [`PROOF.md`](./PROOF.md): direct proof links and verifier markers.
+- [`PRODUCT.md`](./PRODUCT.md): who uses Steward, why Somnia matters, and the production wedge.
 - [`ARCHITECTURE.md`](./ARCHITECTURE.md): contract and callback flow.
 - [`THREAT_MODEL.md`](./THREAT_MODEL.md): trust assumptions, failure modes, and production hardening path.

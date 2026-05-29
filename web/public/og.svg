@@ -11,30 +11,30 @@
   <text x="88" y="96" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-size="31" fill="#081008">S</text>
   <text x="154" y="98" font-family="Arial Black, Arial, sans-serif" font-size="47" fill="#10120D">Steward</text>
   <text x="820" y="82" font-family="Arial, sans-serif" font-size="19" font-weight="900" letter-spacing="10" fill="#17351D">SOMNIA TESTNET</text>
-  <text x="820" y="114" font-family="Arial, sans-serif" font-size="15" font-weight="900" letter-spacing="7" fill="#5C6656">LLM AGENT RECEIPTS</text>
+  <text x="820" y="114" font-family="Arial, sans-serif" font-size="15" font-weight="900" letter-spacing="7" fill="#5C6656">ONCHAIN CALLBACK VOTES</text>
 
   <text x="72" y="188" font-family="Arial, sans-serif" font-size="18" font-weight="900" letter-spacing="8" fill="#17351D">CONTRACT-INVOKED DAO AGENT</text>
-  <text x="68" y="285" font-family="Arial Black, Arial, sans-serif" font-size="78" letter-spacing="-5" fill="#10120D">One delegate.</text>
-  <text x="68" y="365" font-family="Arial Black, Arial, sans-serif" font-size="78" letter-spacing="-5" fill="#10120D">Three votes.</text>
-  <text x="68" y="445" font-family="Arial Black, Arial, sans-serif" font-size="78" letter-spacing="-5" fill="#10120D">Nine receipts.</text>
+  <text x="68" y="285" font-family="Arial Black, Arial, sans-serif" font-size="72" letter-spacing="-5" fill="#10120D">Governance</text>
+  <text x="68" y="362" font-family="Arial Black, Arial, sans-serif" font-size="72" letter-spacing="-5" fill="#10120D">agents you</text>
+  <text x="68" y="439" font-family="Arial Black, Arial, sans-serif" font-size="72" letter-spacing="-5" fill="#10120D">can audit.</text>
 
   <rect x="72" y="496" width="602" height="76" rx="30" fill="#FFFDF1" stroke="#D6D0BD"/>
-  <text x="104" y="526" font-family="Arial, sans-serif" font-size="15" font-weight="900" letter-spacing="6" fill="#5C6656">JUDGE PROOF COMMAND</text>
-  <text x="104" y="557" font-family="Arial Black, Arial, sans-serif" font-size="26" fill="#10120D">./scripts/verify-steward-proof.sh</text>
+  <text x="104" y="526" font-family="Arial, sans-serif" font-size="15" font-weight="900" letter-spacing="6" fill="#5C6656">ONE DELEGATE · THREE VOTES</text>
+  <text x="104" y="557" font-family="Arial Black, Arial, sans-serif" font-size="26" fill="#10120D">9 Somnia receipts · source verified</text>
 
   <rect x="728" y="156" width="396" height="410" rx="44" fill="#10180F"/>
-  <text x="768" y="215" font-family="Arial, sans-serif" font-size="15" font-weight="900" letter-spacing="6" fill="#C1FF7D">VOTE OUTCOMES</text>
+  <text x="768" y="215" font-family="Arial, sans-serif" font-size="15" font-weight="900" letter-spacing="6" fill="#C1FF7D">AGENT LOOP</text>
 
   <rect x="768" y="246" width="316" height="70" rx="22" fill="#263724" stroke="#4A5B43"/>
-  <text x="798" y="294" font-family="Arial Black, Arial, sans-serif" font-size="48" fill="#66FF75">YES</text>
+  <text x="792" y="291" font-family="Arial Black, Arial, sans-serif" font-size="33" fill="#F8F4E6">CRITERIA</text>
 
   <rect x="768" y="340" width="316" height="70" rx="22" fill="#263724" stroke="#4A5B43"/>
-  <text x="798" y="388" font-family="Arial Black, Arial, sans-serif" font-size="48" fill="#FF6678">NO</text>
+  <text x="792" y="385" font-family="Arial Black, Arial, sans-serif" font-size="33" fill="#66FF75">LLM REQUEST</text>
 
   <rect x="768" y="434" width="316" height="70" rx="22" fill="#263724" stroke="#4A5B43"/>
-  <text x="798" y="482" font-family="Arial Black, Arial, sans-serif" font-size="42" fill="#F0FF77">ABSTAIN</text>
+  <text x="792" y="479" font-family="Arial Black, Arial, sans-serif" font-size="33" fill="#F0FF77">CALLBACK VOTE</text>
 
-  <text x="768" y="538" font-family="Arial, sans-serif" font-size="16" font-weight="900" letter-spacing="5" fill="#F8F4E6">REQUEST -> LLM -> VOTE</text>
+  <text x="768" y="538" font-family="Arial, sans-serif" font-size="16" font-weight="900" letter-spacing="5" fill="#F8F4E6">YES · NO · ABSTAIN</text>
 
   <rect x="728" y="588" width="396" height="54" rx="27" fill="#FFFDF1" stroke="#D6D0BD"/>
   <text x="760" y="622" font-family="Arial, sans-serif" font-size="17" font-weight="900" letter-spacing="4" fill="#17351D">FULL PROOF VALID</text>

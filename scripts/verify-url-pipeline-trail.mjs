@@ -433,18 +433,22 @@ async function verifyProof(proof) {
     }),
     `${proof.label}: missing MiniGovernor URL pipeline vote`,
   );
+  const urlPipelineVoteCast = matchingLog(voteCallbackReceipt, {
+    address: STEWARD_URL_PIPELINE,
+    topic0: topics.urlPipelineVoteCast,
+    topics: [
+      [1, topicOf(proof.jobId)],
+      [2, topicOf(voteRequestId)],
+      [3, topicOf(proof.proposalId)],
+    ],
+    dataWords: [[0, proof.expectedSupport]],
+  });
+  assert(urlPipelineVoteCast, `${proof.label}: missing UrlPipelineVoteCast log`);
+  const voteReasonOffset = toSafeNumber(uintAt(urlPipelineVoteCast.data, 32, "vote reason offset"), "vote reason offset");
+  const voteReason = stringAt(urlPipelineVoteCast.data, voteReasonOffset, "vote reason");
   assert(
-    matchingLog(voteCallbackReceipt, {
-      address: STEWARD_URL_PIPELINE,
-      topic0: topics.urlPipelineVoteCast,
-      topics: [
-        [1, topicOf(proof.jobId)],
-        [2, topicOf(voteRequestId)],
-        [3, topicOf(proof.proposalId)],
-      ],
-      dataWords: [[0, proof.expectedSupport]],
-    }),
-    `${proof.label}: missing UrlPipelineVoteCast log`,
+    voteReason === proof.expectedReason,
+    `${proof.label}: expected vote reason ${proof.expectedReason}, got ${voteReason}`,
   );
   assert(
     matchingLog(voteCallbackReceipt, {

@@ -125,7 +125,21 @@ After the three parse callbacks and three vote callbacks finalize, set
 `URL_PIPELINE_NO_*`, and `URL_PIPELINE_ABSTAIN_*` tx fields. The expected final
 marker becomes `STEWARD_URL_PIPELINE_BATCH_VALID`.
 
-Collector path, to avoid manual explorer copying after the callbacks land:
+One-command proof operator path, after `STEWARD_URL_PIPELINE`, `MINI_GOVERNOR`,
+and a funded `PRIVATE_KEY` are set:
+
+```shell
+./scripts/run-url-pipeline-proof.sh
+```
+
+It seeds the three URL proposal jobs, waits for Somnia's Parse Website and LLM
+Inference callbacks, collects the proof environment, and only runs the verifier
+after the YES, NO, and ABSTAIN cases are all complete. Expected final markers:
+`STEWARD_URL_PIPELINE_BATCH_VALID` and `STEWARD_URL_PIPELINE_PROOF_RUN_VALID`.
+The collector labels known proof jobs by source URL rather than by returned vote,
+so the verifier fails if a seeded URL produces the wrong governance outcome.
+
+Collector-only path, to avoid manual explorer copying after callbacks land:
 
 ```shell
 URL_PIPELINE_FROM_BLOCK=<deploy-or-seed-block> node scripts/collect-url-pipeline-proof-env.mjs

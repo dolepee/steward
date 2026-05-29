@@ -6,6 +6,7 @@ const DEFAULT_SCAN_BLOCKS = BigInt(process.env.URL_PIPELINE_SCAN_BLOCKS ?? "3000
 const CHUNK_SIZE = BigInt(process.env.URL_PIPELINE_LOG_CHUNK ?? "50000");
 
 const topics = {
+  proposalCreated: "0x553be4d74bc63ce955614b229c8eaa4ad7f7f1f38840da15f3604b2fca49c6a8",
   urlPipelineStarted: "0xd11b0e3240e2f36523c5c8676f20396141bc151c99de8b488535cc0270853b2c",
   proposalUrlParsed: "0xa8923f0565fe94d1f312d6753eacc6a31c5fa32564188f1b3de09ff19d9a9c35",
   urlVoteDecisionRequested: "0x627de97236fc74bf4fc5ba37f5745dc2b6d08c19c0ddf2673f656c0da7f24afd",
@@ -17,6 +18,42 @@ const supportLabels = {
   2: "NO",
   3: "ABSTAIN",
 };
+
+const knownProofCases = [
+  {
+    label: "YES",
+    expectedSupport: 1n,
+    expectedReason: "YES",
+    urls: [
+      process.env.URL_PIPELINE_YES_PROPOSAL_URL,
+      process.env.URL_PIPELINE_YES_URL,
+      "https://steward-ashy.vercel.app/proposals/community-grants.html",
+    ],
+  },
+  {
+    label: "NO",
+    expectedSupport: 2n,
+    expectedReason: "NO",
+    urls: [
+      process.env.URL_PIPELINE_NO_PROPOSAL_URL,
+      process.env.URL_PIPELINE_NO_URL,
+      "https://steward-ashy.vercel.app/proposals/team-token-unlock.html",
+    ],
+  },
+  {
+    label: "ABSTAIN",
+    expectedSupport: 3n,
+    expectedReason: "ABSTAIN",
+    urls: [
+      process.env.URL_PIPELINE_ABSTAIN_PROPOSAL_URL,
+      process.env.URL_PIPELINE_ABSTAIN_URL,
+      "https://steward-ashy.vercel.app/proposals/ecosystem-working-group.html",
+    ],
+  },
+].map((proofCase) => ({
+  ...proofCase,
+  urls: proofCase.urls.filter(Boolean),
+}));
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -112,13 +149,17 @@ async function getLogs({ address, topic0, fromBlock, toBlock }) {
   ]);
 }
 
-async function collectTopicLogs(topic0, fromBlock, toBlock) {
+async function collectAddressTopicLogs(address, topic0, fromBlock, toBlock) {
   const logs = [];
   for (let start = fromBlock; start <= toBlock; start += CHUNK_SIZE + 1n) {
     const end = start + CHUNK_SIZE > toBlock ? toBlock : start + CHUNK_SIZE;
-    logs.push(...(await getLogs({ address: STEWARD_URL_PIPELINE, topic0, fromBlock: start, toBlock: end })));
+    logs.push(...(await getLogs({ address, topic0, fromBlock: start, toBlock: end })));
   }
   return logs;
+}
+
+async function collectTopicLogs(topic0, fromBlock, toBlock) {
+  return collectAddressTopicLogs(STEWARD_URL_PIPELINE, topic0, fromBlock, toBlock);
 }
 
 function decodeStarted(log) {
@@ -132,6 +173,14 @@ function decodeStarted(log) {
     proposalUrl: stringAt(log.data, urlOffset, "proposal URL"),
     startTx: log.transactionHash,
     blockNumber: BigInt(log.blockNumber),
+  };
+}
+
+function decodeProposalCreated(log) {
+  return {
+    proposalId: topicNumber(log.topics[1]),
+    proposer: topicAddress(log.topics[2]),
+    txHash: log.transactionHash,
   };
 }
 
@@ -196,8 +245,12 @@ function completeJobs(jobs) {
     .sort((a, b) => Number(a.jobId - b.jobId));
 }
 
-function labelFor(job, usedLabels) {
-  const defaultLabel = supportLabels[Number(job.support)] ?? `JOB_${job.jobId.toString()}`;
+function proofCaseFor(job) {
+  return knownProofCases.find((proofCase) => proofCase.urls.includes(job.proposalUrl));
+}
+
+function uniqueLabel(baseLabel, job, usedLabels) {
+  const defaultLabel = baseLabel ?? supportLabels[Number(job.support)] ?? `JOB_${job.jobId.toString()}`;
   if (!usedLabels.has(defaultLabel)) return defaultLabel;
   return `${defaultLabel}_${job.jobId.toString()}`;
 }
@@ -238,6 +291,16 @@ for (const log of voteCastLogs) {
   mergeJob(jobs, voteCast.jobId, voteCast);
 }
 
+const governors = new Set([...jobs.values()].map((job) => job.governor).filter(Boolean));
+const proposalTxs = new Map();
+for (const governor of governors) {
+  const proposalLogs = await collectAddressTopicLogs(governor, topics.proposalCreated, fromBlock, latestBlock);
+  for (const log of proposalLogs) {
+    const proposal = decodeProposalCreated(log);
+    proposalTxs.set(`${governor}:${proposal.proposalId.toString()}`, proposal.txHash);
+  }
+}
+
 const complete = completeJobs(jobs);
 if (complete.length === 0) {
   console.error(
@@ -249,9 +312,15 @@ if (complete.length === 0) {
 
 const usedLabels = new Set();
 const labeledJobs = complete.map((job) => {
-  const label = labelFor(job, usedLabels);
+  const proofCase = proofCaseFor(job);
+  const label = uniqueLabel(proofCase?.label, job, usedLabels);
   usedLabels.add(label);
-  return { ...job, label };
+  return {
+    ...job,
+    label,
+    expectedSupport: proofCase?.expectedSupport ?? job.support,
+    expectedReason: proofCase?.expectedReason ?? job.reason,
+  };
 });
 
 const criteriaText = process.env.URL_PIPELINE_CRITERIA ?? process.env.CRITERIA_TEXT;
@@ -276,11 +345,16 @@ for (const job of labeledJobs) {
   const prefix = `URL_PIPELINE_${job.label}`;
   console.log(`export ${prefix}_JOB_ID=${job.jobId}`);
   console.log(`export ${prefix}_PROPOSAL_ID=${job.proposalId}`);
-  console.log(`export ${prefix}_EXPECTED_SUPPORT=${job.support}`);
-  console.log(`export ${prefix}_EXPECTED_REASON=${shellQuote(job.reason)}`);
+  console.log(`export ${prefix}_EXPECTED_SUPPORT=${job.expectedSupport}`);
+  console.log(`export ${prefix}_EXPECTED_REASON=${shellQuote(job.expectedReason)}`);
   console.log(`export ${prefix}_PROPOSAL_URL=${shellQuote(job.proposalUrl)}`);
   console.log(`export ${prefix}_SUMMARY=${shellQuote(job.summary)}`);
-  console.log(`export ${prefix}_PROPOSAL_TX=${job.startTx}`);
+  const proposalTx = proposalTxs.get(`${job.governor}:${job.proposalId.toString()}`);
+  if (proposalTx) {
+    console.log(`export ${prefix}_PROPOSAL_TX=${proposalTx}`);
+  } else {
+    console.log(`# export ${prefix}_PROPOSAL_TX= # optional: matching ProposalCreated tx not found in scan window`);
+  }
   console.log(`export ${prefix}_START_TX=${job.startTx}`);
   console.log(`export ${prefix}_PARSE_CALLBACK_TX=${job.parseCallbackTx}`);
   console.log(`export ${prefix}_VOTE_CALLBACK_TX=${job.voteCallbackTx}`);

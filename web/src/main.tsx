@@ -271,6 +271,7 @@ function App() {
     <main>
       <nav className="nav">
         <div className="mark">S</div>
+        <strong className="brand">Steward</strong>
         <a href="#proof">Proof</a>
         <a href="#loop">Loop</a>
         <a href="https://github.com/dolepee/steward" target="_blank" rel="noreferrer">
@@ -286,6 +287,7 @@ function App() {
             Steward lets a user sign voting criteria once. A Somnia Agent reads the proposal,
             reasons against the mandate, and casts a DAO vote onchain through an async callback.
           </p>
+          <p className="proofLine">One delegate · three votes · nine agent receipts</p>
           <div className="actions">
             <a href={explorerTx(primaryProof.requestTx)} target="_blank" rel="noreferrer">
               Open Somnia agent request

@@ -52,6 +52,10 @@ function receiptContent(receipt) {
   return receipt?.agentReceipt?.steps?.find((step) => step.name === "llm_response")?.content;
 }
 
+function receiptStepNames(receipt) {
+  return new Set((receipt?.agentReceipt?.steps ?? []).map((step) => step.name));
+}
+
 for (const proof of cases) {
   const body = await fetchJsonWithRetry(receiptUrl(proof.requestId), proof.label);
   assert(body.requestId === proof.requestId, `${proof.label}: request id mismatch`);
@@ -71,10 +75,33 @@ for (const proof of cases) {
     assert(receipt.agentId === LLM_AGENT_ID, `${proof.label}: agent id mismatch`);
     assert(receiptContent(receipt) === proof.expected, `${proof.label}: unexpected LLM response`);
     assert(receipt.agentReceipt?.llmUsage?.requests === 1, `${proof.label}: missing LLM usage`);
+    assert(receipt.agentReceipt?.llmUsage?.totalTokens > 0, `${proof.label}: missing token usage`);
+    assert(receipt.elapsedMs > 0, `${proof.label}: missing receipt timing`);
+
+    const stepNames = receiptStepNames(receipt);
+    for (const requiredStep of [
+      "handler_started",
+      "request_decoded",
+      "llm_response",
+      "response_encoded",
+      "handler_completed",
+    ]) {
+      assert(stepNames.has(requiredStep), `${proof.label}: missing receipt step ${requiredStep}`);
+    }
   }
 
+  const runnerAddresses = new Set(
+    successful
+      .map((receipt) => receipt.agentRunnerAddress?.toLowerCase())
+      .filter((address) => typeof address === "string" && address.length > 0),
+  );
+  assert(runnerAddresses.size >= 2, `${proof.label}: expected at least two runner addresses`);
+
+  const maxElapsedMs = Math.max(...successful.map((receipt) => receipt.elapsedMs));
+  const tokenUsage = successful[0].agentReceipt.llmUsage.totalTokens;
+
   console.log(
-    `${proof.label}: request ${proof.requestId}, ${successful.length} successful receipts, response ${proof.expected}`,
+    `${proof.label}: request ${proof.requestId}, ${successful.length} successful receipts, ${runnerAddresses.size} runner addresses, max ${maxElapsedMs}ms, ${tokenUsage} tokens, response ${proof.expected}`,
   );
 }
 

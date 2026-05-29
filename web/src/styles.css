@@ -258,7 +258,8 @@ main {
 .criteria,
 .decision,
 .voteCard,
-.decodedPayloads {
+.decodedPayloads,
+.receiptQuorum {
   padding: 24px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 28px;
@@ -267,7 +268,8 @@ main {
 
 .criteria,
 .decision,
-.decodedPayloads {
+.decodedPayloads,
+.receiptQuorum {
   margin-top: 16px;
 }
 
@@ -307,6 +309,53 @@ main {
   color: #f0ff77;
   font-family: inherit;
   font-weight: 950;
+}
+
+.receiptQuorum > p {
+  margin: 12px 0 0;
+  color: rgba(248, 244, 230, 0.78);
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+.quorumDeck {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.quorumDeck article {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid rgba(107, 255, 125, 0.18);
+  border-radius: 22px;
+  background: rgba(107, 255, 125, 0.08);
+}
+
+.quorumDeck strong {
+  display: block;
+  color: #6bff7d;
+  font-size: 28px;
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+}
+
+.quorumDeck small {
+  display: block;
+  margin-top: 10px;
+  color: rgba(248, 244, 230, 0.54);
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.quorumDeck p {
+  margin: 12px 0 0;
+  color: rgba(248, 244, 230, 0.82);
+  font-size: 14px;
+  line-height: 1.35;
 }
 
 .payloadDeck {
@@ -764,6 +813,7 @@ main {
   .useCases,
   .proofCoverage,
   .payloadDeck,
+  .quorumDeck,
   .agentRail {
     grid-template-columns: 1fr;
   }

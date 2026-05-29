@@ -149,6 +149,11 @@ type ReceiptSummary = {
   successful: number;
   total: number;
   response: string;
+  runnerCount: number;
+  maxElapsedMs: number;
+  totalTokens: number;
+  threshold: number;
+  subcommitteeSize: number;
 };
 
 type ReceiptState = {
@@ -158,10 +163,19 @@ type ReceiptState = {
 };
 
 type AgentReceiptResponse = {
+  requestDetails?: {
+    threshold?: number;
+    subcommitteeSize?: number;
+  };
   receipts?: Array<{
     status?: string;
     agentId?: string;
+    agentRunnerAddress?: string;
+    elapsedMs?: number;
     agentReceipt?: {
+      llmUsage?: {
+        totalTokens?: number;
+      };
       steps?: Array<{
         name?: string;
         content?: string;
@@ -215,6 +229,22 @@ function linkedProofs() {
 }
 
 function linkedReceiptSummaries() {
+  const runnerCounts: Record<string, number> = {
+    "YES proof": 3,
+    "NO proof": 3,
+    "ABSTAIN proof": 2,
+  };
+  const maxElapsedMs: Record<string, number> = {
+    "YES proof": 254,
+    "NO proof": 247,
+    "ABSTAIN proof": 233,
+  };
+  const totalTokens: Record<string, number> = {
+    "YES proof": 136,
+    "NO proof": 131,
+    "ABSTAIN proof": 135,
+  };
+
   return Object.fromEntries(
     proofCases.map((proof) => [
       proof.label,
@@ -222,6 +252,11 @@ function linkedReceiptSummaries() {
         successful: 3,
         total: 3,
         response: proof.expectedReason,
+        runnerCount: runnerCounts[proof.label] ?? 2,
+        maxElapsedMs: maxElapsedMs[proof.label] ?? 0,
+        totalTokens: totalTokens[proof.label] ?? 0,
+        threshold: 2,
+        subcommitteeSize: 3,
       },
     ]),
   );
@@ -325,6 +360,18 @@ function App() {
           const responseValue =
             successful[0]?.agentReceipt?.steps?.find((step) => step.name === "llm_response")?.content ??
             proof.expectedReason;
+          const runnerCount = new Set(
+            successful
+              .map((receipt) => receipt.agentRunnerAddress?.toLowerCase())
+              .filter((address): address is string => Boolean(address)),
+          ).size;
+          const maxElapsedMs = Math.max(
+            0,
+            ...successful.map((receipt) => (typeof receipt.elapsedMs === "number" ? receipt.elapsedMs : 0)),
+          );
+          const totalTokens =
+            successful.find((receipt) => receipt.agentReceipt?.llmUsage?.totalTokens)?.agentReceipt?.llmUsage
+              ?.totalTokens ?? 0;
 
           return [
             proof.label,
@@ -332,6 +379,11 @@ function App() {
               successful: successful.length,
               total: receipts.length,
               response: responseValue,
+              runnerCount,
+              maxElapsedMs,
+              totalTokens,
+              threshold: body.requestDetails?.threshold ?? 2,
+              subcommitteeSize: body.requestDetails?.subcommitteeSize ?? 3,
             },
           ] as const;
         }),
@@ -400,7 +452,7 @@ function App() {
             Steward lets a user sign voting criteria once. A Somnia Agent reads the proposal,
             reasons against the mandate, and casts a DAO vote onchain through an async callback.
           </p>
-          <p className="proofLine">One delegate · three votes · nine receipts · decoded LLM payloads</p>
+          <p className="proofLine">One delegate · three votes · nine receipts · runner quorum · decoded LLM payloads</p>
           <div className="agentRail" aria-label="Steward agent governance loop">
             <div>
               <span>1 · mandate</span>
@@ -455,6 +507,9 @@ function App() {
                   <small>
                     Agent receipts {receiptSummary.successful}/{receiptSummary.total} · response {receiptSummary.response}
                   </small>
+                  <small>
+                    Quorum {receiptSummary.threshold}/{receiptSummary.subcommitteeSize} · {receiptSummary.runnerCount} runners
+                  </small>
                   <div className="txLinks">
                     <a href={explorerTx(proof.proposalTx)} target="_blank" rel="noreferrer">
                       Proposal
@@ -476,6 +531,28 @@ function App() {
           <div className="criteria">
             <span>Delegated criteria</span>
             <p>{primaryProof.criteria}</p>
+          </div>
+          <div className="receiptQuorum">
+            <span>Validator receipt quorum</span>
+            <p>
+              Somnia's receipt service reports a threshold-{receiptSummaries[primaryProof.label].threshold} subcommittee
+              for each request, plus runner evidence, timing, token usage, and decoded LLM steps.
+            </p>
+            <div className="quorumDeck">
+              {proofCases.map((proof) => {
+                const summary = receiptSummaries[proof.label];
+                return (
+                  <article key={`${proof.label}-quorum`}>
+                    <strong>{proof.expectedReason}</strong>
+                    <small>Request #{proof.requestId.toString()}</small>
+                    <p>
+                      {summary.runnerCount} runners · {summary.successful}/{summary.subcommitteeSize} receipts · max{" "}
+                      {summary.maxElapsedMs}ms · {summary.totalTokens} tokens
+                    </p>
+                  </article>
+                );
+              })}
+            </div>
           </div>
           <div className="decodedPayloads">
             <span>Decoded request payloads</span>
@@ -632,7 +709,7 @@ function App() {
             <small>Expected: STEWARD_FULL_PROOF_VALID</small>
             <div className="proofCoverage" aria-label="Verifier coverage">
               <span>Live state</span>
-              <span>Agent receipts</span>
+              <span>Runner quorum</span>
               <span>Decoded prompts</span>
               <span>Tx event trail</span>
               <span>Verified source</span>

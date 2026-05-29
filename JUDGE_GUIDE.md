@@ -1,13 +1,13 @@
 # Steward Judge Guide
 
-Steward is a verifiable DAO governance proxy on Somnia. A user stores voting criteria, Steward asks Somnia's live LLM Inference agent to evaluate a proposal, and the SomniaAgents callback casts the final YES, NO, or ABSTAIN vote onchain. The proof command also decodes the live LLM request payloads, so judges can verify what the agent was asked before it voted.
+Steward is a verifiable DAO governance proxy on Somnia. A user stores voting criteria, Steward asks Somnia's live LLM Inference agent to evaluate a proposal, and the SomniaAgents callback casts the final YES, NO, or ABSTAIN vote onchain. The proof command also decodes the live LLM request payloads and checks validator receipt quorum, so judges can verify what the agent was asked before it voted and how the receipt trail was produced.
 
 ## First 60 Seconds
 
 1. Open `https://steward-ashy.vercel.app`.
 2. Check the three live proof cards: `YES`, `NO`, and `ABSTAIN`.
 3. For each card, inspect the proposal transaction, Somnia agent request, public receipt JSON, and callback vote transaction.
-4. Confirm the proof strip shows `9/9` validator receipts, decoded prompt proof, and both verified project contracts.
+4. Confirm the proof strip shows `9/9` validator receipts, decoded prompt proof, runner/quorum evidence, and both verified project contracts.
 5. Run `./scripts/verify-steward-proof.sh` from the repo. The final marker should be `STEWARD_FULL_PROOF_VALID`.
 
 ## Why It Matters
@@ -18,7 +18,7 @@ DAO delegation usually ends at a static delegate address or an offchain voting b
 - `requestVote` invokes SomniaAgents with proposal text and the user's stored criteria.
 - The verifier decodes each `inferString` payload and checks the exact criteria, proposal text, system prompt, and allowed outputs.
 - The contract only casts after SomniaAgents calls back with a valid `YES`, `NO`, or `ABSTAIN`.
-- The final governor vote and the agent receipt trail are both publicly reproducible.
+- The final governor vote and the agent receipt trail, including runner quorum, timing, and token usage, are publicly reproducible.
 
 ## Live Proof Anchors
 
@@ -55,7 +55,7 @@ STEWARD_SOURCE_VERIFICATION_VALID
 STEWARD_FULL_PROOF_VALID
 ```
 
-The command checks live onchain state, Somnia's public agent receipt service, transaction-level event logs for the proof txs, decoded `inferString` request payloads, and explorer source verification for `Steward` and `MiniGovernor`.
+The command checks live onchain state, Somnia's public agent receipt service, validator receipt steps, runner quorum, token usage, transaction-level event logs for the proof txs, decoded `inferString` request payloads, and explorer source verification for `Steward` and `MiniGovernor`.
 
 ## What Is Load-Bearing
 
@@ -74,7 +74,7 @@ The callback path rejects:
 
 This is a hackathon MVP that proves the autonomous governance loop on Somnia Testnet. It is not claiming production DAO coverage, Snapshot/Tally integration, delegate marketplaces, slashing, or cross-chain governance.
 
-The current live examples finalized with onchain `receipt = 0`, so the proof uses Somnia's public receipt service plus the request and callback transaction logs. The repo does not claim a nonzero onchain receipt id for these three examples.
+The current live examples finalized with onchain `receipt = 0`, so the proof uses Somnia's public receipt service plus the request and callback transaction logs. The repo does not claim a nonzero onchain receipt id for these three examples. One public receipt omits the third runner address, so the project claims the stricter proof that matters here: threshold-2-of-3 receipt metadata with at least two runner addresses per request.
 
 ## Supporting Docs
 

@@ -36,7 +36,7 @@ Steward fails closed. If SomniaAgents returns a failed status, returns no succes
 - Three live Somnia agent requests: YES, NO, and ABSTAIN.
 - Three async callbacks from SomniaAgents into Steward.
 - Three MiniGovernor votes cast by Steward.
-- Nine successful validator receipts from Somnia's public receipt service.
+- Nine successful validator receipts from Somnia's public receipt service, with threshold-2-of-3 metadata, at least two runner addresses per request, timing, token usage, and decoded LLM steps.
 - Source-verified `Steward` and `MiniGovernor` contracts on Somnia Testnet.
 - Reproducible checks through `./scripts/verify-steward-proof.sh`.
 

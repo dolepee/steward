@@ -1,6 +1,6 @@
 # Steward Proof Guide
 
-Steward's strongest claim is simple: one delegated voting mandate produced three autonomous onchain votes through Somnia's LLM agent path, with the live LLM request payloads decoded and verified.
+Steward's strongest claim is simple: one delegated voting mandate produced three autonomous onchain votes through Somnia's LLM agent path, with the live LLM request payloads and validator receipt quorum decoded and verified.
 
 ## What This Proves
 
@@ -9,7 +9,7 @@ Steward's strongest claim is simple: one delegated voting mandate produced three
 | Contract-invoked agent call | Each `requestVote` transaction calls SomniaAgents with the live LLM Inference agent ID. |
 | Agent-first governance action | Steward does not cast a vote until SomniaAgents calls back with `YES`, `NO`, or `ABSTAIN`. |
 | Async callback execution | Each final vote is written by `Steward.handleResponse` after the SomniaAgents callback. |
-| Public agent receipt trail | Somnia's receipt service returns validator runner receipts for each request. |
+| Public agent receipt trail | Somnia's receipt service returns threshold-2-of-3 request metadata, validator runner receipts, timing, token usage, and decoded LLM steps for each request. |
 | Transaction-level event trail | The verifier checks `ProposalCreated`, `RequestCreated`, `VoteRequested`, `RequestFinalized`, `VoteCast`, and `StewardVoteCast` logs for all three outcomes. It also decodes each `RequestCreated` payload and confirms the `inferString` call used the expected criteria, proposal text, system prompt, and allowed outputs. |
 | Verifiable final state | `MiniGovernor.votes(proposalId, Steward)` matches the agent-returned support value. |
 
@@ -41,6 +41,16 @@ STEWARD_FULL_PROOF_VALID
 | `YES` | `1698384` | [`tx`](https://shannon-explorer.somnia.network/tx/0x63c34767e59cc6988fd2ab5ecef9d1089e9f4445e1b1e18a9b490b0d0efc77ef) | [`receipt`](https://receipts.testnet.agents.somnia.host/agent-receipts?requestId=1698384&contractAddress=0x037Bb9C718F3f7fe5eCBDB0b600D607b52706776&type=minimal) | [`tx`](https://shannon-explorer.somnia.network/tx/0xb74e25845472a2f591aa91eefe84e5e2828b41ac11acc78b41ceb1015500c52b) |
 | `NO` | `1738101` | [`tx`](https://shannon-explorer.somnia.network/tx/0x6d32b090d9ebacc6dd1dd46c01e0036bff3e684df4a28d3817823cd3747959fc) | [`receipt`](https://receipts.testnet.agents.somnia.host/agent-receipts?requestId=1738101&contractAddress=0x037Bb9C718F3f7fe5eCBDB0b600D607b52706776&type=minimal) | [`tx`](https://shannon-explorer.somnia.network/tx/0xe14303e64f6a5db3d74919c94f42d3c14df3183e225f9996cc29cba86cc66dc3) |
 | `ABSTAIN` | `1738108` | [`tx`](https://shannon-explorer.somnia.network/tx/0xa01f30ee06dbfa66b4a60414469d4f0e6406440f11e625a1197de88d797e851d) | [`receipt`](https://receipts.testnet.agents.somnia.host/agent-receipts?requestId=1738108&contractAddress=0x037Bb9C718F3f7fe5eCBDB0b600D607b52706776&type=minimal) | [`tx`](https://shannon-explorer.somnia.network/tx/0xa157564585f473503627c801d6fb5992900dab3d5efcb31d4f15383c16487603) |
+
+## Receipt Quorum Details
+
+| Outcome | Successful receipts | Runner addresses | Max elapsed | LLM tokens |
+| --- | --- | --- | --- | --- |
+| `YES` | `3/3` | `3` | `254ms` | `136` |
+| `NO` | `3/3` | `3` | `247ms` | `131` |
+| `ABSTAIN` | `3/3` | `2` | `233ms` | `135` |
+
+The verifier intentionally requires at least two runner addresses per request, not three, because the public ABSTAIN receipt currently contains three successful receipts but omits one `agentRunnerAddress`. That still matches the live threshold-2-of-3 subcommittee model.
 
 ## Contracts
 

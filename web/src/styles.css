@@ -52,6 +52,7 @@ main {
 .nav {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 24px;
   padding: 14px 18px;
   border: 1px solid rgba(16, 18, 13, 0.12);
@@ -145,6 +146,40 @@ main {
   font-weight: 950;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+}
+
+.agentRail {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  max-width: 680px;
+  margin-top: 18px;
+}
+
+.agentRail div {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid rgba(16, 18, 13, 0.12);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.42);
+}
+
+.agentRail span {
+  display: block;
+  color: rgba(16, 18, 13, 0.48);
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.agentRail strong {
+  display: block;
+  margin-top: 8px;
+  color: #10120d;
+  font-size: 15px;
+  line-height: 1.16;
+  letter-spacing: -0.03em;
 }
 
 .actions {
@@ -540,12 +575,17 @@ main {
   .grid,
   .live,
   .judge,
-  .scorecard {
+  .scorecard,
+  .agentRail {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 560px) {
+  .nav a:first-of-type {
+    margin-left: 0;
+  }
+
   .voteCard > div:first-child,
   .receiptTop {
     display: block;

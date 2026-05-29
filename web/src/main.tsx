@@ -94,6 +94,7 @@ const llmAgentId = "12847293847561029384";
 const llmAgentUrl = `https://agents.testnet.somnia.network/agent/${llmAgentId}`;
 const agentMonitoringUrl = "https://agents.testnet.somnia.network/monitoring";
 const receiptServiceBase = "https://receipts.testnet.agents.somnia.host/agent-receipts";
+const judgeGuideUrl = "https://github.com/dolepee/steward/blob/master/JUDGE_GUIDE.md";
 
 const stewardAbi = [
   {
@@ -378,6 +379,9 @@ function App() {
         <strong className="brand">Steward</strong>
         <a href="#proof">Proof</a>
         <a href="#loop">Loop</a>
+        <a href={judgeGuideUrl} target="_blank" rel="noreferrer">
+          Guide
+        </a>
         <a href="https://github.com/dolepee/steward" target="_blank" rel="noreferrer">
           GitHub
         </a>
@@ -392,9 +396,26 @@ function App() {
             reasons against the mandate, and casts a DAO vote onchain through an async callback.
           </p>
           <p className="proofLine">One delegate · three votes · nine agent receipts</p>
+          <div className="agentRail" aria-label="Steward agent governance loop">
+            <div>
+              <span>1 · mandate</span>
+              <strong>Criteria stored onchain</strong>
+            </div>
+            <div>
+              <span>2 · agent</span>
+              <strong>LLM request #{primaryProof.requestId.toString()}</strong>
+            </div>
+            <div>
+              <span>3 · callback</span>
+              <strong>Vote cast by Steward</strong>
+            </div>
+          </div>
           <div className="actions">
             <a href={explorerTx(primaryProof.requestTx)} target="_blank" rel="noreferrer">
               Open Somnia agent request
+            </a>
+            <a className="secondary" href={judgeGuideUrl} target="_blank" rel="noreferrer">
+              Read judge guide
             </a>
             <a className="secondary" href={llmAgentUrl} target="_blank" rel="noreferrer">
               Open LLM agent

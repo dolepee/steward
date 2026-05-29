@@ -545,7 +545,19 @@ function App() {
       <section className="live">
         <div>
           <span>Steward</span>
-          <strong>{shortAddress(proofAddresses.steward)}</strong>
+          <strong>
+            <a href={explorerAddress(proofAddresses.steward)} target="_blank" rel="noreferrer">
+              {shortAddress(proofAddresses.steward)}
+            </a>
+          </strong>
+        </div>
+        <div>
+          <span>MiniGovernor</span>
+          <strong>
+            <a href={explorerAddress(proofAddresses.governor)} target="_blank" rel="noreferrer">
+              {shortAddress(proofAddresses.governor)}
+            </a>
+          </strong>
         </div>
         <div>
           <span>LLM agent</span>
@@ -568,8 +580,16 @@ function App() {
           <strong>{live.loading ? "..." : allCast ? "1 / 2 / 3" : "Check"}</strong>
         </div>
         <div>
-          <span>Source</span>
-          <strong>Verified x2</strong>
+          <span>Verified source</span>
+          <strong>
+            <a href={explorerAddress(proofAddresses.steward)} target="_blank" rel="noreferrer">
+              Steward
+            </a>{" "}
+            /{" "}
+            <a href={explorerAddress(proofAddresses.governor)} target="_blank" rel="noreferrer">
+              Governor
+            </a>
+          </strong>
         </div>
         <div>
           <span>Agent receipts</span>

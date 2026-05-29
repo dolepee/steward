@@ -78,7 +78,7 @@ npm run build --prefix web
 
 ## Frontend
 
-The web app is a single proof page in `web/`. It reads live `Steward.voteRequests(...)` and `MiniGovernor.votes(...)` state for the YES, NO, and ABSTAIN examples directly from Somnia Testnet, and reads Somnia's public receipt service to display the 3/3 validator receipt count for each agent decision.
+The web app is a single proof page in `web/`. It reads live `Steward.voteRequests(...)` and `MiniGovernor.votes(...)` state for the YES, NO, and ABSTAIN examples directly from Somnia Testnet, reads Somnia's public receipt service to display the 3/3 validator receipt count for each agent decision, and links both source-verified contracts from the proof strip.
 
 Live frontend: `https://steward-ashy.vercel.app`
 

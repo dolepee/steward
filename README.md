@@ -10,6 +10,15 @@ Steward depends on Somnia's agent primitive as the load-bearing action path. The
 
 Removing Somnia removes the product: there is no auditable agent request, no validator execution receipt, and no trust-minimized callback that binds the reasoning result to the final governance state. The value is not just automation; it is an onchain vote whose agent decision trail can be inspected after the fact.
 
+## Judge-Facing Scorecard
+
+| Criterion | Steward proof |
+| --- | --- |
+| Functionality | Live contracts on Somnia Testnet, three proposals, three Somnia agent requests, three callback-cast votes, and reproducible verifier scripts. |
+| Agent-first design | The contract invokes SomniaAgents and waits for the LLM agent's YES, NO, or ABSTAIN response before changing governance state. |
+| Innovation and technical creativity | DAO delegation becomes auditable agent reasoning. The receipt is part of the value, not an afterthought. |
+| Autonomous performance | After `requestVote`, the LLM subcommittee response and async callback drive the final vote without a human reviewer approving the decision. |
+
 ## Live Somnia Testnet Constants
 
 | Surface | Value |

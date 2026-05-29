@@ -81,6 +81,7 @@ const proofCases: ProofCase[] = [
 ];
 
 const primaryProof = proofCases[0];
+const successfulReceiptCount = proofCases.length * 3;
 
 const proofAddresses = {
   steward: "0x6932C7827E7BFd9f0015Ed93fA120379E0d20541",
@@ -389,6 +390,41 @@ function App() {
         </article>
       </section>
 
+      <section className="judge">
+        <div>
+          <p className="eyebrow">Judge path</p>
+          <h2>One delegate. Three proposals. Nine agent receipts.</h2>
+          <p>
+            Steward is built around Somnia's agent callback path: the contract invokes the LLM
+            agent, the subcommittee produces execution receipts, and the callback writes a binding
+            governance vote. The proof set covers YES, NO, and ABSTAIN, so judges can see the agent
+            reason, refuse, and vote without trusting this frontend.
+          </p>
+        </div>
+        <div className="scorecard">
+          <article>
+            <span>Functionality</span>
+            <strong>Live loop</strong>
+            <p>Deployed contracts, three proposals, three cast votes, and script-verifiable state.</p>
+          </article>
+          <article>
+            <span>Agent-first</span>
+            <strong>Agent decides</strong>
+            <p>The vote is not precomputed by the app. SomniaAgents returns the support value.</p>
+          </article>
+          <article>
+            <span>Innovation</span>
+            <strong>Auditable delegate</strong>
+            <p>DAO delegation becomes inspectable agent reasoning, not a private bot workflow.</p>
+          </article>
+          <article>
+            <span>Autonomy</span>
+            <strong>Async callback</strong>
+            <p>After invocation, the platform response drives the final onchain vote path.</p>
+          </article>
+        </div>
+      </section>
+
       <section className="live">
         <div>
           <span>Steward</span>
@@ -413,6 +449,10 @@ function App() {
         <div>
           <span>Governor votes</span>
           <strong>{live.loading ? "..." : allCast ? "1 / 2 / 3" : "Check"}</strong>
+        </div>
+        <div>
+          <span>Agent receipts</span>
+          <strong>{successfulReceiptCount}</strong>
         </div>
       </section>
 

@@ -21,11 +21,30 @@ function assert(condition, message) {
   }
 }
 
-for (const contract of contracts) {
-  const response = await fetch(`${EXPLORER_API}/${contract.address}`);
-  assert(response.ok, `${contract.label}: explorer API returned ${response.status}`);
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
-  const body = await response.json();
+async function fetchJsonWithRetry(url, label, attempts = 4) {
+  let lastError;
+
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    try {
+      const response = await fetch(url, { signal: AbortSignal.timeout(20_000) });
+      assert(response.ok, `${label}: explorer API returned ${response.status}`);
+      return response.json();
+    } catch (error) {
+      lastError = error;
+      if (attempt === attempts) break;
+      await sleep(1_500 * attempt);
+    }
+  }
+
+  throw lastError;
+}
+
+for (const contract of contracts) {
+  const body = await fetchJsonWithRetry(`${EXPLORER_API}/${contract.address}`, contract.label);
   assert(body.hash?.toLowerCase() === contract.address.toLowerCase(), `${contract.label}: address mismatch`);
   assert(body.is_contract === true, `${contract.label}: explorer does not mark address as a contract`);
   assert(body.is_verified === true, `${contract.label}: source is not verified`);

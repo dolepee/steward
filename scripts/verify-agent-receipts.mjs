@@ -26,15 +26,34 @@ function assert(condition, message) {
   }
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function fetchJsonWithRetry(url, label, attempts = 4) {
+  let lastError;
+
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    try {
+      const response = await fetch(url, { signal: AbortSignal.timeout(20_000) });
+      assert(response.ok, `${label}: receipt service returned ${response.status}`);
+      return response.json();
+    } catch (error) {
+      lastError = error;
+      if (attempt === attempts) break;
+      await sleep(1_500 * attempt);
+    }
+  }
+
+  throw lastError;
+}
+
 function receiptContent(receipt) {
   return receipt?.agentReceipt?.steps?.find((step) => step.name === "llm_response")?.content;
 }
 
 for (const proof of cases) {
-  const response = await fetch(receiptUrl(proof.requestId));
-  assert(response.ok, `${proof.label}: receipt service returned ${response.status}`);
-
-  const body = await response.json();
+  const body = await fetchJsonWithRetry(receiptUrl(proof.requestId), proof.label);
   assert(body.requestId === proof.requestId, `${proof.label}: request id mismatch`);
   assert(body.contractAddress?.toLowerCase() === SOMNIA_AGENTS, `${proof.label}: contract mismatch`);
   assert(body.requestDetails?.callbackAddress?.toLowerCase() === STEWARD, `${proof.label}: callback address mismatch`);

@@ -3,6 +3,7 @@
 One delegate. Three votes. Nine Somnia agent receipts.
 
 [![CI](https://github.com/dolepee/steward/actions/workflows/test.yml/badge.svg)](https://github.com/dolepee/steward/actions/workflows/test.yml)
+[![Live Proof](https://github.com/dolepee/steward/actions/workflows/live-proof.yml/badge.svg)](https://github.com/dolepee/steward/actions/workflows/live-proof.yml)
 [![Live app](https://img.shields.io/badge/live-steward--ashy.vercel.app-6bff7d)](https://steward-ashy.vercel.app)
 [![Somnia Testnet](https://img.shields.io/badge/Somnia-Testnet%2050312-10120d)](https://shannon-explorer.somnia.network/address/0x6932C7827E7BFd9f0015Ed93fA120379E0d20541)
 

@@ -460,6 +460,10 @@ function App() {
           <strong>{live.loading ? "..." : allCast ? "1 / 2 / 3" : "Check"}</strong>
         </div>
         <div>
+          <span>Source</span>
+          <strong>Verified x2</strong>
+        </div>
+        <div>
           <span>Agent receipts</span>
           <strong>{successfulReceiptCount}</strong>
         </div>

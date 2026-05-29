@@ -4,6 +4,12 @@ Verifiable DAO governance proxy on Somnia. A user delegates voting criteria, a p
 
 The current MVP proves the full loop: `Steward` invokes the live Somnia LLM Inference agent, receives the async callback, casts a MiniGovernor vote, and stores the result onchain.
 
+## Why This Is Somnia-Native
+
+Steward depends on Somnia's agent primitive as the load-bearing action path. The contract does not call an offchain bot controlled by the app. It calls SomniaAgents, passes proposal text and delegation criteria into the live LLM Inference agent, then waits for the platform callback before casting the vote.
+
+Removing Somnia removes the product: there is no auditable agent request, no validator execution receipt, and no trust-minimized callback that binds the reasoning result to the final governance state. The value is not just automation; it is an onchain vote whose agent decision trail can be inspected after the fact.
+
 ## Live Somnia Testnet Constants
 
 | Surface | Value |

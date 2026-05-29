@@ -11,6 +11,8 @@ Steward is a verifiable DAO governance proxy on Somnia. A user delegates voting 
 
 The strongest live proof is the council path: `StewardCouncilPipeline` asks Somnia's `LLM Parse Website` agent to read public proposal pages, sends the parsed facts to three independent LLM reviewers (`budget`, `risk`, and `participation`), and casts the majority outcome into `MiniGovernor`. The deployed council now proves four live URL-to-vote runs spanning all three outcomes: YES for grants/security grants, NO for team-token unlocks, and ABSTAIN for unclear exploratory work.
 
+Execution is permissionless on purpose. A delegation owner controls the mandate text, governor, expiry, and revocation; any executor can pay the Somnia request deposit to trigger evaluation for an active delegation or council job. The executor cannot replace the stored criteria, authorized callback sender, agent ids, or final governor target. The model is closer to permissionless settlement than a private bot.
+
 The base `Steward` proof remains as a lower-level receipt trail: it invokes the live Somnia LLM Inference agent, receives the async callback, casts a MiniGovernor vote, and stores the result onchain. The verifier decodes each live `inferString` request payload and checks the exact proposal text, voting criteria, system prompt, allowed vote outputs, validator receipt steps, runner quorum, timing, and token usage. The base proof contracts and live council pipeline are source-verified on the Somnia explorer.
 
 ## 30-Second Judge Path
@@ -49,7 +51,7 @@ Removing Somnia removes the product: there is no auditable agent request, no val
 | AgentRegistry | `0x08D1Fc808f1983d2Ea7B63a28ECD4d8C885Cd02A` |
 | LLM Inference agent ID | [`12847293847561029384`](https://agents.testnet.somnia.network/agent/12847293847561029384) |
 | LLM Parse Website agent ID | [`12875401142070969085`](https://agents.testnet.somnia.network/agent/12875401142070969085) |
-| Practical LLM request value | `0.24 STT` |
+| Practical LLM request value | Current deployment used `0.24 STT`; current source quotes `SomniaAgents.getRequestDeposit() + 0.21 STT` per reviewer. |
 
 ## MVP Build Order
 

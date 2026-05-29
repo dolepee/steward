@@ -19,7 +19,7 @@ contract StewardCouncilPipeline {
     uint256 public constant SUBCOMMITTEE_SIZE = 3;
     uint256 public constant REVIEWER_COUNT = 3;
     uint256 public constant PARSE_WEBSITE_COST_PER_AGENT = 0.1 ether;
-    uint256 public constant LLM_INFERENCE_DEPOSIT = 0.24 ether;
+    uint256 public constant LLM_INFERENCE_AGENT_BUDGET = 0.21 ether;
 
     enum CouncilState {
         None,
@@ -46,6 +46,7 @@ contract StewardCouncilPipeline {
         string extractedSummary;
         string finalReason;
         uint256 parseReceipt;
+        uint256 reviewerRequestDeposit;
     }
 
     struct ReviewerDecision {
@@ -117,7 +118,7 @@ contract StewardCouncilPipeline {
     event CouncilPipelineFailed(
         uint256 indexed jobId, uint256 indexed requestId, ResponseStatus platformStatus, string reason, uint256 receipt
     );
-    event UnusedReviewDepositRefunded(uint256 indexed jobId, address indexed recipient, uint256 amount, bool success);
+    event UnusedReviewDepositRecorded(uint256 indexed jobId, address indexed recipient, uint256 amount);
     event SurplusDepositRecorded(uint256 indexed jobId, address indexed recipient, uint256 amount);
 
     constructor(address somniaAgents_, uint256 parseWebsiteAgentId_, uint256 llmAgentId_) {
@@ -130,6 +131,10 @@ contract StewardCouncilPipeline {
     function requiredDeposit() public view returns (uint256) {
         (,,,, uint256 totalDeposit) = quoteCouncilVote();
         return totalDeposit;
+    }
+
+    function reviewerRequestDeposit() public view returns (uint256) {
+        return SOMNIA_AGENTS.getRequestDeposit() + LLM_INFERENCE_AGENT_BUDGET;
     }
 
     function quoteCouncilVote()
@@ -146,7 +151,7 @@ contract StewardCouncilPipeline {
         platformDeposit = SOMNIA_AGENTS.getRequestDeposit();
         parseAgentBudget = PARSE_WEBSITE_COST_PER_AGENT * SUBCOMMITTEE_SIZE;
         parseDeposit = platformDeposit + parseAgentBudget;
-        reviewDeposit = LLM_INFERENCE_DEPOSIT * REVIEWER_COUNT;
+        reviewDeposit = reviewerRequestDeposit() * REVIEWER_COUNT;
         totalDeposit = parseDeposit + reviewDeposit;
     }
 
@@ -207,6 +212,7 @@ contract StewardCouncilPipeline {
 
         (,, uint256 parseDeposit,, uint256 expectedDeposit) = quoteCouncilVote();
         if (msg.value < expectedDeposit) revert IncorrectDeposit(expectedDeposit, msg.value);
+        uint256 perReviewerDeposit = reviewerRequestDeposit();
 
         jobId = nextJobId++;
         bytes memory parsePayload = abi.encodeCall(
@@ -243,7 +249,8 @@ contract StewardCouncilPipeline {
             proposalUrl: proposalUrl,
             extractedSummary: "",
             finalReason: "",
-            parseReceipt: 0
+            parseReceipt: 0,
+            reviewerRequestDeposit: perReviewerDeposit
         });
         jobForRequest[parseRequestId] = jobId;
 
@@ -343,23 +350,27 @@ contract StewardCouncilPipeline {
             )
         );
 
-        uint256 reviewRequestId = SOMNIA_AGENTS.createRequest{value: LLM_INFERENCE_DEPOSIT}(
+        try SOMNIA_AGENTS.createRequest{value: job.reviewerRequestDeposit}(
             LLM_AGENT_ID, address(this), this.handleResponse.selector, payload
-        );
+        ) returns (
+            uint256 reviewRequestId
+        ) {
+            reviewerDecisions[jobId][reviewerIndex] = ReviewerDecision({
+                requestId: reviewRequestId,
+                status: ResponseStatus.Pending,
+                support: 0,
+                role: role,
+                reason: "",
+                receipt: 0,
+                completed: false
+            });
+            jobForRequest[reviewRequestId] = jobId;
+            reviewerForRequest[reviewRequestId] = reviewerIndex;
 
-        reviewerDecisions[jobId][reviewerIndex] = ReviewerDecision({
-            requestId: reviewRequestId,
-            status: ResponseStatus.Pending,
-            support: 0,
-            role: role,
-            reason: "",
-            receipt: 0,
-            completed: false
-        });
-        jobForRequest[reviewRequestId] = jobId;
-        reviewerForRequest[reviewRequestId] = reviewerIndex;
-
-        emit CouncilReviewerRequested(jobId, reviewRequestId, reviewerIndex, role, _hashString(summary));
+            emit CouncilReviewerRequested(jobId, reviewRequestId, reviewerIndex, role, _hashString(summary));
+        } catch {
+            _recordReviewerCreationFailure(jobId, reviewerIndex, job, role);
+        }
     }
 
     function _handleReviewerResponse(
@@ -412,6 +423,35 @@ contract StewardCouncilPipeline {
         job.completedReviews += 1;
 
         emit CouncilReviewerDecided(jobId, requestId, reviewerIndex, support, decision.role, reason, receipt);
+
+        if (job.completedReviews == REVIEWER_COUNT) {
+            _finalizeCouncil(jobId, job);
+        }
+    }
+
+    function _recordReviewerCreationFailure(
+        uint256 jobId,
+        uint8 reviewerIndex,
+        CouncilJob storage job,
+        string memory role
+    ) private {
+        string memory reason = string.concat("ABSTAIN: ", role, " reviewer request could not be created.");
+
+        reviewerDecisions[jobId][reviewerIndex] = ReviewerDecision({
+            requestId: 0,
+            status: ResponseStatus.Failed,
+            support: VOTE_ABSTAIN,
+            role: role,
+            reason: reason,
+            receipt: 0,
+            completed: true
+        });
+        job.abstainCount += 1;
+        job.completedReviews += 1;
+        claimableRefunds[job.requester] += job.reviewerRequestDeposit;
+
+        emit CouncilReviewerDecided(jobId, 0, reviewerIndex, VOTE_ABSTAIN, role, reason, 0);
+        emit UnusedReviewDepositRecorded(jobId, job.requester, job.reviewerRequestDeposit);
 
         if (job.completedReviews == REVIEWER_COUNT) {
             _finalizeCouncil(jobId, job);
@@ -571,12 +611,9 @@ contract StewardCouncilPipeline {
     }
 
     function _refundUnusedReviewDeposit(uint256 jobId, CouncilJob storage job) private {
-        uint256 amount = LLM_INFERENCE_DEPOSIT * REVIEWER_COUNT;
-        (bool success,) = job.requester.call{value: amount}("");
-        if (!success) {
-            claimableRefunds[job.requester] += amount;
-        }
-        emit UnusedReviewDepositRefunded(jobId, job.requester, amount, success);
+        uint256 amount = job.reviewerRequestDeposit * REVIEWER_COUNT;
+        claimableRefunds[job.requester] += amount;
+        emit UnusedReviewDepositRecorded(jobId, job.requester, amount);
     }
 
     function _uintToString(uint256 value) private pure returns (string memory) {

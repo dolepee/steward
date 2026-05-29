@@ -25,6 +25,8 @@ contract MockSomniaAgents is IAgentRequester {
     bytes4 public lastCallbackSelector;
     bytes public lastPayload;
     uint256 public lastValue;
+    uint256 public requestDeposit = 0.03 ether;
+    bool public enforceRequestDeposit;
 
     mapping(uint256 requestId => Request request) internal requests;
     mapping(uint256 requestId => uint256 agentId) public requestAgentIds;
@@ -36,6 +38,10 @@ contract MockSomniaAgents is IAgentRequester {
         payable
         returns (uint256 requestId)
     {
+        if (enforceRequestDeposit && msg.value < requestDeposit) {
+            revert("insufficient request deposit");
+        }
+
         requestId = nextRequestId++;
         lastAgentId = agentId;
         lastCallbackAddress = callbackAddress;
@@ -119,8 +125,16 @@ contract MockSomniaAgents is IAgentRequester {
         return requests[requestId].id != 0;
     }
 
-    function getRequestDeposit() external pure returns (uint256) {
-        return 0.03 ether;
+    function setRequestDeposit(uint256 requestDeposit_) external {
+        requestDeposit = requestDeposit_;
+    }
+
+    function setEnforceRequestDeposit(bool enforceRequestDeposit_) external {
+        enforceRequestDeposit = enforceRequestDeposit_;
+    }
+
+    function getRequestDeposit() external view returns (uint256) {
+        return requestDeposit;
     }
 
     function getAdvancedRequestDeposit(uint256) external pure returns (uint256) {

@@ -1,6 +1,6 @@
 # Steward Architecture
 
-Steward is intentionally small: one delegate contract, one minimal governor, one Somnia LLM agent path, and one proof page.
+Steward is intentionally small: one delegate contract, one minimal governor, one base Somnia LLM path, and additive URL/council pipelines for the stronger live proof.
 
 For trust boundaries, failure modes, and production limitations, see [`THREAT_MODEL.md`](./THREAT_MODEL.md).
 
@@ -44,7 +44,7 @@ That means the Somnia agent path sits between proposal detection and final gover
 2. No successful callback, no `StewardVoteCast`.
 3. No parsed `YES`, `NO`, or `ABSTAIN`, no governor vote.
 
-## V2 URL Pipeline
+## URL Pipeline
 
 `StewardUrlPipeline` is the next additive architecture slice. It keeps the same callback discipline, but splits the agent work into two Somnia requests:
 
@@ -64,7 +64,17 @@ sequenceDiagram
     Pipeline->>Governor: castVoteWithReason(...)
 ```
 
-This is not part of the current live proof yet. It is implemented as a separate contract so the existing deployed `Steward` proof remains untouched while the stronger URL-ingestion path is tested and deployed independently.
+This single-reviewer URL pipeline is implemented as a separate contract so the deployed base `Steward` proof remains untouched while URL-ingestion paths are tested independently.
+
+## Council Pipeline
+
+`StewardCouncilPipeline` is the live judge-facing path. It composes one Parse Website request with three LLM Inference reviewers:
+
+1. Parse Website extracts decision-critical facts from a public proposal URL.
+2. Budget, risk, and participation reviewers independently return `YES`, `NO`, or `ABSTAIN`.
+3. The contract records each reviewer decision and casts the majority outcome into `MiniGovernor`.
+
+The execution model is permissionless: anyone can pay to start a council job, but they cannot change the fixed agent ids, authorized callback sender, target governor passed into the job, or final majority rule. Unused reviewer deposits are credited to `claimRefund` rather than pushed during callbacks.
 
 ## Callback Safety
 

@@ -26,10 +26,17 @@ For a registered delegation and proposal, Steward should only cast a governor vo
 | Invalid LLM output cannot cast a vote | Output must start with `YES`, `NO`, or `ABSTAIN`; otherwise the request fails. |
 | Governor rejection is not hidden | If the governor rejects the vote, Steward records the request as failed. |
 | Expired or revoked delegations cannot request new votes | `requestVote` checks active delegation state before calling SomniaAgents. |
+| Vote execution is permissionless by design | Any caller can pay to execute an active delegation or council job, but the caller cannot replace the stored criteria, callback sender, agent ids, or final governor target. |
 
 ## Failure Behavior
 
 Steward fails closed. If SomniaAgents returns a failed status, returns no successful result, returns unparsable output, calls back with mismatched details, or the governor rejects the vote, Steward does not pretend a vote was cast. It records a failed request and emits `StewardVoteFailed`.
+
+## Authorization Model
+
+Steward separates delegation ownership from execution. Delegation owners control the mandate text, governor, validity window, and revocation. Execution is permissionless: any address can pay the Somnia request deposit to ask an active delegation, URL pipeline, or council pipeline to evaluate a proposal. This mirrors permissionless settlement rather than private automation; the executor supplies funds and timing, while the contracts bind the decision to the stored mandate, authorized SomniaAgents callback, fixed agent ids, and target governor.
+
+The known tradeoff is timing. A third party can spend their own funds to start a request for an active delegation/proposal pair before the owner does. They cannot change the criteria or force a `YES`/`NO`, and duplicate request guards prevent repeated votes for the same delegation/proposal pair. A production deployment could add owner-only execution, allowlisted executors, proposal allowlists, or anti-front-running rules if the DAO wants tighter timing control.
 
 ## What The Live Proof Covers
 
@@ -56,6 +63,7 @@ Steward fails closed. If SomniaAgents returns a failed status, returns no succes
 - Each reviewer can only return `YES`, `NO`, or `ABSTAIN`; invalid or failed reviewer callbacks count as `ABSTAIN`.
 - The final vote is a strict majority among the three reviewer outcomes; a three-way split defaults to `ABSTAIN`.
 - A single reviewer failure cannot block the council, but it also cannot silently become a `YES` or `NO`.
+- Reviewer request deposits are quoted from the current Somnia platform deposit plus a fixed agent budget, stored per job, and refunded through `claimRefund` if unused.
 - The contract emits one event per reviewer request and decision so a live proof can reconstruct the full council trail.
 
 ## Production Hardening Path

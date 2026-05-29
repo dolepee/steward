@@ -38,6 +38,26 @@ contract StewardCouncilPipelineTest is Test {
         assertEq(reviewDeposit, 0.72 ether);
         assertEq(totalDeposit, 1.05 ether);
         assertEq(council.requiredDeposit(), totalDeposit);
+        assertEq(council.reviewerRequestDeposit(), 0.24 ether);
+    }
+
+    function testQuoteCouncilVoteUsesDynamicReviewerPlatformDeposit() public {
+        platform.setRequestDeposit(0.05 ether);
+
+        (
+            uint256 platformDeposit,
+            uint256 parseAgentBudget,
+            uint256 parseDeposit,
+            uint256 reviewDeposit,
+            uint256 totalDeposit
+        ) = council.quoteCouncilVote();
+
+        assertEq(platformDeposit, 0.05 ether);
+        assertEq(parseAgentBudget, 0.3 ether);
+        assertEq(parseDeposit, 0.35 ether);
+        assertEq(reviewDeposit, 0.78 ether);
+        assertEq(totalDeposit, 1.13 ether);
+        assertEq(council.reviewerRequestDeposit(), 0.26 ether);
     }
 
     function testStartCouncilVoteCreatesParseWebsiteRequest() public {
@@ -211,7 +231,15 @@ contract StewardCouncilPipelineTest is Test {
         uint256 balanceBefore = requester.balance;
         platform.fail(parseRequestId, ResponseStatus.Failed, 901);
 
-        assertEq(requester.balance, balanceBefore + council.LLM_INFERENCE_DEPOSIT() * council.REVIEWER_COUNT());
+        uint256 expectedRefund = 0.24 ether * council.REVIEWER_COUNT();
+        assertEq(requester.balance, balanceBefore);
+        assertEq(council.claimableRefunds(requester), expectedRefund);
+
+        vm.prank(requester);
+        council.claimRefund();
+
+        assertEq(requester.balance, balanceBefore + expectedRefund);
+        assertEq(council.claimableRefunds(requester), 0);
         assertEq(platform.nextRequestId(), 2);
 
         (StewardCouncilPipeline.CouncilState state, ResponseStatus parseStatus,,,,,,,,, uint256 parseReceipt) =
@@ -220,6 +248,50 @@ contract StewardCouncilPipelineTest is Test {
         assertEq(uint8(state), uint8(StewardCouncilPipeline.CouncilState.Failed));
         assertEq(uint8(parseStatus), uint8(ResponseStatus.Failed));
         assertEq(parseReceipt, 901);
+    }
+
+    function testReviewerRequestCreationFailureAbstainsAndRefundsWithoutReverting() public {
+        platform.setEnforceRequestDeposit(true);
+        (uint256 jobId, uint256 parseRequestId, uint256 proposalId) = _startCouncil();
+        platform.setRequestDeposit(0.3 ether);
+
+        platform.finalizeString(parseRequestId, "Proposal asks for 500K USDC for a Q3 community grants program.", 901);
+
+        assertEq(governor.votes(proposalId, address(council)), governor.VOTE_ABSTAIN());
+        assertEq(platform.nextRequestId(), 2);
+        assertEq(council.claimableRefunds(address(this)), 0.72 ether);
+
+        (
+            StewardCouncilPipeline.CouncilState state,,,
+            uint8 finalSupport,
+            uint8 yesCount,
+            uint8 noCount,
+            uint8 abstainCount,
+            uint8 completedReviews,,,
+        ) = council.jobOverview(jobId);
+
+        assertEq(uint8(state), uint8(StewardCouncilPipeline.CouncilState.Cast));
+        assertEq(finalSupport, governor.VOTE_ABSTAIN());
+        assertEq(yesCount, 0);
+        assertEq(noCount, 0);
+        assertEq(abstainCount, 3);
+        assertEq(completedReviews, 3);
+
+        (
+            uint256 requestId,
+            ResponseStatus status,
+            uint8 support,
+            string memory role,
+            string memory reason,,
+            bool completed
+        ) = council.reviewerDecisions(jobId, 0);
+
+        assertEq(requestId, 0);
+        assertEq(uint8(status), uint8(ResponseStatus.Failed));
+        assertEq(support, governor.VOTE_ABSTAIN());
+        assertEq(role, "budget");
+        assertEq(reason, "ABSTAIN: budget reviewer request could not be created.");
+        assertTrue(completed);
     }
 
     function testIncorrectDepositReverts() public {
@@ -268,7 +340,7 @@ contract StewardCouncilPipelineTest is Test {
 
     function _assertReviewerPayload(uint256 requestId, string memory role) internal view {
         assertEq(platform.requestAgentIds(requestId), LLM_AGENT_ID);
-        assertEq(platform.requestValues(requestId), 0.24 ether);
+        assertEq(platform.requestValues(requestId), council.reviewerRequestDeposit());
         assertEq(_selector(platform.requestPayloads(requestId)), ILLMInferenceAgent.inferString.selector);
 
         (string memory prompt, string memory system, bool chainOfThought, string[] memory allowedValues) =

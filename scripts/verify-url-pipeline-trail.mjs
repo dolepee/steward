@@ -8,19 +8,6 @@ const MINI_GOVERNOR = process.env.MINI_GOVERNOR?.toLowerCase();
 const PARSE_WEBSITE_AGENT_ID = BigInt(process.env.PARSE_WEBSITE_AGENT_ID ?? "12875401142070969085");
 const LLM_AGENT_ID = BigInt(process.env.LLM_AGENT_ID ?? "12847293847561029384");
 
-const JOB_ID = process.env.URL_PIPELINE_JOB_ID ? BigInt(process.env.URL_PIPELINE_JOB_ID) : undefined;
-const PROPOSAL_ID = process.env.URL_PIPELINE_PROPOSAL_ID ? BigInt(process.env.URL_PIPELINE_PROPOSAL_ID) : undefined;
-const EXPECTED_SUPPORT = process.env.URL_PIPELINE_EXPECTED_SUPPORT
-  ? BigInt(process.env.URL_PIPELINE_EXPECTED_SUPPORT)
-  : undefined;
-const EXPECTED_REASON = process.env.URL_PIPELINE_EXPECTED_REASON;
-const EXPECTED_CRITERIA = process.env.URL_PIPELINE_CRITERIA;
-const EXPECTED_PROPOSAL_URL = process.env.URL_PIPELINE_PROPOSAL_URL;
-const EXPECTED_SUMMARY = process.env.URL_PIPELINE_SUMMARY;
-const START_TX = process.env.URL_PIPELINE_START_TX;
-const PARSE_CALLBACK_TX = process.env.URL_PIPELINE_PARSE_CALLBACK_TX;
-const VOTE_CALLBACK_TX = process.env.URL_PIPELINE_VOTE_CALLBACK_TX;
-
 const EXTRACT_STRING_SELECTOR = "0xc2dd1a7a";
 const INFER_STRING_SELECTOR = "0xfe7ca098";
 const EXPECTED_SYSTEM = "You are Steward, an autonomous DAO voting delegate. Choose exactly one allowed value.";
@@ -32,6 +19,7 @@ const EXPECTED_PARSE_PROMPT =
   "Read the linked DAO proposal page. Extract the actual proposal title, requested action, funding amount or token amount if any, and any decision-relevant facts. Return a concise factual summary only.";
 
 const topics = {
+  proposalCreated: "0x553be4d74bc63ce955614b229c8eaa4ad7f7f1f38840da15f3604b2fca49c6a8",
   requestCreated: "0xb62339927ed9948fd837358a55f5b9a824f7b047043faece66965593ed726889",
   requestFinalized: "0x65db1ef5b3bcd84fe4fb8dbbe1cadc9fe6643bb261ab2e01d65c281c3d466af2",
   governorVoteCast: "0xb22128b716f82627c9618521dd7de1615285e71c832093d2666d965f91ae9dd9",
@@ -41,28 +29,83 @@ const topics = {
   urlPipelineVoteCast: "0x26c4702b4c00d52b68488639b71a7094649230aef7a824e12c2bbfbaf4255b79",
 };
 
-const requiredEnv = {
-  STEWARD_URL_PIPELINE,
-  MINI_GOVERNOR,
-  URL_PIPELINE_JOB_ID: JOB_ID,
-  URL_PIPELINE_PROPOSAL_ID: PROPOSAL_ID,
-  URL_PIPELINE_EXPECTED_SUPPORT: EXPECTED_SUPPORT,
-  URL_PIPELINE_EXPECTED_REASON: EXPECTED_REASON,
-  URL_PIPELINE_CRITERIA: EXPECTED_CRITERIA,
-  URL_PIPELINE_PROPOSAL_URL: EXPECTED_PROPOSAL_URL,
-  URL_PIPELINE_SUMMARY: EXPECTED_SUMMARY,
-  URL_PIPELINE_START_TX: START_TX,
-  URL_PIPELINE_PARSE_CALLBACK_TX: PARSE_CALLBACK_TX,
-  URL_PIPELINE_VOTE_CALLBACK_TX: VOTE_CALLBACK_TX,
+const supportDefaults = {
+  YES: 1n,
+  NO: 2n,
+  ABSTAIN: 3n,
 };
 
-const missing = Object.entries(requiredEnv)
-  .filter(([, value]) => value === undefined || value === "")
-  .map(([key]) => key);
+function envName(prefix, key) {
+  return prefix ? `URL_PIPELINE_${prefix}_${key}` : `URL_PIPELINE_${key}`;
+}
+
+function envString(prefix, key, fallback) {
+  return process.env[envName(prefix, key)] ?? fallback;
+}
+
+function envBigInt(prefix, key, fallback) {
+  const value = envString(prefix, key, fallback);
+  return value === undefined || value === "" ? undefined : BigInt(value);
+}
+
+function readProofCase(prefix) {
+  const normalized = prefix.toUpperCase();
+  return {
+    label: normalized || "URL",
+    jobId: envBigInt(normalized, "JOB_ID"),
+    proposalId: envBigInt(normalized, "PROPOSAL_ID"),
+    expectedSupport: envBigInt(normalized, "EXPECTED_SUPPORT", supportDefaults[normalized]?.toString()),
+    expectedReason: envString(normalized, "EXPECTED_REASON", normalized || undefined),
+    criteria: envString(normalized, "CRITERIA", process.env.URL_PIPELINE_CRITERIA ?? process.env.CRITERIA_TEXT),
+    proposalUrl: envString(normalized, "PROPOSAL_URL", process.env.URL_PIPELINE_PROPOSAL_URL),
+    expectedSummary: envString(normalized, "SUMMARY", process.env.URL_PIPELINE_SUMMARY),
+    proposalTx: envString(normalized, "PROPOSAL_TX"),
+    startTx: envString(normalized, "START_TX"),
+    parseCallbackTx: envString(normalized, "PARSE_CALLBACK_TX"),
+    voteCallbackTx: envString(normalized, "VOTE_CALLBACK_TX"),
+  };
+}
+
+function configuredProofCases() {
+  const labels = (process.env.URL_PIPELINE_CASES ?? "")
+    .split(",")
+    .map((label) => label.trim())
+    .filter(Boolean);
+
+  if (labels.length > 0) return labels.map(readProofCase);
+  return [readProofCase("")];
+}
+
+const proofCases = configuredProofCases();
+
+const missing = [];
+if (!STEWARD_URL_PIPELINE) missing.push("STEWARD_URL_PIPELINE");
+if (!MINI_GOVERNOR) missing.push("MINI_GOVERNOR");
+
+for (const proof of proofCases) {
+  const prefix = proof.label === "URL" ? "" : `${proof.label}_`;
+  const required = {
+    JOB_ID: proof.jobId,
+    PROPOSAL_ID: proof.proposalId,
+    EXPECTED_SUPPORT: proof.expectedSupport,
+    EXPECTED_REASON: proof.expectedReason,
+    CRITERIA: proof.criteria,
+    PROPOSAL_URL: proof.proposalUrl,
+    SUMMARY: proof.expectedSummary,
+    START_TX: proof.startTx,
+    PARSE_CALLBACK_TX: proof.parseCallbackTx,
+    VOTE_CALLBACK_TX: proof.voteCallbackTx,
+  };
+
+  for (const [key, value] of Object.entries(required)) {
+    if (value === undefined || value === "") missing.push(envName(prefix.replace(/_$/, ""), key));
+  }
+}
 
 if (missing.length > 0) {
   console.error(`ERROR: missing URL pipeline proof env: ${missing.join(", ")}`);
   console.error("Set these after deploying StewardUrlPipeline and generating one live URL proposal vote.");
+  console.error("For batch verification, set URL_PIPELINE_CASES=YES,NO,ABSTAIN and prefixed case env values.");
   process.exit(1);
 }
 
@@ -214,13 +257,13 @@ function decodeInferStringPayload(payload) {
   };
 }
 
-function expectedVotePrompt() {
+function expectedVotePrompt(proof) {
   return [
-    `Delegated voting criteria: ${EXPECTED_CRITERIA}`,
+    `Delegated voting criteria: ${proof.criteria}`,
     "",
-    `Proposal URL: ${EXPECTED_PROPOSAL_URL}`,
+    `Proposal URL: ${proof.proposalUrl}`,
     "",
-    `Extracted proposal facts: ${EXPECTED_SUMMARY}`,
+    `Extracted proposal facts: ${proof.expectedSummary}`,
     "",
     "Choose exactly one allowed value. Return the whole allowed value string.",
   ].join("\n");
@@ -275,123 +318,156 @@ async function receiptWithRetry(txHash, label, attempts = 4) {
   throw lastError;
 }
 
-const startReceipt = await receiptWithRetry(START_TX, "URL pipeline start");
-const startLog = matchingLog(startReceipt, {
-  address: STEWARD_URL_PIPELINE,
-  topic0: topics.urlPipelineStarted,
-  topics: [
-    [1, topicOf(JOB_ID)],
-    [3, topicAddress(MINI_GOVERNOR)],
-  ],
-  dataWords: [[0, PROPOSAL_ID]],
-});
-assert(startLog, "missing UrlPipelineStarted log");
-const parseRequestId = BigInt(startLog.topics[2]);
+async function verifyProof(proof) {
+  if (proof.proposalTx) {
+    const proposalReceipt = await receiptWithRetry(proof.proposalTx, `${proof.label} URL proposal`);
+    assert(
+      matchingLog(proposalReceipt, {
+        address: MINI_GOVERNOR,
+        topic0: topics.proposalCreated,
+        topics: [[1, topicOf(proof.proposalId)]],
+      }),
+      `${proof.label}: missing MiniGovernor ProposalCreated log`,
+    );
+  }
 
-const parseRequestCreated = matchingLog(startReceipt, {
-  address: SOMNIA_AGENTS,
-  topic0: topics.requestCreated,
-  topics: [
-    [1, topicOf(parseRequestId)],
-    [2, topicOf(PARSE_WEBSITE_AGENT_ID)],
-  ],
-});
-assert(parseRequestCreated, "missing Parse Website RequestCreated log");
-
-const parseRequest = decodeRequestCreatedData(parseRequestCreated.data);
-assert(parseRequest.perAgentBudget > 0n, "empty parse per-agent budget");
-assert(parseRequest.subcommittee.length === 3, "expected three parse validators");
-
-const parsePayload = decodeExtractStringPayload(parseRequest.payload);
-assert(parsePayload.key === EXPECTED_PARSE_KEY, "unexpected parse key");
-assert(parsePayload.description === EXPECTED_PARSE_DESCRIPTION, "unexpected parse description");
-assert(parsePayload.options.length === 0, "parse options should be empty");
-assert(parsePayload.prompt === EXPECTED_PARSE_PROMPT, "unexpected parse prompt");
-assert(parsePayload.url === EXPECTED_PROPOSAL_URL, "unexpected proposal URL");
-assert(parsePayload.numPages === 3n, "unexpected parse numPages");
-assert(parsePayload.confidenceThreshold === 70n, "unexpected parse confidence threshold");
-
-const parseCallbackReceipt = await receiptWithRetry(PARSE_CALLBACK_TX, "URL pipeline parse callback");
-assert(
-  matchingLog(parseCallbackReceipt, {
+  const startReceipt = await receiptWithRetry(proof.startTx, `${proof.label} URL pipeline start`);
+  const startLog = matchingLog(startReceipt, {
     address: STEWARD_URL_PIPELINE,
-    topic0: topics.proposalUrlParsed,
+    topic0: topics.urlPipelineStarted,
     topics: [
-      [1, topicOf(JOB_ID)],
-      [2, topicOf(parseRequestId)],
+      [1, topicOf(proof.jobId)],
+      [3, topicAddress(MINI_GOVERNOR)],
     ],
-  }),
-  "missing ProposalUrlParsed log",
-);
+    dataWords: [[0, proof.proposalId]],
+  });
+  assert(startLog, `${proof.label}: missing UrlPipelineStarted log`);
+  const parseRequestId = BigInt(startLog.topics[2]);
 
-const voteRequestLog = matchingLog(parseCallbackReceipt, {
-  address: STEWARD_URL_PIPELINE,
-  topic0: topics.urlVoteDecisionRequested,
-  topics: [[1, topicOf(JOB_ID)]],
-});
-assert(voteRequestLog, "missing UrlVoteDecisionRequested log");
-const voteRequestId = BigInt(voteRequestLog.topics[2]);
-
-const voteRequestCreated = matchingLog(parseCallbackReceipt, {
-  address: SOMNIA_AGENTS,
-  topic0: topics.requestCreated,
-  topics: [
-    [1, topicOf(voteRequestId)],
-    [2, topicOf(LLM_AGENT_ID)],
-  ],
-});
-assert(voteRequestCreated, "missing LLM vote RequestCreated log");
-
-const voteRequest = decodeRequestCreatedData(voteRequestCreated.data);
-assert(voteRequest.perAgentBudget > 0n, "empty vote per-agent budget");
-assert(voteRequest.subcommittee.length === 3, "expected three vote validators");
-
-const votePayload = decodeInferStringPayload(voteRequest.payload);
-assert(votePayload.prompt === expectedVotePrompt(), "unexpected vote prompt");
-assert(votePayload.system === EXPECTED_SYSTEM, "unexpected vote system prompt");
-assert(votePayload.chainOfThought === false, "vote chain-of-thought flag should be false");
-assert(
-  arrayEquals(votePayload.allowedValues, EXPECTED_ALLOWED_VALUES),
-  `unexpected vote allowed values ${votePayload.allowedValues.join(", ")}`,
-);
-
-const voteCallbackReceipt = await receiptWithRetry(VOTE_CALLBACK_TX, "URL pipeline vote callback");
-assert(
-  matchingLog(voteCallbackReceipt, {
-    address: MINI_GOVERNOR,
-    topic0: topics.governorVoteCast,
-    topics: [
-      [1, topicOf(PROPOSAL_ID)],
-      [2, topicAddress(STEWARD_URL_PIPELINE)],
-    ],
-    dataWords: [[0, EXPECTED_SUPPORT]],
-  }),
-  "missing MiniGovernor URL pipeline vote",
-);
-assert(
-  matchingLog(voteCallbackReceipt, {
-    address: STEWARD_URL_PIPELINE,
-    topic0: topics.urlPipelineVoteCast,
-    topics: [
-      [1, topicOf(JOB_ID)],
-      [2, topicOf(voteRequestId)],
-      [3, topicOf(PROPOSAL_ID)],
-    ],
-    dataWords: [[0, EXPECTED_SUPPORT]],
-  }),
-  "missing UrlPipelineVoteCast log",
-);
-assert(
-  matchingLog(voteCallbackReceipt, {
+  const parseRequestCreated = matchingLog(startReceipt, {
     address: SOMNIA_AGENTS,
-    topic0: topics.requestFinalized,
-    topics: [[1, topicOf(voteRequestId)]],
-    dataWords: [[0, 2n]],
-  }),
-  "missing vote RequestFinalized success log",
-);
+    topic0: topics.requestCreated,
+    topics: [
+      [1, topicOf(parseRequestId)],
+      [2, topicOf(PARSE_WEBSITE_AGENT_ID)],
+    ],
+  });
+  assert(parseRequestCreated, `${proof.label}: missing Parse Website RequestCreated log`);
 
-console.log(
-  `URL pipeline valid (job ${JOB_ID}, parse request ${parseRequestId}, vote request ${voteRequestId}, support ${EXPECTED_SUPPORT}, reason ${EXPECTED_REASON})`,
-);
-console.log("STEWARD_URL_PIPELINE_TRAIL_VALID");
+  const parseRequest = decodeRequestCreatedData(parseRequestCreated.data);
+  assert(parseRequest.perAgentBudget > 0n, `${proof.label}: empty parse per-agent budget`);
+  assert(parseRequest.subcommittee.length === 3, `${proof.label}: expected three parse validators`);
+
+  const parsePayload = decodeExtractStringPayload(parseRequest.payload);
+  assert(parsePayload.key === EXPECTED_PARSE_KEY, `${proof.label}: unexpected parse key`);
+  assert(parsePayload.description === EXPECTED_PARSE_DESCRIPTION, `${proof.label}: unexpected parse description`);
+  assert(parsePayload.options.length === 0, `${proof.label}: parse options should be empty`);
+  assert(parsePayload.prompt === EXPECTED_PARSE_PROMPT, `${proof.label}: unexpected parse prompt`);
+  assert(parsePayload.url === proof.proposalUrl, `${proof.label}: unexpected proposal URL`);
+  assert(parsePayload.numPages === 3n, `${proof.label}: unexpected parse numPages`);
+  assert(parsePayload.confidenceThreshold === 70n, `${proof.label}: unexpected parse confidence threshold`);
+
+  const parseCallbackReceipt = await receiptWithRetry(proof.parseCallbackTx, `${proof.label} URL parse callback`);
+  assert(
+    matchingLog(parseCallbackReceipt, {
+      address: SOMNIA_AGENTS,
+      topic0: topics.requestFinalized,
+      topics: [[1, topicOf(parseRequestId)]],
+      dataWords: [[0, 2n]],
+    }),
+    `${proof.label}: missing parse RequestFinalized success log`,
+  );
+  assert(
+    matchingLog(parseCallbackReceipt, {
+      address: STEWARD_URL_PIPELINE,
+      topic0: topics.proposalUrlParsed,
+      topics: [
+        [1, topicOf(proof.jobId)],
+        [2, topicOf(parseRequestId)],
+      ],
+    }),
+    `${proof.label}: missing ProposalUrlParsed log`,
+  );
+
+  const voteRequestLog = matchingLog(parseCallbackReceipt, {
+    address: STEWARD_URL_PIPELINE,
+    topic0: topics.urlVoteDecisionRequested,
+    topics: [[1, topicOf(proof.jobId)]],
+  });
+  assert(voteRequestLog, `${proof.label}: missing UrlVoteDecisionRequested log`);
+  const voteRequestId = BigInt(voteRequestLog.topics[2]);
+
+  const voteRequestCreated = matchingLog(parseCallbackReceipt, {
+    address: SOMNIA_AGENTS,
+    topic0: topics.requestCreated,
+    topics: [
+      [1, topicOf(voteRequestId)],
+      [2, topicOf(LLM_AGENT_ID)],
+    ],
+  });
+  assert(voteRequestCreated, `${proof.label}: missing LLM vote RequestCreated log`);
+
+  const voteRequest = decodeRequestCreatedData(voteRequestCreated.data);
+  assert(voteRequest.perAgentBudget > 0n, `${proof.label}: empty vote per-agent budget`);
+  assert(voteRequest.subcommittee.length === 3, `${proof.label}: expected three vote validators`);
+
+  const votePayload = decodeInferStringPayload(voteRequest.payload);
+  assert(votePayload.prompt === expectedVotePrompt(proof), `${proof.label}: unexpected vote prompt`);
+  assert(votePayload.system === EXPECTED_SYSTEM, `${proof.label}: unexpected vote system prompt`);
+  assert(votePayload.chainOfThought === false, `${proof.label}: vote chain-of-thought flag should be false`);
+  assert(
+    arrayEquals(votePayload.allowedValues, EXPECTED_ALLOWED_VALUES),
+    `${proof.label}: unexpected vote allowed values ${votePayload.allowedValues.join(", ")}`,
+  );
+
+  const voteCallbackReceipt = await receiptWithRetry(proof.voteCallbackTx, `${proof.label} URL vote callback`);
+  assert(
+    matchingLog(voteCallbackReceipt, {
+      address: MINI_GOVERNOR,
+      topic0: topics.governorVoteCast,
+      topics: [
+        [1, topicOf(proof.proposalId)],
+        [2, topicAddress(STEWARD_URL_PIPELINE)],
+      ],
+      dataWords: [[0, proof.expectedSupport]],
+    }),
+    `${proof.label}: missing MiniGovernor URL pipeline vote`,
+  );
+  assert(
+    matchingLog(voteCallbackReceipt, {
+      address: STEWARD_URL_PIPELINE,
+      topic0: topics.urlPipelineVoteCast,
+      topics: [
+        [1, topicOf(proof.jobId)],
+        [2, topicOf(voteRequestId)],
+        [3, topicOf(proof.proposalId)],
+      ],
+      dataWords: [[0, proof.expectedSupport]],
+    }),
+    `${proof.label}: missing UrlPipelineVoteCast log`,
+  );
+  assert(
+    matchingLog(voteCallbackReceipt, {
+      address: SOMNIA_AGENTS,
+      topic0: topics.requestFinalized,
+      topics: [[1, topicOf(voteRequestId)]],
+      dataWords: [[0, 2n]],
+    }),
+    `${proof.label}: missing vote RequestFinalized success log`,
+  );
+
+  console.log(
+    `${proof.label}: URL pipeline valid (job ${proof.jobId}, parse request ${parseRequestId}, vote request ${voteRequestId}, support ${proof.expectedSupport}, reason ${proof.expectedReason})`,
+  );
+}
+
+for (const proof of proofCases) {
+  await verifyProof(proof);
+}
+
+if (proofCases.length > 1) {
+  console.log(`Verified ${proofCases.length} URL pipeline cases: ${proofCases.map((proof) => proof.label).join(", ")}`);
+  console.log("STEWARD_URL_PIPELINE_BATCH_VALID");
+} else {
+  console.log("STEWARD_URL_PIPELINE_TRAIL_VALID");
+}

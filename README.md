@@ -115,6 +115,11 @@ Seed three URL-pipeline proof jobs against the public proposal source pages:
 forge script script/SeedUrlPipelineProofs.s.sol --rpc-url "$SOMNIA_TESTNET_RPC" --broadcast --legacy
 ```
 
+After the three parse callbacks and three vote callbacks finalize, set
+`URL_PIPELINE_CASES=YES,NO,ABSTAIN` and the prefixed `URL_PIPELINE_YES_*`,
+`URL_PIPELINE_NO_*`, and `URL_PIPELINE_ABSTAIN_*` tx fields. The expected final
+marker becomes `STEWARD_URL_PIPELINE_BATCH_VALID`.
+
 ## Frontend
 
 The web app is a single proof page in `web/`. It reads live `Steward.voteRequests(...)` and `MiniGovernor.votes(...)` state for the YES, NO, and ABSTAIN examples directly from Somnia Testnet, reads Somnia's public receipt service to display validator receipt quorum, runner count, timing, and token usage for each agent decision, and links both source-verified contracts from the proof strip. The repo verifier handles the deeper payload-level proof.

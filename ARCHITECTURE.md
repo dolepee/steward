@@ -2,6 +2,8 @@
 
 Steward is intentionally small: one delegate contract, one minimal governor, one Somnia LLM agent path, and one proof page.
 
+For trust boundaries, failure modes, and production limitations, see [`THREAT_MODEL.md`](./THREAT_MODEL.md).
+
 ## Flow
 
 ```mermaid

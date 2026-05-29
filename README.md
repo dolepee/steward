@@ -59,7 +59,7 @@ Removing Somnia removes the product: there is no auditable agent request, no val
 
 The stronger product direction is not a private bot that copies proposal text into a prompt. It is a two-agent Somnia pipeline:
 
-1. `StewardUrlPipeline` asks the `LLM Parse Website` agent to read a proposal URL and extract a factual proposal summary.
+1. `StewardUrlPipeline` asks Somnia's [`LLM Parse Website`](https://docs.somnia.network/agents/base-agents/llm-parse-website) agent to read a proposal URL and extract a factual proposal summary.
 2. The same contract sends that extracted summary plus the delegate criteria to the `LLM Inference` agent.
 3. The callback from the vote decision casts `YES`, `NO`, or `ABSTAIN` into `MiniGovernor`.
 

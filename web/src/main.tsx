@@ -173,6 +173,23 @@ const proposalSources = [
     fact: "exploratory group, no committed budget",
   },
 ];
+const councilReviewers = [
+  {
+    role: "Budget",
+    vote: "YES",
+    detail: "Checks requested amounts, caps, and whether the spend matches the delegate mandate.",
+  },
+  {
+    role: "Risk",
+    vote: "NO",
+    detail: "Looks for unlocks, weak accountability, ambiguous execution, or downside hidden in the proposal.",
+  },
+  {
+    role: "Participation",
+    vote: "ABSTAIN",
+    detail: "Asks whether the voter should act or abstain when benefits and evidence are unclear.",
+  },
+];
 
 const stewardAbi = [
   {
@@ -1149,6 +1166,36 @@ function App() {
             <strong>Consequential proof</strong>
             <p>The agent does not just chat. It creates a request, returns a vote, and leaves a verifiable trail.</p>
           </article>
+        </div>
+      </section>
+
+      <section className="council" id="council">
+        <div className="councilLead">
+          <p className="eyebrow">V3 council path · locally tested</p>
+          <h2>One proposal. Three reviewers. One majority vote.</h2>
+          <p>
+            The next Steward upgrade turns the single LLM decision into a small onchain
+            review council. Parse Website reads the source URL, then budget, risk, and
+            participation reviewers each return YES, NO, or ABSTAIN. The contract casts
+            the majority outcome and defaults ties to ABSTAIN.
+          </p>
+        </div>
+        <div className="councilBoard">
+          {councilReviewers.map((reviewer) => (
+            <article className={reviewer.vote.toLowerCase()} key={reviewer.role}>
+              <span>{reviewer.role} reviewer</span>
+              <strong>{reviewer.vote}</strong>
+              <p>{reviewer.detail}</p>
+            </article>
+          ))}
+          <div className="councilCommand">
+            <span>Local proof</span>
+            <code>forge test --match-contract StewardCouncilPipelineTest -vvv</code>
+            <p>
+              Covers parse failure refunds, three reviewer prompts, majority YES, three-way
+              ABSTAIN, and one-reviewer failure without stalling the council.
+            </p>
+          </div>
         </div>
       </section>
 

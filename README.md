@@ -12,6 +12,8 @@ Steward is a verifiable DAO governance proxy on Somnia. A user delegates voting 
 The current MVP proves the full loop: `Steward` invokes the live Somnia LLM Inference agent, receives the async callback, casts a MiniGovernor vote, and stores the result onchain. The verifier also decodes each live `inferString` request payload and checks the exact proposal text, voting criteria, system prompt, allowed vote outputs, validator receipt steps, runner quorum, timing, and token usage.
 Both project contracts are source-verified on the Somnia explorer.
 
+The repo now also includes the higher-ceiling council path: `StewardCouncilPipeline`. It chains Somnia's `LLM Parse Website` agent into three independent LLM reviewers (`budget`, `risk`, and `participation`), then casts the majority outcome. This is additive to the live proof and is locally tested; deploy it only when ready to generate a separate live council proof.
+
 ## 30-Second Judge Path
 
 1. Open the live page: `https://steward-ashy.vercel.app`.
@@ -73,6 +75,30 @@ The frontend also publishes three plain-HTML proposal source pages for the URL p
 | `NO` | `https://steward-ashy.vercel.app/proposals/team-token-unlock.html` |
 | `ABSTAIN` | `https://steward-ashy.vercel.app/proposals/ecosystem-working-group.html` |
 
+## V3 Work In Progress: Council Pipeline
+
+`StewardCouncilPipeline` is the stronger Agentathon path. It avoids a single-model vote by composing four Somnia agent calls:
+
+1. `LLM Parse Website` reads the public proposal URL and extracts decision-critical facts.
+2. A budget reviewer evaluates the extracted facts against the delegate mandate.
+3. A risk reviewer evaluates downside, unlocks, and ambiguity.
+4. A participation reviewer evaluates whether the proposal merits action or abstention.
+
+The contract records each reviewer request and decision, then casts only the majority outcome into `MiniGovernor`. If the three reviewers split `YES/NO/ABSTAIN`, the final vote is `ABSTAIN`. If one reviewer fails or returns an invalid vote, that reviewer is counted as `ABSTAIN` so one bad callback cannot stall the council. Parse failure fails closed and refunds the unused review deposits.
+
+Local verification:
+
+```shell
+forge test --match-contract StewardCouncilPipelineTest -vvv
+```
+
+Deployment scaffolding:
+
+```shell
+forge script script/DeployStewardCouncilPipeline.s.sol --rpc-url "$SOMNIA_TESTNET_RPC" --private-key "$PRIVATE_KEY" --broadcast --legacy
+forge script script/SeedCouncilProofs.s.sol --rpc-url "$SOMNIA_TESTNET_RPC" --private-key "$PRIVATE_KEY" --broadcast --legacy
+```
+
 ## Local Verification
 
 Prerequisites:
@@ -86,7 +112,7 @@ Fastest judge path:
 ./scripts/verify-steward-proof.sh
 ```
 
-Expected final marker: `STEWARD_FULL_PROOF_VALID`. This command asserts live onchain Steward/MiniGovernor state, Somnia's public LLM receipt service for all three YES, NO, and ABSTAIN requests, validator runner quorum, receipt timing, LLM token usage, decoded `inferString` request payloads, transaction-level event logs for the proof txs, and explorer source verification for both project contracts. If `STEWARD_URL_PIPELINE` is set, the source verifier also checks the deployed V2 pipeline contract.
+Expected final marker: `STEWARD_FULL_PROOF_VALID`. This command asserts live onchain Steward/MiniGovernor state, Somnia's public LLM receipt service for all three YES, NO, and ABSTAIN requests, validator runner quorum, receipt timing, LLM token usage, decoded `inferString` request payloads, transaction-level event logs for the proof txs, and explorer source verification for both project contracts. If `STEWARD_URL_PIPELINE` or `STEWARD_COUNCIL_PIPELINE` is set, the source verifier also checks those deployed pipeline contracts.
 
 ```shell
 forge fmt --check

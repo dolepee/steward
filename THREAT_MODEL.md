@@ -48,6 +48,16 @@ Steward fails closed. If SomniaAgents returns a failed status, returns no succes
 - The current live callback examples store `receipt = 0` onchain, so receipt proof uses Somnia's public receipt service plus request/callback transaction logs.
 - The LLM response is constrained to allowed vote strings, but the contract does not judge whether the model's reasoning is good.
 
+## Council Pipeline Safety Model
+
+`StewardCouncilPipeline` is implemented as an additive, locally tested upgrade path. It uses one Parse Website request plus three LLM reviewer requests. The safety model is deliberately conservative:
+
+- Parse failure fails the job and refunds unused reviewer deposits because there is no trusted proposal source.
+- Each reviewer can only return `YES`, `NO`, or `ABSTAIN`; invalid or failed reviewer callbacks count as `ABSTAIN`.
+- The final vote is a strict majority among the three reviewer outcomes; a three-way split defaults to `ABSTAIN`.
+- A single reviewer failure cannot block the council, but it also cannot silently become a `YES` or `NO`.
+- The contract emits one event per reviewer request and decision so a live proof can reconstruct the full council trail.
+
 ## Production Hardening Path
 
 Before production use, Steward would need a real governor adapter, stronger prompt/version pinning, explicit proposal source authentication, multi-agent or policy quorum options, and a reputation or slashing layer for bad delegate outcomes.

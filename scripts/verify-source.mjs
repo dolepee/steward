@@ -23,6 +23,14 @@ if (process.env.STEWARD_URL_PIPELINE) {
   });
 }
 
+if (process.env.STEWARD_COUNCIL_PIPELINE) {
+  contracts.push({
+    label: "StewardCouncilPipeline",
+    address: process.env.STEWARD_COUNCIL_PIPELINE,
+    expectedName: "StewardCouncilPipeline",
+  });
+}
+
 function assert(condition, message) {
   if (!condition) {
     throw new Error(message);

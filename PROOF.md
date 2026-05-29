@@ -109,6 +109,32 @@ both the Parse Website request and the LLM vote request, then checks threshold,
 runner quorum, agent id, decoded step evidence, timing, and the final LLM vote
 output.
 
+## V3 Council Pipeline Proof Path
+
+`StewardCouncilPipeline` is the additive higher-ceiling path for a later live
+proof. It uses one Parse Website request followed by three independent LLM
+reviewer requests: `budget`, `risk`, and `participation`. The contract records
+each reviewer request id, role, response, support value, and receipt before
+casting the majority outcome.
+
+Local verifier:
+
+```shell
+forge test --match-contract StewardCouncilPipelineTest -vvv
+```
+
+Live deployment scaffolding:
+
+```shell
+forge script script/DeployStewardCouncilPipeline.s.sol --rpc-url "$SOMNIA_TESTNET_RPC" --private-key "$PRIVATE_KEY" --broadcast --legacy
+forge script script/SeedCouncilProofs.s.sol --rpc-url "$SOMNIA_TESTNET_RPC" --private-key "$PRIVATE_KEY" --broadcast --legacy
+```
+
+The council proof should not replace the current live proof until it has its own
+deployed address, parse callback, three reviewer callbacks, final majority vote,
+and source verification. Once deployed, set `STEWARD_COUNCIL_PIPELINE` so
+`scripts/verify-source.mjs` includes the council contract in source checks.
+
 ## Proof Set
 
 | Outcome | Request ID | Agent request | Receipt JSON | Callback vote |
@@ -137,8 +163,9 @@ The verifier intentionally requires at least two runner addresses per request, n
 | LLM Inference agent | [`12847293847561029384`](https://agents.testnet.somnia.network/agent/12847293847561029384) |
 
 `Steward` and `MiniGovernor` are source-verified on the Somnia explorer. After
-`StewardUrlPipeline` is deployed, setting `STEWARD_URL_PIPELINE` makes
-`scripts/verify-source.mjs` check that V2 source verification too.
+`StewardUrlPipeline` or `StewardCouncilPipeline` is deployed, setting
+`STEWARD_URL_PIPELINE` or `STEWARD_COUNCIL_PIPELINE` makes
+`scripts/verify-source.mjs` check those source verifications too.
 
 ## Important Limitation
 

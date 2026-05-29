@@ -27,6 +27,9 @@ contract MockSomniaAgents is IAgentRequester {
     uint256 public lastValue;
 
     mapping(uint256 requestId => Request request) internal requests;
+    mapping(uint256 requestId => uint256 agentId) public requestAgentIds;
+    mapping(uint256 requestId => bytes payload) public requestPayloads;
+    mapping(uint256 requestId => uint256 value) public requestValues;
 
     function createRequest(uint256 agentId, address callbackAddress, bytes4 callbackSelector, bytes calldata payload)
         external
@@ -39,6 +42,9 @@ contract MockSomniaAgents is IAgentRequester {
         lastCallbackSelector = callbackSelector;
         lastPayload = payload;
         lastValue = msg.value;
+        requestAgentIds[requestId] = agentId;
+        requestPayloads[requestId] = payload;
+        requestValues[requestId] = msg.value;
 
         Request storage stored = requests[requestId];
         stored.id = requestId;

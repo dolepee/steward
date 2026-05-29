@@ -545,6 +545,122 @@ main {
   margin-top: 16px;
 }
 
+.council {
+  display: grid;
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.councilLead,
+.councilBoard article,
+.councilCommand {
+  border: 1px solid rgba(16, 18, 13, 0.12);
+  background: rgba(255, 255, 255, 0.42);
+}
+
+.councilLead {
+  padding: clamp(24px, 3vw, 36px);
+  border-radius: 36px;
+}
+
+.councilLead h2 {
+  max-width: 700px;
+  margin: 0;
+  font-size: clamp(42px, 5vw, 78px);
+  line-height: 0.86;
+  letter-spacing: -0.075em;
+}
+
+.councilLead p:not(.eyebrow) {
+  max-width: 650px;
+  margin: 24px 0 0;
+  color: rgba(16, 18, 13, 0.68);
+  font-size: 19px;
+  line-height: 1.45;
+}
+
+.councilBoard {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.councilBoard article {
+  min-width: 0;
+  min-height: 260px;
+  padding: 20px;
+  border-radius: 28px;
+}
+
+.councilBoard span,
+.councilCommand span {
+  display: block;
+  color: rgba(16, 18, 13, 0.5);
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.councilBoard strong {
+  display: block;
+  margin-top: 26px;
+  font-size: 54px;
+  line-height: 0.86;
+  letter-spacing: -0.08em;
+}
+
+.councilBoard .yes strong {
+  color: #166d22;
+}
+
+.councilBoard .no strong {
+  color: #8f1628;
+}
+
+.councilBoard .abstain strong {
+  color: #787600;
+}
+
+.councilBoard p {
+  margin: 18px 0 0;
+  color: rgba(16, 18, 13, 0.64);
+  line-height: 1.42;
+}
+
+.councilCommand {
+  grid-column: 1 / -1;
+  padding: 22px;
+  border-radius: 28px;
+  background:
+    linear-gradient(135deg, rgba(16, 18, 13, 0.94), rgba(31, 48, 27, 0.94)),
+    #10120d;
+  color: #f8f4e6;
+}
+
+.councilCommand span {
+  color: rgba(248, 244, 230, 0.62);
+}
+
+.councilCommand code {
+  display: block;
+  margin-top: 10px;
+  color: #6bff7d;
+  font-size: clamp(20px, 2.6vw, 34px);
+  font-weight: 950;
+  letter-spacing: -0.05em;
+  overflow-wrap: anywhere;
+}
+
+.councilCommand p {
+  max-width: 780px;
+  margin: 14px 0 0;
+  color: rgba(248, 244, 230, 0.78);
+  font-size: 16px;
+  line-height: 1.42;
+}
+
 .urlPipeline {
   display: grid;
   grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
@@ -1182,11 +1298,13 @@ main {
   .grid,
   .live,
   .product,
+  .council,
   .urlPipeline,
   .judge,
   .scorecard,
   .useCases,
   .urlConsole,
+  .councilBoard,
   .pipelineSteps,
   .proposalSources,
   .proofCoverage,

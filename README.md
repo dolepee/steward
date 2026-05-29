@@ -18,7 +18,7 @@ Both project contracts are source-verified on the Somnia explorer.
 2. Inspect the YES, NO, and ABSTAIN proof cards, each with proposal tx, agent request tx, agent receipt JSON, and callback vote tx.
 3. Clone the repo and run `./scripts/verify-steward-proof.sh`. The expected final marker is `STEWARD_FULL_PROOF_VALID`.
 
-For the direct receipt map, see [`PROOF.md`](./PROOF.md). For the contract and callback flow, see [`ARCHITECTURE.md`](./ARCHITECTURE.md). For trust assumptions and failure behavior, see [`THREAT_MODEL.md`](./THREAT_MODEL.md).
+For the fastest review path, see [`JUDGE_GUIDE.md`](./JUDGE_GUIDE.md). For the direct receipt map, see [`PROOF.md`](./PROOF.md). For the contract and callback flow, see [`ARCHITECTURE.md`](./ARCHITECTURE.md). For trust assumptions and failure behavior, see [`THREAT_MODEL.md`](./THREAT_MODEL.md).
 
 ## Why This Is Somnia-Native
 

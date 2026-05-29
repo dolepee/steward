@@ -174,6 +174,13 @@ const proposalSources = [
     url: "/proposals/ecosystem-working-group.html",
     fact: "exploratory group, no committed budget",
   },
+  {
+    label: "Security proposal",
+    outcome: "YES",
+    title: "Security Grants and Audit Bounty Program",
+    url: "/proposals/security-grants.html",
+    fact: "750,000 USDC security grants budget",
+  },
 ];
 const councilCases = [
   {
@@ -214,6 +221,20 @@ const councilCases = [
     startTx: "0x5e0055456664f73ac566f47207b89dcbed86f25d17f03f20c7989bb8e0003b35",
     parseTx: "0x6daa36d4058ae08f27794cebef265539bf0bf1714c6ac867386a3185bc90afdc",
     finalVoteTx: "0x12ed8607444b7d99440e964f5e8802734a15b9572542cc4786d2d16eccbb00aa",
+  },
+  {
+    outcome: "YES",
+    proposal: "Security Grants and Audit Bounty Program",
+    proposalId: "7",
+    jobId: "4",
+    parseRequestId: "3101870",
+    reviewerRequestIds: "3101910 / 3101911 / 3101912",
+    tally: "YES=3 / NO=0 / ABSTAIN=0",
+    detail:
+      "The council approved a 750,000 USDC security grants program because it matched the public-goods grant mandate and stayed under 1M.",
+    startTx: "0x3b8650132c0607f1da7d654df2dffc4fd5f7be1bc5871b66fe9b47346afa8b82",
+    parseTx: "0xf0d50e537fd182918156c832adec2692a35552ee1bbc4c71f1b42d0321f523f5",
+    finalVoteTx: "0x7a1de92ec5a0f67dc395c45c730fe6a1d2cb42447f2f705442828ad3f3003960",
   },
 ];
 const councilProof = {
@@ -848,7 +869,7 @@ function App() {
             proposal pages, sends the result to independent LLM reviewers, and casts the
             majority YES, NO, or ABSTAIN vote onchain.
           </p>
-          <p className="proofLine">3 proposal URLs · 9 reviewer calls · YES / NO / ABSTAIN onchain</p>
+          <p className="proofLine">4 proposal URLs · 12 reviewer calls · YES / NO / ABSTAIN onchain</p>
           <div className="agentRail" aria-label="Steward agent governance loop">
             <div>
               <span>1 · source</span>
@@ -1142,8 +1163,8 @@ function App() {
             <span>Council source proof</span>
             <code>{councilProofCommand}</code>
             <p>
-              Verifies the three live proposal URL cases by checking Parse Website requests,
-              parsed summaries, nine reviewer request ids, majority counts, and final governor
+              Verifies the four live proposal URL cases by checking Parse Website requests,
+              parsed summaries, twelve reviewer request ids, majority counts, and final governor
               votes.
             </p>
             <small>Expected: STEWARD_COUNCIL_PROOF_VALID</small>
@@ -1205,12 +1226,12 @@ function App() {
       <section className="council" id="council">
         <div className="councilLead">
           <p className="eyebrow">Live council path · Somnia agents</p>
-          <h2>Three proposals. Three reviewers each. Three outcomes.</h2>
+          <h2>Four proposals. Three reviewers each. Three outcomes.</h2>
           <p>
             The live council proof turns the single LLM decision into a small onchain
             review council. Parse Website reads each public proposal URL, then budget,
             risk, and participation reviewers independently return YES, NO, or ABSTAIN.
-            The contract proves all three outcomes on Somnia.
+            The contract proves four live runs spanning all three outcomes on Somnia.
           </p>
           <div className="txLinks">
             <a href={explorerAddress(proofAddresses.councilPipeline)} target="_blank" rel="noreferrer">
@@ -1250,7 +1271,7 @@ function App() {
             <span>Batch council proof</span>
             <code>node scripts/verify-council-proof.mjs</code>
             <p>
-              Verifies proposal ids 4, 5, and 6; parse requests; nine reviewer request ids;
+              Verifies proposal ids 4, 5, 6, and 7; parse requests; twelve reviewer request ids;
               three majority outcomes; and the final MiniGovernor votes from the council
               contract. Local tests still cover parse failure refunds, three-way ABSTAIN,
               and one-reviewer failure.
@@ -1270,7 +1291,7 @@ function App() {
       <section className="judge">
         <div>
           <p className="eyebrow">Judge path</p>
-          <h2>Three proposal URLs. Nine reviewer receipts. Three council outcomes.</h2>
+          <h2>Four proposal URLs. Twelve reviewer receipts. Three council outcomes.</h2>
           <p>
             Steward is built around Somnia's agent callback path: the contract invokes the LLM
             agent, the subcommittee produces execution receipts, and the callback writes a binding

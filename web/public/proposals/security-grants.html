@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Public Steward governance proposal fixture requesting 750,000 USDC for a community security grants and audit bounty program."
+    />
+    <title>Proposal 4 · Security Grants and Audit Bounty Program</title>
+    <style>
+      :root {
+        color: #10120d;
+        background: #f7f2df;
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          linear-gradient(rgba(16, 18, 13, 0.06) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(16, 18, 13, 0.06) 1px, transparent 1px),
+          #f7f2df;
+        background-size: 48px 48px;
+      }
+
+      main {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 48px 20px 72px;
+      }
+
+      header,
+      section {
+        border: 1px solid rgba(16, 18, 13, 0.14);
+        border-radius: 28px;
+        background: rgba(255, 255, 255, 0.58);
+        padding: clamp(22px, 4vw, 36px);
+      }
+
+      section {
+        margin-top: 16px;
+      }
+
+      p,
+      li {
+        color: rgba(16, 18, 13, 0.72);
+        font-size: 18px;
+        line-height: 1.55;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(44px, 8vw, 84px);
+        line-height: 0.9;
+        letter-spacing: -0.07em;
+      }
+
+      h2 {
+        margin: 0 0 12px;
+        font-size: 26px;
+        letter-spacing: -0.04em;
+      }
+
+      .eyebrow {
+        margin: 0 0 18px;
+        color: #17351d;
+        font-size: 13px;
+        font-weight: 900;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      dl {
+        display: grid;
+        grid-template-columns: 180px 1fr;
+        gap: 12px;
+        margin: 0;
+      }
+
+      dt {
+        color: rgba(16, 18, 13, 0.52);
+        font-size: 13px;
+        font-weight: 900;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      dd {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 800;
+      }
+
+      @media (max-width: 640px) {
+        dl {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">Steward public proposal fixture</p>
+        <h1>Security Grants and Audit Bounty Program</h1>
+        <p>
+          This page is a public governance proposal source for the Steward council proof. It tests
+          whether an autonomous delegate can approve a concrete public-goods security program while
+          keeping the decision tied to explicit funding and recipient constraints.
+        </p>
+      </header>
+
+      <section aria-labelledby="summary">
+        <h2 id="summary">Proposal summary</h2>
+        <p>
+          Approve a 750,000 USDC security grants and audit bounty program for community builders,
+          independent auditors, open-source maintainers, and whitehat researchers. The program funds
+          vulnerability research, audit contests, security tooling, and remediation grants.
+        </p>
+      </section>
+
+      <section aria-labelledby="facts">
+        <h2 id="facts">Decision facts</h2>
+        <dl>
+          <dt>Requested action</dt>
+          <dd>Approve security grants and audit bounty program</dd>
+          <dt>Requested budget</dt>
+          <dd>750,000 USDC maximum</dd>
+          <dt>Funding window</dt>
+          <dd>Six months</dd>
+          <dt>Recipient type</dt>
+          <dd>Community builders, independent auditors, maintainers, and whitehat researchers</dd>
+          <dt>Risk note</dt>
+          <dd>No team token unlock, no insider allocation, and no irreversible protocol change</dd>
+        </dl>
+      </section>
+
+      <section aria-labelledby="rationale">
+        <h2 id="rationale">Rationale</h2>
+        <ul>
+          <li>The budget is below 1,000,000 USDC.</li>
+          <li>The spend is a community/public-goods grant program.</li>
+          <li>Funds are milestone-based and require public post-mortems for critical payouts.</li>
+          <li>No foundation team token vesting or insider liquidity is changed.</li>
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>

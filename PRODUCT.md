@@ -53,7 +53,7 @@ These are valuable because the cost of non-participation is real, but the cost o
 
 ## Production Direction
 
-The hackathon MVP proves one delegate, one governor target, three direct outcomes, and three live council majority outcomes. A production Steward would add:
+The hackathon MVP proves one delegate, one governor target, three direct outcomes, and four live council majority votes spanning YES, NO, and ABSTAIN. A production Steward would add:
 
 - More proposal-source adapters around Somnia's `LLM Parse Website` agent.
 - A production council mode where parsed proposals are reviewed by independent budget, risk, and participation LLM reviewers before the majority outcome is cast onchain.
@@ -63,4 +63,4 @@ The hackathon MVP proves one delegate, one governor target, three direct outcome
 - Delegate reputation and slashing for repeated bad outcomes.
 - UI for humans to approve or revoke criteria before expiry.
 
-The current proof is intentionally narrow: live Somnia contracts, three direct agent requests, nine validator receipts, three four-agent council jobs, transaction-level event verification, callback-cast votes, source verification for the base contracts and council pipeline, and one reproducible proof command.
+The current proof is intentionally narrow: live Somnia contracts, three direct agent requests, nine validator receipts, four four-agent council jobs, transaction-level event verification, callback-cast votes, source verification for the base contracts and council pipeline, and one reproducible proof command.

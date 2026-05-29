@@ -77,6 +77,27 @@ const proofCases = [
     expectedSummary: "Working Group",
     expectedFinalReason: "ABSTAIN: Steward council majority: YES=0, NO=0, ABSTAIN=3.",
   },
+  {
+    label: "SECURITY",
+    proposalTx: "0x5d23cb3fc45db4c1007f65ab75b4e43cf1c0399ffcb49fecab726416c980fc4c",
+    startTx: "0x3b8650132c0607f1da7d654df2dffc4fd5f7be1bc5871b66fe9b47346afa8b82",
+    parseCallbackTx: "0xf0d50e537fd182918156c832adec2692a35552ee1bbc4c71f1b42d0321f523f5",
+    reviewerCallbackTxs: [
+      "0xbf6df133e1b150cc96b1e8170b82298b56899adc207191967973c86ba36f3b3f",
+      "0x7a1de92ec5a0f67dc395c45c730fe6a1d2cb42447f2f705442828ad3f3003960",
+      "0x95d05f29f633c4815a2e6e4ebc69be97ff8ac5d153ce07440fed7e85fa70d492",
+    ],
+    finalVoteTx: "0x7a1de92ec5a0f67dc395c45c730fe6a1d2cb42447f2f705442828ad3f3003960",
+    proposalId: 7n,
+    jobId: 4n,
+    parseRequestId: 3101870n,
+    reviewerRequestIds: [3101910n, 3101911n, 3101912n],
+    expectedSupport: 1n,
+    expectedCounts: { yes: 3n, no: 0n, abstain: 0n },
+    expectedReviewerReason: "YES",
+    expectedSummary: "750,000 USDC",
+    expectedFinalReason: "YES: Steward council majority: YES=3, NO=0, ABSTAIN=0.",
+  },
 ];
 
 const topics = {
@@ -331,5 +352,5 @@ for (const proof of proofCases) {
 }
 
 console.log(`Council pipeline: ${COUNCIL}`);
-console.log("Council outcomes: YES / NO / ABSTAIN");
+console.log("Council outcomes: YES / NO / ABSTAIN plus security grants YES");
 console.log("STEWARD_COUNCIL_PROOF_VALID");

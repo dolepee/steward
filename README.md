@@ -9,14 +9,14 @@ Proposal URLs into auditable Somnia agent council votes.
 
 Steward is a verifiable DAO governance proxy on Somnia. A user delegates voting criteria, a proposal URL appears, Somnia agents parse and review it, and the callback path records a YES, NO, or ABSTAIN decision onchain.
 
-The strongest live proof is the council path: `StewardCouncilPipeline` asks Somnia's `LLM Parse Website` agent to read public proposal pages, sends the parsed facts to three independent LLM reviewers (`budget`, `risk`, and `participation`), and casts the majority outcome into `MiniGovernor`. The deployed council proves all three outcomes from public proposal URLs: YES for grants, NO for team-token unlocks, and ABSTAIN for unclear exploratory work.
+The strongest live proof is the council path: `StewardCouncilPipeline` asks Somnia's `LLM Parse Website` agent to read public proposal pages, sends the parsed facts to three independent LLM reviewers (`budget`, `risk`, and `participation`), and casts the majority outcome into `MiniGovernor`. The deployed council now proves four live URL-to-vote runs spanning all three outcomes: YES for grants/security grants, NO for team-token unlocks, and ABSTAIN for unclear exploratory work.
 
 The base `Steward` proof remains as a lower-level receipt trail: it invokes the live Somnia LLM Inference agent, receives the async callback, casts a MiniGovernor vote, and stores the result onchain. The verifier decodes each live `inferString` request payload and checks the exact proposal text, voting criteria, system prompt, allowed vote outputs, validator receipt steps, runner quorum, timing, and token usage. The base proof contracts and live council pipeline are source-verified on the Somnia explorer.
 
 ## 30-Second Judge Path
 
 1. Open the live page: `https://steward-ashy.vercel.app`.
-2. Start with the Council section: three public proposal URLs become YES, NO, and ABSTAIN majority votes.
+2. Start with the Council section: four public proposal URLs become YES, NO, and ABSTAIN majority votes.
 3. Open a council final-vote tx and confirm the council contract, not the frontend, cast into `MiniGovernor`.
 4. Clone the repo and run `node scripts/verify-council-proof.mjs`. The expected marker is `STEWARD_COUNCIL_PROOF_VALID`.
 5. Run `./scripts/verify-steward-proof.sh` for the full proof packet. The expected final marker is `STEWARD_FULL_PROOF_VALID`.
@@ -33,7 +33,7 @@ Removing Somnia removes the product: there is no auditable agent request, no val
 
 | Criterion | Steward proof |
 | --- | --- |
-| Functionality | Live contracts on Somnia Testnet, three proposal-URL council votes, three direct proposal votes, Somnia agent requests, callback-cast votes, and reproducible verifier scripts. |
+| Functionality | Live contracts on Somnia Testnet, four proposal-URL council votes, three direct proposal votes, Somnia agent requests, callback-cast votes, and reproducible verifier scripts. |
 | Agent-first design | The contract invokes SomniaAgents and waits for the LLM agent's YES, NO, or ABSTAIN response before changing governance state. |
 | Innovation and technical creativity | DAO delegation becomes auditable agent reasoning. The council path composes Parse Website plus three independent LLM reviewers before casting a majority vote. |
 | Autonomous performance | After `requestVote`, the LLM subcommittee response and async callback drive the final vote without a human reviewer approving the decision. |
@@ -76,13 +76,14 @@ The repo also includes an optional two-agent `StewardUrlPipeline` implementation
 
 This single-reviewer path is additive and does not replace the live council proof above.
 
-The frontend also publishes three plain-HTML proposal source pages for the live council proof and optional single-reviewer URL pipeline proof run:
+The frontend also publishes four plain-HTML proposal source pages for the live council proof and optional single-reviewer URL pipeline proof run:
 
 | Expected vote | Source URL |
 | --- | --- |
 | `YES` | `https://steward-ashy.vercel.app/proposals/community-grants.html` |
 | `NO` | `https://steward-ashy.vercel.app/proposals/team-token-unlock.html` |
 | `ABSTAIN` | `https://steward-ashy.vercel.app/proposals/ecosystem-working-group.html` |
+| `YES` | `https://steward-ashy.vercel.app/proposals/security-grants.html` |
 
 ## Live Council Pipeline
 
@@ -107,6 +108,7 @@ Live council proof set:
 | `YES` | `4` / `1` | `3085689` | `3085732`, `3085733`, `3085734` | [`tx`](https://shannon-explorer.somnia.network/tx/0x6dc4156b46c96fa4c099aed8092dbbd6927e15ab204b6fbcaafc7121d9f11641) | `YES=3, NO=0, ABSTAIN=0` |
 | `NO` | `5` / `2` | `3090443` | `3090480`, `3090481`, `3090482` | [`tx`](https://shannon-explorer.somnia.network/tx/0xe4c9dc53ca612d09a6af84e9e45b48fb51ee4506b0b5a839f90d81bd2fe08686) | `YES=0, NO=3, ABSTAIN=0` |
 | `ABSTAIN` | `6` / `3` | `3090879` | `3090907`, `3090908`, `3090909` | [`tx`](https://shannon-explorer.somnia.network/tx/0x12ed8607444b7d99440e964f5e8802734a15b9572542cc4786d2d16eccbb00aa) | `YES=0, NO=0, ABSTAIN=3` |
+| `YES` | `7` / `4` | `3101870` | `3101910`, `3101911`, `3101912` | [`tx`](https://shannon-explorer.somnia.network/tx/0x7a1de92ec5a0f67dc395c45c730fe6a1d2cb42447f2f705442828ad3f3003960) | `YES=3, NO=0, ABSTAIN=0` |
 
 Local verification:
 

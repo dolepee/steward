@@ -1,21 +1,48 @@
-<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="1200" height="630" fill="#F5F2E8"/>
-  <circle cx="105" cy="96" r="48" fill="#75FF5F"/>
-  <text x="105" y="109" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-size="30" fill="#081008">S</text>
-  <text x="172" y="108" font-family="Arial, sans-serif" font-size="48" font-weight="900" fill="#10120D">Steward</text>
-  <text x="84" y="188" font-family="Arial, sans-serif" font-size="18" font-weight="900" letter-spacing="8" fill="#22301C">SOMNIA AGENTATHON</text>
-  <text x="84" y="282" font-family="Arial, sans-serif" font-size="82" font-weight="900" letter-spacing="-5" fill="#10120D">Governance</text>
-  <text x="84" y="358" font-family="Arial, sans-serif" font-size="82" font-weight="900" letter-spacing="-5" fill="#10120D">agents you can</text>
-  <text x="84" y="434" font-family="Arial, sans-serif" font-size="82" font-weight="900" letter-spacing="-5" fill="#10120D">audit.</text>
-  <text x="86" y="502" font-family="Arial, sans-serif" font-size="26" fill="#465041">Contract-invoked Somnia Agent voting.</text>
-  <text x="86" y="538" font-family="Arial, sans-serif" font-size="26" fill="#465041">YES / NO / ABSTAIN tx proofs live.</text>
-  <rect x="720" y="92" width="396" height="446" rx="42" fill="#10180F"/>
-  <text x="764" y="150" font-family="Arial, sans-serif" font-size="15" font-weight="900" letter-spacing="6" fill="#C1FF7D">ONCHAIN VOTE PROOF</text>
-  <rect x="764" y="190" width="306" height="82" rx="22" fill="#263724" stroke="#4A5B43"/>
-  <text x="794" y="242" font-family="Arial, sans-serif" font-size="56" font-weight="900" fill="#66FF75">YES</text>
-  <rect x="764" y="294" width="306" height="82" rx="22" fill="#263724" stroke="#4A5B43"/>
-  <text x="794" y="346" font-family="Arial, sans-serif" font-size="56" font-weight="900" fill="#FF6678">NO</text>
-  <rect x="764" y="398" width="306" height="82" rx="22" fill="#263724" stroke="#4A5B43"/>
-  <text x="794" y="450" font-family="Arial, sans-serif" font-size="56" font-weight="900" fill="#F0FF77">ABSTAIN</text>
-  <text x="764" y="518" font-family="Arial, sans-serif" font-size="17" font-weight="900" letter-spacing="4" fill="#F8F4E6">CALLBACK · LIVE TXS</text>
+<svg width="1200" height="675" viewBox="0 0 1200 675" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="675" fill="#F5F2E8"/>
+  <path d="M0 0H1200V675H0V0Z" fill="#F5F2E8"/>
+  <path d="M0 0H1200V675H0V0Z" fill="url(#glow)"/>
+  <g opacity="0.16">
+    <path d="M0 105H1200M0 210H1200M0 315H1200M0 420H1200M0 525H1200M0 630H1200" stroke="#10120D"/>
+    <path d="M90 0V675M180 0V675M270 0V675M360 0V675M450 0V675M540 0V675M630 0V675M720 0V675M810 0V675M900 0V675M990 0V675M1080 0V675" stroke="#10120D"/>
+  </g>
+
+  <circle cx="88" cy="82" r="48" fill="#6BFF7D"/>
+  <text x="88" y="96" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-size="31" fill="#081008">S</text>
+  <text x="154" y="98" font-family="Arial Black, Arial, sans-serif" font-size="47" fill="#10120D">Steward</text>
+  <text x="820" y="82" font-family="Arial, sans-serif" font-size="19" font-weight="900" letter-spacing="10" fill="#17351D">SOMNIA TESTNET</text>
+  <text x="820" y="114" font-family="Arial, sans-serif" font-size="15" font-weight="900" letter-spacing="7" fill="#5C6656">LLM AGENT RECEIPTS</text>
+
+  <text x="72" y="188" font-family="Arial, sans-serif" font-size="18" font-weight="900" letter-spacing="8" fill="#17351D">CONTRACT-INVOKED DAO AGENT</text>
+  <text x="68" y="285" font-family="Arial Black, Arial, sans-serif" font-size="78" letter-spacing="-5" fill="#10120D">One delegate.</text>
+  <text x="68" y="365" font-family="Arial Black, Arial, sans-serif" font-size="78" letter-spacing="-5" fill="#10120D">Three votes.</text>
+  <text x="68" y="445" font-family="Arial Black, Arial, sans-serif" font-size="78" letter-spacing="-5" fill="#10120D">Nine receipts.</text>
+
+  <rect x="72" y="496" width="602" height="76" rx="30" fill="#FFFDF1" stroke="#D6D0BD"/>
+  <text x="104" y="526" font-family="Arial, sans-serif" font-size="15" font-weight="900" letter-spacing="6" fill="#5C6656">JUDGE PROOF COMMAND</text>
+  <text x="104" y="557" font-family="Arial Black, Arial, sans-serif" font-size="26" fill="#10120D">./scripts/verify-steward-proof.sh</text>
+
+  <rect x="728" y="156" width="396" height="410" rx="44" fill="#10180F"/>
+  <text x="768" y="215" font-family="Arial, sans-serif" font-size="15" font-weight="900" letter-spacing="6" fill="#C1FF7D">VOTE OUTCOMES</text>
+
+  <rect x="768" y="246" width="316" height="70" rx="22" fill="#263724" stroke="#4A5B43"/>
+  <text x="798" y="294" font-family="Arial Black, Arial, sans-serif" font-size="48" fill="#66FF75">YES</text>
+
+  <rect x="768" y="340" width="316" height="70" rx="22" fill="#263724" stroke="#4A5B43"/>
+  <text x="798" y="388" font-family="Arial Black, Arial, sans-serif" font-size="48" fill="#FF6678">NO</text>
+
+  <rect x="768" y="434" width="316" height="70" rx="22" fill="#263724" stroke="#4A5B43"/>
+  <text x="798" y="482" font-family="Arial Black, Arial, sans-serif" font-size="42" fill="#F0FF77">ABSTAIN</text>
+
+  <text x="768" y="538" font-family="Arial, sans-serif" font-size="16" font-weight="900" letter-spacing="5" fill="#F8F4E6">REQUEST -> LLM -> VOTE</text>
+
+  <rect x="728" y="588" width="396" height="54" rx="27" fill="#FFFDF1" stroke="#D6D0BD"/>
+  <text x="760" y="622" font-family="Arial, sans-serif" font-size="17" font-weight="900" letter-spacing="4" fill="#17351D">FULL PROOF VALID</text>
+
+  <defs>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(176 139) rotate(27.1125) scale(575 395)">
+      <stop stop-color="#6BFF7D" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#F5F2E8" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
 </svg>

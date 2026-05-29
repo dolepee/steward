@@ -6,6 +6,12 @@ const STEWARD = "0x6932C7827E7BFd9f0015Ed93fA120379E0d20541".toLowerCase();
 const MINI_GOVERNOR = "0xa3773Ff7B2008bAb2E553E13e1E0ADE08a15f389".toLowerCase();
 const SOMNIA_AGENTS = "0x037Bb9C718F3f7fe5eCBDB0b600D607b52706776".toLowerCase();
 const LLM_AGENT_ID = 12847293847561029384n;
+const INFER_STRING_SELECTOR = "0xfe7ca098";
+const EXPECTED_SYSTEM =
+  "You are Steward, an autonomous DAO voting delegate. Choose exactly one allowed value.";
+const EXPECTED_CRITERIA =
+  "Vote YES for community grants under 1M, NO for team token unlocks, ABSTAIN if unclear.";
+const EXPECTED_ALLOWED_VALUES = ["YES", "NO", "ABSTAIN"];
 
 const topics = {
   proposalCreated: "0x553be4d74bc63ce955614b229c8eaa4ad7f7f1f38840da15f3604b2fca49c6a8",
@@ -23,6 +29,8 @@ const cases = [
     requestId: 1698384n,
     delegationId: 1n,
     support: 1n,
+    criteriaText: EXPECTED_CRITERIA,
+    proposalText: "Allocate 500K USDC to a Q3 community grants program.",
     proposalTx: "0xb31236f41cab27998bbf5593a1fbd8eda3f330eaf1c4b6b34523e5161d30852b",
     requestTx: "0x63c34767e59cc6988fd2ab5ecef9d1089e9f4445e1b1e18a9b490b0d0efc77ef",
     callbackTx: "0xb74e25845472a2f591aa91eefe84e5e2828b41ac11acc78b41ceb1015500c52b",
@@ -33,6 +41,8 @@ const cases = [
     requestId: 1738101n,
     delegationId: 1n,
     support: 2n,
+    criteriaText: EXPECTED_CRITERIA,
+    proposalText: "Unlock 10% of foundation team tokens early.",
     proposalTx: "0xebc1961f3aa23078bb1d54e99d61fc4e8647caae1bae5e4e9f4ec48f2df53b3d",
     requestTx: "0x6d32b090d9ebacc6dd1dd46c01e0036bff3e684df4a28d3817823cd3747959fc",
     callbackTx: "0xe14303e64f6a5db3d74919c94f42d3c14df3183e225f9996cc29cba86cc66dc3",
@@ -43,6 +53,8 @@ const cases = [
     requestId: 1738108n,
     delegationId: 1n,
     support: 3n,
+    criteriaText: EXPECTED_CRITERIA,
+    proposalText: "Form a working group to explore future ecosystem partnerships without committing funds.",
     proposalTx: "0x758f8dbc8cadf4887b301e33ab55c068ad983a4d507bd6cb9c5caa48b7060e53",
     requestTx: "0xa01f30ee06dbfa66b4a60414469d4f0e6406440f11e625a1197de88d797e851d",
     callbackTx: "0xa157564585f473503627c801d6fb5992900dab3d5efcb31d4f15383c16487603",
@@ -67,11 +79,135 @@ function topicAddress(address) {
   return `0x${address.toLowerCase().replace(/^0x/, "").padStart(64, "0")}`;
 }
 
+function cleanHex(value) {
+  return value.replace(/^0x/, "");
+}
+
 function wordAt(data, index) {
-  const clean = data.replace(/^0x/, "");
+  const clean = cleanHex(data);
   const word = clean.slice(index * 64, (index + 1) * 64);
   assert(word.length === 64, `missing data word ${index}`);
   return BigInt(`0x${word}`);
+}
+
+function toSafeNumber(value, label) {
+  assert(value <= BigInt(Number.MAX_SAFE_INTEGER), `${label} too large`);
+  return Number(value);
+}
+
+function wordHexAt(data, byteOffset) {
+  assert(byteOffset % 32 === 0, `unaligned ABI word offset ${byteOffset}`);
+  const clean = cleanHex(data);
+  const start = byteOffset * 2;
+  const word = clean.slice(start, start + 64);
+  assert(word.length === 64, `missing ABI word at byte offset ${byteOffset}`);
+  return word;
+}
+
+function uintAt(data, byteOffset, label = `uint at ${byteOffset}`) {
+  return BigInt(`0x${wordHexAt(data, byteOffset) || "0"}`);
+}
+
+function bytesAt(data, byteOffset, label = `bytes at ${byteOffset}`) {
+  const clean = cleanHex(data);
+  const length = toSafeNumber(uintAt(clean, byteOffset, `${label} length`), `${label} length`);
+  const start = (byteOffset + 32) * 2;
+  const end = start + length * 2;
+  assert(clean.length >= end, `${label} exceeds ABI data bounds`);
+  return `0x${clean.slice(start, end)}`;
+}
+
+function stringAt(data, byteOffset, label = `string at ${byteOffset}`) {
+  return Buffer.from(cleanHex(bytesAt(data, byteOffset, label)), "hex").toString("utf8");
+}
+
+function addressArrayAt(data, byteOffset, label = `address array at ${byteOffset}`) {
+  const length = toSafeNumber(uintAt(data, byteOffset, `${label} length`), `${label} length`);
+  const addresses = [];
+
+  for (let index = 0; index < length; index++) {
+    const word = wordHexAt(data, byteOffset + 32 + index * 32);
+    addresses.push(`0x${word.slice(24)}`.toLowerCase());
+  }
+
+  return addresses;
+}
+
+function stringArrayAt(data, byteOffset, label = `string array at ${byteOffset}`) {
+  const length = toSafeNumber(uintAt(data, byteOffset, `${label} length`), `${label} length`);
+  const itemDataStart = byteOffset + 32;
+  const values = [];
+
+  for (let index = 0; index < length; index++) {
+    const relativeOffset = toSafeNumber(
+      uintAt(data, byteOffset + 32 + index * 32, `${label} item ${index} offset`),
+      `${label} item ${index} offset`,
+    );
+    values.push(stringAt(data, itemDataStart + relativeOffset, `${label} item ${index}`));
+  }
+
+  return values;
+}
+
+function arrayEquals(actual, expected) {
+  return actual.length === expected.length && actual.every((value, index) => value === expected[index]);
+}
+
+function expectedPrompt(proof) {
+  return [
+    `Delegated voting criteria: ${proof.criteriaText}`,
+    "",
+    `Proposal: ${proof.proposalText}`,
+    "",
+    "Choose exactly one allowed value. Return the whole allowed value string.",
+  ].join("\n");
+}
+
+function decodeRequestCreatedData(data) {
+  const payloadOffset = toSafeNumber(uintAt(data, 32, "payload offset"), "payload offset");
+  const subcommitteeOffset = toSafeNumber(uintAt(data, 64, "subcommittee offset"), "subcommittee offset");
+
+  return {
+    perAgentBudget: uintAt(data, 0, "per-agent budget"),
+    payload: bytesAt(data, payloadOffset, "request payload"),
+    subcommittee: addressArrayAt(data, subcommitteeOffset, "request subcommittee"),
+  };
+}
+
+function decodeInferStringPayload(payload) {
+  const clean = cleanHex(payload);
+  assert(
+    clean.startsWith(cleanHex(INFER_STRING_SELECTOR)),
+    `LLM payload selector mismatch: expected ${INFER_STRING_SELECTOR}`,
+  );
+
+  const args = clean.slice(8);
+  const promptOffset = toSafeNumber(uintAt(args, 0, "prompt offset"), "prompt offset");
+  const systemOffset = toSafeNumber(uintAt(args, 32, "system offset"), "system offset");
+  const allowedValuesOffset = toSafeNumber(uintAt(args, 96, "allowed values offset"), "allowed values offset");
+
+  return {
+    selector: `0x${clean.slice(0, 8)}`,
+    prompt: stringAt(args, promptOffset, "prompt"),
+    system: stringAt(args, systemOffset, "system"),
+    chainOfThought: uintAt(args, 64, "chainOfThought") !== 0n,
+    allowedValues: stringArrayAt(args, allowedValuesOffset, "allowed values"),
+  };
+}
+
+function verifyRequestPayload(proof, log) {
+  const decoded = decodeRequestCreatedData(log.data);
+  assert(decoded.perAgentBudget > 0n, `${proof.label}: empty per-agent budget`);
+  assert(decoded.subcommittee.length === 3, `${proof.label}: expected three LLM validators`);
+
+  const payload = decodeInferStringPayload(decoded.payload);
+  assert(payload.prompt === expectedPrompt(proof), `${proof.label}: unexpected LLM prompt`);
+  assert(payload.system === EXPECTED_SYSTEM, `${proof.label}: unexpected LLM system prompt`);
+  assert(payload.chainOfThought === false, `${proof.label}: chain-of-thought flag should be false`);
+  assert(
+    arrayEquals(payload.allowedValues, EXPECTED_ALLOWED_VALUES),
+    `${proof.label}: unexpected allowed LLM outputs ${payload.allowedValues.join(", ")}`,
+  );
 }
 
 function matchingLog(receipt, { address, topic0, topics: expectedTopics = [], dataWords = [] }) {
@@ -135,17 +271,17 @@ for (const proof of cases) {
   );
 
   const request = await receiptWithRetry(proof.requestTx, `${proof.label} request`);
-  assert(
-    matchingLog(request, {
-      address: SOMNIA_AGENTS,
-      topic0: topics.requestCreated,
-      topics: [
-        [1, topicOf(proof.requestId)],
-        [2, topicOf(LLM_AGENT_ID)],
-      ],
-    }),
-    `${proof.label}: missing SomniaAgents RequestCreated log`,
-  );
+  const requestCreatedLog = matchingLog(request, {
+    address: SOMNIA_AGENTS,
+    topic0: topics.requestCreated,
+    topics: [
+      [1, topicOf(proof.requestId)],
+      [2, topicOf(LLM_AGENT_ID)],
+    ],
+  });
+  assert(requestCreatedLog, `${proof.label}: missing SomniaAgents RequestCreated log`);
+  verifyRequestPayload(proof, requestCreatedLog);
+
   assert(
     matchingLog(request, {
       address: STEWARD,
@@ -196,7 +332,7 @@ for (const proof of cases) {
   );
 
   console.log(
-    `${proof.label}: tx trail valid (proposal ${proof.proposalId}, request ${proof.requestId}, support ${proof.support})`,
+    `${proof.label}: tx trail valid (proposal ${proof.proposalId}, request ${proof.requestId}, support ${proof.support}, LLM payload verified)`,
   );
 }
 

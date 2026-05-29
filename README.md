@@ -118,7 +118,7 @@ Explorer base: `https://shannon-explorer.somnia.network`
 
 ### Somnia agent receipt path
 
-The durable judge trail is the SomniaAgents request transaction plus the async callback vote transaction. Each request tx contains the platform `RequestCreated` log with the LLM agent id, payload, and selected subcommittee. Each callback tx shows SomniaAgents calling `Steward.handleResponse`, after which Steward records the final vote and emits `StewardVoteCast`.
+The durable judge trail is the SomniaAgents request transaction plus the async callback vote transaction. Each request tx contains the platform `RequestCreated` log with the LLM agent id, encoded `inferString` payload, and selected subcommittee. The verifier decodes that payload and checks the exact governance criteria, proposal text, system prompt, `chainOfThought = false`, and allowed outputs (`YES`, `NO`, `ABSTAIN`). Each callback tx shows SomniaAgents calling `Steward.handleResponse`, after which Steward records the final vote and emits `StewardVoteCast`.
 
 | Outcome | Agent request | Agent execution receipt | Callback vote | Agent surface |
 | --- | --- | --- | --- | --- |

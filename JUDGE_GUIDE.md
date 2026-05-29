@@ -54,7 +54,7 @@ STEWARD_SOURCE_VERIFICATION_VALID
 STEWARD_FULL_PROOF_VALID
 ```
 
-The command checks live onchain state, Somnia's public agent receipt service, transaction-level event logs for the proof txs, and explorer source verification for `Steward` and `MiniGovernor`.
+The command checks live onchain state, Somnia's public agent receipt service, transaction-level event logs for the proof txs, decoded `inferString` request payloads, and explorer source verification for `Steward` and `MiniGovernor`.
 
 ## What Is Load-Bearing
 

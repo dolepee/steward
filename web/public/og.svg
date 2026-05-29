@@ -20,7 +20,7 @@
 
   <rect x="72" y="496" width="602" height="76" rx="30" fill="#FFFDF1" stroke="#D6D0BD"/>
   <text x="104" y="526" font-family="Arial, sans-serif" font-size="15" font-weight="900" letter-spacing="6" fill="#5C6656">ONE DELEGATE · THREE VOTES</text>
-  <text x="104" y="557" font-family="Arial Black, Arial, sans-serif" font-size="26" fill="#10120D">9 Somnia receipts · source verified</text>
+  <text x="104" y="557" font-family="Arial Black, Arial, sans-serif" font-size="26" fill="#10120D">9 receipts · decoded prompts</text>
 
   <rect x="728" y="156" width="396" height="410" rx="44" fill="#10180F"/>
   <text x="768" y="215" font-family="Arial, sans-serif" font-size="15" font-weight="900" letter-spacing="6" fill="#C1FF7D">AGENT LOOP</text>
@@ -37,7 +37,7 @@
   <text x="768" y="538" font-family="Arial, sans-serif" font-size="16" font-weight="900" letter-spacing="5" fill="#F8F4E6">YES · NO · ABSTAIN</text>
 
   <rect x="728" y="588" width="396" height="54" rx="27" fill="#FFFDF1" stroke="#D6D0BD"/>
-  <text x="760" y="622" font-family="Arial, sans-serif" font-size="17" font-weight="900" letter-spacing="4" fill="#17351D">FULL PROOF VALID</text>
+  <text x="760" y="622" font-family="Arial, sans-serif" font-size="17" font-weight="900" letter-spacing="4" fill="#17351D">FULL PROOF VALID · VERIFIED</text>
 
   <defs>
     <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(176 139) rotate(27.1125) scale(575 395)">

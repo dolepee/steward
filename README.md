@@ -16,7 +16,7 @@ The current MVP proves the full loop: `Steward` invokes the live Somnia LLM Infe
 2. Inspect the YES, NO, and ABSTAIN proof cards, each with proposal tx, agent request tx, agent receipt JSON, and callback vote tx.
 3. Clone the repo and run `./scripts/verify-steward-proof.sh`. The expected final marker is `STEWARD_FULL_PROOF_VALID`.
 
-For the direct receipt map, see [`PROOF.md`](./PROOF.md).
+For the direct receipt map, see [`PROOF.md`](./PROOF.md). For the contract and callback flow, see [`ARCHITECTURE.md`](./ARCHITECTURE.md).
 
 ## Why This Is Somnia-Native
 

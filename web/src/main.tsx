@@ -397,7 +397,7 @@ function App() {
             Steward lets a user sign voting criteria once. A Somnia Agent reads the proposal,
             reasons against the mandate, and casts a DAO vote onchain through an async callback.
           </p>
-          <p className="proofLine">One delegate · three votes · nine agent receipts</p>
+          <p className="proofLine">One delegate · three votes · nine receipts · decoded LLM payloads</p>
           <div className="agentRail" aria-label="Steward agent governance loop">
             <div>
               <span>1 · mandate</span>
@@ -478,9 +478,10 @@ function App() {
             <span>Somnia agent receipt path</span>
             <p>
               Request txs open the SomniaAgents <code>RequestCreated</code> logs for the live LLM
-              agent. Receipt JSON shows the validator runner receipts, token usage, and decoded
-              <code>llm_response</code> step. Callback txs show the async platform response writing the
-              final vote into Steward.
+              agent. The verifier decodes the <code>inferString</code> payload and checks the exact
+              criteria, proposal text, system prompt, and allowed outputs. Receipt JSON shows the
+              validator runner receipts, token usage, and decoded <code>llm_response</code> step.
+              Callback txs show the async platform response writing the final vote into Steward.
             </p>
             <div className="txLinks">
               <a href={llmAgentUrl} target="_blank" rel="noreferrer">
@@ -602,6 +603,7 @@ function App() {
             <div className="proofCoverage" aria-label="Verifier coverage">
               <span>Live state</span>
               <span>Agent receipts</span>
+              <span>Decoded prompts</span>
               <span>Tx event trail</span>
               <span>Verified source</span>
             </div>
@@ -645,6 +647,10 @@ function App() {
         <div>
           <span>Governor votes</span>
           <strong>{live.loading ? "..." : allCast ? "1 / 2 / 3" : "Check"}</strong>
+        </div>
+        <div>
+          <span>Request payloads</span>
+          <strong>inferString decoded</strong>
         </div>
         <div>
           <span>Verified source</span>

@@ -140,6 +140,31 @@ type ProofState = {
   error?: string;
 };
 
+type ReceiptSummary = {
+  successful: number;
+  total: number;
+  response: string;
+};
+
+type ReceiptState = {
+  loading: boolean;
+  summaries?: Record<string, ReceiptSummary>;
+  source?: "live" | "linked";
+};
+
+type AgentReceiptResponse = {
+  receipts?: Array<{
+    status?: string;
+    agentId?: string;
+    agentReceipt?: {
+      steps?: Array<{
+        name?: string;
+        content?: string;
+      }>;
+    };
+  }>;
+};
+
 function explorerTx(hash: string) {
   return `https://shannon-explorer.somnia.network/tx/${hash}`;
 }
@@ -184,6 +209,19 @@ function linkedProofs() {
   );
 }
 
+function linkedReceiptSummaries() {
+  return Object.fromEntries(
+    proofCases.map((proof) => [
+      proof.label,
+      {
+        successful: 3,
+        total: 3,
+        response: proof.expectedReason,
+      },
+    ]),
+  );
+}
+
 function timeoutAfter(ms: number) {
   return new Promise<never>((_, reject) => {
     window.setTimeout(() => reject(new Error("Browser RPC read timed out")), ms);
@@ -194,6 +232,11 @@ function App() {
   const [live, setLive] = useState<ProofState>({
     loading: false,
     proofs: linkedProofs(),
+    source: "linked",
+  });
+  const [receiptState, setReceiptState] = useState<ReceiptState>({
+    loading: false,
+    summaries: linkedReceiptSummaries(),
     source: "linked",
   });
 
@@ -262,10 +305,71 @@ function App() {
     };
   }, []);
 
+  useEffect(() => {
+    let active = true;
+
+    async function readReceipts() {
+      const entries = await Promise.all(
+        proofCases.map(async (proof) => {
+          const response = await fetch(agentReceiptUrl(proof.requestId));
+          if (!response.ok) throw new Error(`Receipt service returned ${response.status}`);
+
+          const body = (await response.json()) as AgentReceiptResponse;
+          const receipts = body.receipts ?? [];
+          const successful = receipts.filter((receipt) => receipt.status === "success");
+          const responseValue =
+            successful[0]?.agentReceipt?.steps?.find((step) => step.name === "llm_response")?.content ??
+            proof.expectedReason;
+
+          return [
+            proof.label,
+            {
+              successful: successful.length,
+              total: receipts.length,
+              response: responseValue,
+            },
+          ] as const;
+        }),
+      );
+
+      return Object.fromEntries(entries);
+    }
+
+    async function loadReceipts() {
+      try {
+        const summaries = await Promise.race([readReceipts(), timeoutAfter(8_000)]);
+
+        if (!active) return;
+
+        setReceiptState({
+          loading: false,
+          summaries,
+          source: "live",
+        });
+      } catch {
+        if (!active) return;
+        setReceiptState({
+          loading: false,
+          summaries: linkedReceiptSummaries(),
+          source: "linked",
+        });
+      }
+    }
+
+    loadReceipts();
+    const interval = window.setInterval(loadReceipts, 30_000);
+    return () => {
+      active = false;
+      window.clearInterval(interval);
+    };
+  }, []);
+
   const allCast = proofCases.every((proof) => {
     const state = live.proofs?.[proof.label];
     return state?.state === 2 && state.support === proof.expectedSupport && state.governorVote === proof.expectedSupport;
   });
+  const receiptSummaries = receiptState.summaries ?? linkedReceiptSummaries();
+  const liveReceiptCount = Object.values(receiptSummaries).reduce((sum, receipt) => sum + receipt.successful, 0);
 
   return (
     <main>
@@ -308,6 +412,7 @@ function App() {
           <div className="decisionDeck">
             {proofCases.map((proof) => {
               const state = live.proofs?.[proof.label];
+              const receiptSummary = receiptSummaries[proof.label];
               const label = supportLabel(state?.support);
               const verified = state?.state === 2 && state.support === proof.expectedSupport;
               return (
@@ -320,6 +425,9 @@ function App() {
                   <small>
                     Request #{proof.requestId.toString()} ·{" "}
                     {verified ? (live.source === "linked" ? "Verified tx trail" : "Cast by Steward") : "Waiting for matching proof"}
+                  </small>
+                  <small>
+                    Agent receipts {receiptSummary.successful}/{receiptSummary.total} · response {receiptSummary.response}
                   </small>
                   <div className="txLinks">
                     <a href={explorerTx(proof.proposalTx)} target="_blank" rel="noreferrer">
@@ -465,7 +573,7 @@ function App() {
         </div>
         <div>
           <span>Agent receipts</span>
-          <strong>{successfulReceiptCount}</strong>
+          <strong>{receiptState.loading ? "..." : `${liveReceiptCount}/${successfulReceiptCount}`}</strong>
         </div>
       </section>
 

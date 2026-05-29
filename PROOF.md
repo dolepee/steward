@@ -1,6 +1,6 @@
 # Steward Proof Guide
 
-Steward's strongest claim is simple: one delegated voting mandate produced three autonomous onchain votes through Somnia's LLM agent path, plus one live council vote that composes Parse Website with three independent LLM reviewers.
+Steward's strongest claim is simple: one delegated voting mandate produced three autonomous onchain votes through Somnia's LLM agent path, plus three live council outcomes that compose Parse Website with three independent LLM reviewers.
 
 ## What This Proves
 
@@ -12,7 +12,7 @@ Steward's strongest claim is simple: one delegated voting mandate produced three
 | Public agent receipt trail | Somnia's receipt service returns threshold-2-of-3 request metadata, validator runner receipts, timing, token usage, and decoded LLM steps for each request. |
 | Transaction-level event trail | The verifier checks `ProposalCreated`, `RequestCreated`, `VoteRequested`, `RequestFinalized`, `VoteCast`, and `StewardVoteCast` logs for all three outcomes. It also decodes each `RequestCreated` payload and confirms the `inferString` call used the expected criteria, proposal text, system prompt, and allowed outputs. |
 | Verifiable final state | `MiniGovernor.votes(proposalId, Steward)` matches the agent-returned support value. |
-| Council proof | `StewardCouncilPipeline` live job `1` parsed a public proposal URL, requested three LLM reviewer decisions, recorded `YES/YES/YES`, and cast the majority YES into MiniGovernor proposal `4`. |
+| Council proof | `StewardCouncilPipeline` parsed three public proposal URLs, requested nine LLM reviewer decisions, and cast live YES, NO, and ABSTAIN majority votes into MiniGovernor. |
 
 ## Fast Verification
 
@@ -113,24 +113,22 @@ output.
 
 ## V3 Council Pipeline Proof
 
-`StewardCouncilPipeline` is now deployed with a live proof. It uses one Parse
-Website request followed by three independent LLM reviewer requests: `budget`,
-`risk`, and `participation`. The contract records each reviewer request id,
-role, response, support value, and receipt before casting the majority outcome.
+`StewardCouncilPipeline` is now deployed with a three-outcome live proof. Each
+case uses one Parse Website request followed by three independent LLM reviewer
+requests: `budget`, `risk`, and `participation`. The contract records each
+reviewer request id, role, response, support value, and receipt before casting
+the majority outcome.
 
 | Artifact | Value |
 | --- | --- |
 | Council pipeline | [`0xB890e1274eE308cBC8348a7E032394406215fd52`](https://shannon-explorer.somnia.network/address/0xB890e1274eE308cBC8348a7E032394406215fd52) |
 | Deploy tx | [`0x0f9c058cb1d07c2885177e4e104c2115ccf6e87f37eb289a867005def970f1e3`](https://shannon-explorer.somnia.network/tx/0x0f9c058cb1d07c2885177e4e104c2115ccf6e87f37eb289a867005def970f1e3) |
-| Proposal tx | [`0x0c6e09adac5d7b066e01dc67bf6cf08e202061ad80e87f1e3770a3cdcf497d11`](https://shannon-explorer.somnia.network/tx/0x0c6e09adac5d7b066e01dc67bf6cf08e202061ad80e87f1e3770a3cdcf497d11) |
-| Start tx | [`0xccc228ce881ea9958aafdfdf9825882d23ed32cf52e8b3cdd2f1ff5a4db221fb`](https://shannon-explorer.somnia.network/tx/0xccc228ce881ea9958aafdfdf9825882d23ed32cf52e8b3cdd2f1ff5a4db221fb) |
-| Parse callback tx | [`0xa07abe08b36a8cff98fa141b26ced8cf6e81ae8afd48786f5338c873cc40d98b`](https://shannon-explorer.somnia.network/tx/0xa07abe08b36a8cff98fa141b26ced8cf6e81ae8afd48786f5338c873cc40d98b) |
-| Budget reviewer tx | [`0x517b19727db1ca8ab76d766b4cb7e35c251bc2acf859619388f776ce3a97b28a`](https://shannon-explorer.somnia.network/tx/0x517b19727db1ca8ab76d766b4cb7e35c251bc2acf859619388f776ce3a97b28a) |
-| Risk reviewer / final vote tx | [`0x6dc4156b46c96fa4c099aed8092dbbd6927e15ab204b6fbcaafc7121d9f11641`](https://shannon-explorer.somnia.network/tx/0x6dc4156b46c96fa4c099aed8092dbbd6927e15ab204b6fbcaafc7121d9f11641) |
-| Participation reviewer tx | [`0x6e56187ff56be6eb7819d600750d6405544ad5938af90af7a57501c0c4923d1b`](https://shannon-explorer.somnia.network/tx/0x6e56187ff56be6eb7819d600750d6405544ad5938af90af7a57501c0c4923d1b) |
-| Proposal id / job id | `4` / `1` |
-| Request ids | Parse `3085689`; reviewers `3085732`, `3085733`, `3085734` |
-| Final result | `YES=3, NO=0, ABSTAIN=0`; council cast YES into MiniGovernor proposal `4` |
+
+| Outcome | Proposal / job | Parse request | Reviewer requests | Start tx | Parse tx | Final vote tx | Tally |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `YES` | `4` / `1` | `3085689` | `3085732`, `3085733`, `3085734` | [`tx`](https://shannon-explorer.somnia.network/tx/0xccc228ce881ea9958aafdfdf9825882d23ed32cf52e8b3cdd2f1ff5a4db221fb) | [`tx`](https://shannon-explorer.somnia.network/tx/0xa07abe08b36a8cff98fa141b26ced8cf6e81ae8afd48786f5338c873cc40d98b) | [`tx`](https://shannon-explorer.somnia.network/tx/0x6dc4156b46c96fa4c099aed8092dbbd6927e15ab204b6fbcaafc7121d9f11641) | `YES=3, NO=0, ABSTAIN=0` |
+| `NO` | `5` / `2` | `3090443` | `3090480`, `3090481`, `3090482` | [`tx`](https://shannon-explorer.somnia.network/tx/0xb4fed6c8eecba1bfa8e75fc8b0a50d9702a05da16a793e6cbdb6a6fe6b6061da) | [`tx`](https://shannon-explorer.somnia.network/tx/0x20c677ee2dfc13b3f6a2c5744aa3e1dfc91dc83f0f59a723cf4d86940de1e788) | [`tx`](https://shannon-explorer.somnia.network/tx/0xe4c9dc53ca612d09a6af84e9e45b48fb51ee4506b0b5a839f90d81bd2fe08686) | `YES=0, NO=3, ABSTAIN=0` |
+| `ABSTAIN` | `6` / `3` | `3090879` | `3090907`, `3090908`, `3090909` | [`tx`](https://shannon-explorer.somnia.network/tx/0x5e0055456664f73ac566f47207b89dcbed86f25d17f03f20c7989bb8e0003b35) | [`tx`](https://shannon-explorer.somnia.network/tx/0x6daa36d4058ae08f27794cebef265539bf0bf1714c6ac867386a3185bc90afdc) | [`tx`](https://shannon-explorer.somnia.network/tx/0x12ed8607444b7d99440e964f5e8802734a15b9572542cc4786d2d16eccbb00aa) | `YES=0, NO=0, ABSTAIN=3` |
 
 Local verifier:
 
@@ -144,9 +142,10 @@ Live verifier:
 node scripts/verify-council-proof.mjs
 ```
 
-The council verifier checks the deployed bytecode, proposal creation tx, pipeline
-start tx, Parse Website request, three reviewer request ids, three reviewer
-callback txs, final `CouncilVoteCast`, and `MiniGovernor.votes(4, council)`.
+The council verifier checks deployed bytecode, three proposal creation txs, three
+pipeline start txs, three Parse Website requests, nine reviewer request ids,
+reviewer callback txs, final `CouncilVoteCast` events, and
+`MiniGovernor.votes(proposalId, council)` for proposals `4`, `5`, and `6`.
 
 ## Proof Set
 

@@ -176,38 +176,49 @@ const proposalSources = [
     fact: "exploratory group, no committed budget",
   },
 ];
-const councilReviewers = [
+const councilCases = [
   {
-    role: "Budget",
-    vote: "YES",
-    requestId: "3085732",
-    detail: "Checks requested amounts, caps, and whether the spend matches the delegate mandate.",
+    outcome: "YES",
+    proposal: "Q3 Community Grants Program",
+    proposalId: "4",
+    jobId: "1",
+    parseRequestId: "3085689",
+    reviewerRequestIds: "3085732 / 3085733 / 3085734",
+    tally: "YES=3 / NO=0 / ABSTAIN=0",
+    detail: "The council approved a 500,000 USDC grants program because it matched the under-1M community grants mandate.",
+    startTx: "0xccc228ce881ea9958aafdfdf9825882d23ed32cf52e8b3cdd2f1ff5a4db221fb",
+    parseTx: "0xa07abe08b36a8cff98fa141b26ced8cf6e81ae8afd48786f5338c873cc40d98b",
+    finalVoteTx: "0x6dc4156b46c96fa4c099aed8092dbbd6927e15ab204b6fbcaafc7121d9f11641",
   },
   {
-    role: "Risk",
-    vote: "YES",
-    requestId: "3085733",
-    detail: "Looks for unlocks, weak accountability, ambiguous execution, or downside hidden in the proposal.",
+    outcome: "NO",
+    proposal: "Early Foundation Team Token Unlock",
+    proposalId: "5",
+    jobId: "2",
+    parseRequestId: "3090443",
+    reviewerRequestIds: "3090480 / 3090481 / 3090482",
+    tally: "YES=0 / NO=3 / ABSTAIN=0",
+    detail: "The council rejected an early team-token unlock because the mandate explicitly rejects team unlocks.",
+    startTx: "0xb4fed6c8eecba1bfa8e75fc8b0a50d9702a05da16a793e6cbdb6a6fe6b6061da",
+    parseTx: "0x20c677ee2dfc13b3f6a2c5744aa3e1dfc91dc83f0f59a723cf4d86940de1e788",
+    finalVoteTx: "0xe4c9dc53ca612d09a6af84e9e45b48fb51ee4506b0b5a839f90d81bd2fe08686",
   },
   {
-    role: "Participation",
-    vote: "YES",
-    requestId: "3085734",
-    detail: "Asks whether the voter should act or abstain when benefits and evidence are unclear.",
+    outcome: "ABSTAIN",
+    proposal: "Ecosystem Partnerships Working Group",
+    proposalId: "6",
+    jobId: "3",
+    parseRequestId: "3090879",
+    reviewerRequestIds: "3090907 / 3090908 / 3090909",
+    tally: "YES=0 / NO=0 / ABSTAIN=3",
+    detail: "The council abstained from an exploratory working group because it had no budget and insufficient decision detail.",
+    startTx: "0x5e0055456664f73ac566f47207b89dcbed86f25d17f03f20c7989bb8e0003b35",
+    parseTx: "0x6daa36d4058ae08f27794cebef265539bf0bf1714c6ac867386a3185bc90afdc",
+    finalVoteTx: "0x12ed8607444b7d99440e964f5e8802734a15b9572542cc4786d2d16eccbb00aa",
   },
 ];
 const councilProof = {
-  proposalId: "4",
-  jobId: "1",
-  parseRequestId: "3085689",
   deployTx: "0x0f9c058cb1d07c2885177e4e104c2115ccf6e87f37eb289a867005def970f1e3",
-  proposalTx: "0x0c6e09adac5d7b066e01dc67bf6cf08e202061ad80e87f1e3770a3cdcf497d11",
-  startTx: "0xccc228ce881ea9958aafdfdf9825882d23ed32cf52e8b3cdd2f1ff5a4db221fb",
-  parseTx: "0xa07abe08b36a8cff98fa141b26ced8cf6e81ae8afd48786f5338c873cc40d98b",
-  finalVoteTx: "0x6dc4156b46c96fa4c099aed8092dbbd6927e15ab204b6fbcaafc7121d9f11641",
-  summary:
-    "Proposal 1 · Q3 Community Grants Program: approve a community grants program with a 500,000 USDC maximum budget.",
-  result: "YES=3, NO=0, ABSTAIN=0",
 };
 
 const stewardAbi = [
@@ -837,7 +848,7 @@ function App() {
             Steward lets a user sign voting criteria once. A Somnia Agent reads the proposal,
             reasons against the mandate, and casts a DAO vote onchain through an async callback.
           </p>
-          <p className="proofLine">One delegate · three votes · live four-agent council · decoded LLM payloads</p>
+          <p className="proofLine">One delegate · three votes · three live council outcomes · decoded LLM payloads</p>
           <div className="agentRail" aria-label="Steward agent governance loop">
             <div>
               <span>1 · mandate</span>
@@ -1192,44 +1203,55 @@ function App() {
       <section className="council" id="council">
         <div className="councilLead">
           <p className="eyebrow">V3 council path · live on Somnia</p>
-          <h2>One proposal. Three reviewers. One majority vote.</h2>
+          <h2>Three proposals. Three reviewers each. Three outcomes.</h2>
           <p>
             The live council proof turns the single LLM decision into a small onchain
-            review council. Parse Website read the public grants URL, then budget, risk,
-            and participation reviewers each returned YES. The contract cast the 3-0
-            majority into MiniGovernor proposal #{councilProof.proposalId}.
+            review council. Parse Website reads each public proposal URL, then budget,
+            risk, and participation reviewers independently return YES, NO, or ABSTAIN.
+            The contract proves all three outcomes on Somnia.
           </p>
           <div className="txLinks">
             <a href={explorerAddress(proofAddresses.councilPipeline)} target="_blank" rel="noreferrer">
               Council contract
             </a>
-            <a href={explorerTx(councilProof.startTx)} target="_blank" rel="noreferrer">
-              Start proof
-            </a>
-            <a href={explorerTx(councilProof.parseTx)} target="_blank" rel="noreferrer">
-              Parse callback
-            </a>
-            <a href={explorerTx(councilProof.finalVoteTx)} target="_blank" rel="noreferrer">
-              Final vote
-            </a>
+            {councilCases.map((proof) => (
+              <a href={explorerTx(proof.finalVoteTx)} target="_blank" rel="noreferrer" key={`${proof.outcome}-final`}>
+                {proof.outcome} final vote
+              </a>
+            ))}
           </div>
         </div>
         <div className="councilBoard">
-          {councilReviewers.map((reviewer) => (
-            <article className={reviewer.vote.toLowerCase()} key={reviewer.role}>
-              <span>{reviewer.role} reviewer</span>
-              <strong>{reviewer.vote}</strong>
-              <small>Request #{reviewer.requestId}</small>
-              <p>{reviewer.detail}</p>
+          {councilCases.map((proof) => (
+            <article className={proof.outcome.toLowerCase()} key={proof.jobId}>
+              <span>{proof.proposal}</span>
+              <strong>{proof.outcome}</strong>
+              <small>
+                Job #{proof.jobId} · parse #{proof.parseRequestId}
+              </small>
+              <small>{proof.tally}</small>
+              <p>{proof.detail}</p>
+              <div className="txLinks">
+                <a href={explorerTx(proof.startTx)} target="_blank" rel="noreferrer">
+                  Start
+                </a>
+                <a href={explorerTx(proof.parseTx)} target="_blank" rel="noreferrer">
+                  Parse
+                </a>
+                <a href={explorerTx(proof.finalVoteTx)} target="_blank" rel="noreferrer">
+                  Vote
+                </a>
+              </div>
             </article>
           ))}
           <div className="councilCommand">
-            <span>Live council proof</span>
+            <span>Batch council proof</span>
             <code>node scripts/verify-council-proof.mjs</code>
             <p>
-              Job #{councilProof.jobId} parsed request #{councilProof.parseRequestId}, recorded
-              {` ${councilProof.result}`}, and cast YES through the council contract. Local tests
-              still cover parse failure refunds, three-way ABSTAIN, and one-reviewer failure.
+              Verifies proposal ids 4, 5, and 6; parse requests; nine reviewer request ids;
+              three majority outcomes; and the final MiniGovernor votes from the council
+              contract. Local tests still cover parse failure refunds, three-way ABSTAIN,
+              and one-reviewer failure.
             </p>
             <div className="txLinks">
               <a href={parseWebsiteAgentUrl} target="_blank" rel="noreferrer">
@@ -1237,9 +1259,6 @@ function App() {
               </a>
               <a href={explorerTx(councilProof.deployTx)} target="_blank" rel="noreferrer">
                 Deploy tx
-              </a>
-              <a href={explorerTx(councilProof.proposalTx)} target="_blank" rel="noreferrer">
-                Proposal tx
               </a>
             </div>
           </div>
@@ -1249,7 +1268,7 @@ function App() {
       <section className="judge">
         <div>
           <p className="eyebrow">Judge path</p>
-          <h2>One delegate. Three proposals. Nine receipts. One live council majority.</h2>
+          <h2>One delegate. Three proposals. Nine receipts. Three council outcomes.</h2>
           <p>
             Steward is built around Somnia's agent callback path: the contract invokes the LLM
             agent, the subcommittee produces execution receipts, and the callback writes a binding

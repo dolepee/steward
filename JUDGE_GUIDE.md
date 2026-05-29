@@ -1,13 +1,13 @@
 # Steward Judge Guide
 
-Steward is a verifiable DAO governance proxy on Somnia. A user stores voting criteria, Steward asks Somnia's live LLM Inference agent to evaluate a proposal, and the SomniaAgents callback casts the final YES, NO, or ABSTAIN vote onchain. The latest council proof also composes Somnia's Parse Website agent with three independent LLM reviewers before casting a majority vote.
+Steward is a verifiable DAO governance proxy on Somnia. A user stores voting criteria, Steward asks Somnia's live LLM Inference agent to evaluate a proposal, and the SomniaAgents callback casts the final YES, NO, or ABSTAIN vote onchain. The latest council proof also composes Somnia's Parse Website agent with three independent LLM reviewers and proves live YES, NO, and ABSTAIN majority outcomes.
 
 ## First 60 Seconds
 
 1. Open `https://steward-ashy.vercel.app`.
 2. Check the three live proof cards: `YES`, `NO`, and `ABSTAIN`.
 3. For each card, inspect the proposal transaction, Somnia agent request, public receipt JSON, and callback vote transaction.
-4. Scroll to the Council section and inspect the live Parse Website -> budget/risk/participation reviewer -> majority vote path.
+4. Scroll to the Council section and inspect the live Parse Website -> budget/risk/participation reviewer -> YES/NO/ABSTAIN majority proof set.
 5. Confirm the proof strip shows `9/9` validator receipts, decoded prompt proof, runner/quorum evidence, and verified contracts.
 6. Run `./scripts/verify-steward-proof.sh` from the repo. The final marker should be `STEWARD_FULL_PROOF_VALID`.
 
@@ -20,7 +20,7 @@ DAO delegation usually ends at a static delegate address or an offchain voting b
 - The verifier decodes each `inferString` payload and checks the exact criteria, proposal text, system prompt, and allowed outputs.
 - The contract only casts after SomniaAgents calls back with a valid `YES`, `NO`, or `ABSTAIN`.
 - The final governor vote and the agent receipt trail, including runner quorum, timing, and token usage, are publicly reproducible.
-- The live council path avoids a single-model decision by parsing a public proposal URL, asking three reviewer roles, and casting only the majority outcome.
+- The live council path avoids a single-model decision by parsing public proposal URLs, asking three reviewer roles, and casting only the majority outcome.
 
 ## Live Proof Anchors
 
@@ -40,12 +40,11 @@ DAO delegation usually ends at a static delegate address or an offchain voting b
 | `NO` | `1738101` | Steward cast support `2` into MiniGovernor proposal `2`. |
 | `ABSTAIN` | `1738108` | Steward cast support `3` into MiniGovernor proposal `3`. |
 
-| Council proof | Value |
-| --- | --- |
-| Proposal / job | Proposal `4`, job `1` |
-| Parse request | `3085689` |
-| Reviewer requests | `3085732`, `3085733`, `3085734` |
-| Result | `YES=3`, `NO=0`, `ABSTAIN=0`; council cast support `1` into MiniGovernor proposal `4`. |
+| Council outcome | Proposal / job | Parse request | Reviewer requests | Result |
+| --- | --- | --- | --- | --- |
+| `YES` | `4` / `1` | `3085689` | `3085732`, `3085733`, `3085734` | `YES=3`, `NO=0`, `ABSTAIN=0` |
+| `NO` | `5` / `2` | `3090443` | `3090480`, `3090481`, `3090482` | `YES=0`, `NO=3`, `ABSTAIN=0` |
+| `ABSTAIN` | `6` / `3` | `3090879` | `3090907`, `3090908`, `3090909` | `YES=0`, `NO=0`, `ABSTAIN=3` |
 
 ## Verification Command
 

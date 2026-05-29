@@ -13,6 +13,11 @@ const contracts = [
     address: "0xa3773Ff7B2008bAb2E553E13e1E0ADE08a15f389",
     expectedName: "MiniGovernor",
   },
+  {
+    label: "StewardCouncilPipeline",
+    address: "0xB890e1274eE308cBC8348a7E032394406215fd52",
+    expectedName: "StewardCouncilPipeline",
+  },
 ];
 
 if (process.env.STEWARD_URL_PIPELINE) {

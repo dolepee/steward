@@ -1,6 +1,6 @@
 # Steward Proof Guide
 
-Steward's strongest claim is simple: one delegated voting mandate produced three autonomous onchain votes through Somnia's LLM agent path, with the live LLM request payloads and validator receipt quorum decoded and verified.
+Steward's strongest claim is simple: one delegated voting mandate produced three autonomous onchain votes through Somnia's LLM agent path, plus one live council vote that composes Parse Website with three independent LLM reviewers.
 
 ## What This Proves
 
@@ -12,6 +12,7 @@ Steward's strongest claim is simple: one delegated voting mandate produced three
 | Public agent receipt trail | Somnia's receipt service returns threshold-2-of-3 request metadata, validator runner receipts, timing, token usage, and decoded LLM steps for each request. |
 | Transaction-level event trail | The verifier checks `ProposalCreated`, `RequestCreated`, `VoteRequested`, `RequestFinalized`, `VoteCast`, and `StewardVoteCast` logs for all three outcomes. It also decodes each `RequestCreated` payload and confirms the `inferString` call used the expected criteria, proposal text, system prompt, and allowed outputs. |
 | Verifiable final state | `MiniGovernor.votes(proposalId, Steward)` matches the agent-returned support value. |
+| Council proof | `StewardCouncilPipeline` live job `1` parsed a public proposal URL, requested three LLM reviewer decisions, recorded `YES/YES/YES`, and cast the majority YES into MiniGovernor proposal `4`. |
 
 ## Fast Verification
 
@@ -30,6 +31,7 @@ Expected final markers:
 STEWARD_LIVE_PROOF_VALID
 STEWARD_AGENT_RECEIPTS_VALID
 STEWARD_TX_TRAIL_VALID
+STEWARD_COUNCIL_PROOF_VALID
 STEWARD_SOURCE_VERIFICATION_VALID
 STEWARD_FULL_PROOF_VALID
 ```
@@ -109,13 +111,26 @@ both the Parse Website request and the LLM vote request, then checks threshold,
 runner quorum, agent id, decoded step evidence, timing, and the final LLM vote
 output.
 
-## V3 Council Pipeline Proof Path
+## V3 Council Pipeline Proof
 
-`StewardCouncilPipeline` is the additive higher-ceiling path for a later live
-proof. It uses one Parse Website request followed by three independent LLM
-reviewer requests: `budget`, `risk`, and `participation`. The contract records
-each reviewer request id, role, response, support value, and receipt before
-casting the majority outcome.
+`StewardCouncilPipeline` is now deployed with a live proof. It uses one Parse
+Website request followed by three independent LLM reviewer requests: `budget`,
+`risk`, and `participation`. The contract records each reviewer request id,
+role, response, support value, and receipt before casting the majority outcome.
+
+| Artifact | Value |
+| --- | --- |
+| Council pipeline | [`0xB890e1274eE308cBC8348a7E032394406215fd52`](https://shannon-explorer.somnia.network/address/0xB890e1274eE308cBC8348a7E032394406215fd52) |
+| Deploy tx | [`0x0f9c058cb1d07c2885177e4e104c2115ccf6e87f37eb289a867005def970f1e3`](https://shannon-explorer.somnia.network/tx/0x0f9c058cb1d07c2885177e4e104c2115ccf6e87f37eb289a867005def970f1e3) |
+| Proposal tx | [`0x0c6e09adac5d7b066e01dc67bf6cf08e202061ad80e87f1e3770a3cdcf497d11`](https://shannon-explorer.somnia.network/tx/0x0c6e09adac5d7b066e01dc67bf6cf08e202061ad80e87f1e3770a3cdcf497d11) |
+| Start tx | [`0xccc228ce881ea9958aafdfdf9825882d23ed32cf52e8b3cdd2f1ff5a4db221fb`](https://shannon-explorer.somnia.network/tx/0xccc228ce881ea9958aafdfdf9825882d23ed32cf52e8b3cdd2f1ff5a4db221fb) |
+| Parse callback tx | [`0xa07abe08b36a8cff98fa141b26ced8cf6e81ae8afd48786f5338c873cc40d98b`](https://shannon-explorer.somnia.network/tx/0xa07abe08b36a8cff98fa141b26ced8cf6e81ae8afd48786f5338c873cc40d98b) |
+| Budget reviewer tx | [`0x517b19727db1ca8ab76d766b4cb7e35c251bc2acf859619388f776ce3a97b28a`](https://shannon-explorer.somnia.network/tx/0x517b19727db1ca8ab76d766b4cb7e35c251bc2acf859619388f776ce3a97b28a) |
+| Risk reviewer / final vote tx | [`0x6dc4156b46c96fa4c099aed8092dbbd6927e15ab204b6fbcaafc7121d9f11641`](https://shannon-explorer.somnia.network/tx/0x6dc4156b46c96fa4c099aed8092dbbd6927e15ab204b6fbcaafc7121d9f11641) |
+| Participation reviewer tx | [`0x6e56187ff56be6eb7819d600750d6405544ad5938af90af7a57501c0c4923d1b`](https://shannon-explorer.somnia.network/tx/0x6e56187ff56be6eb7819d600750d6405544ad5938af90af7a57501c0c4923d1b) |
+| Proposal id / job id | `4` / `1` |
+| Request ids | Parse `3085689`; reviewers `3085732`, `3085733`, `3085734` |
+| Final result | `YES=3, NO=0, ABSTAIN=0`; council cast YES into MiniGovernor proposal `4` |
 
 Local verifier:
 
@@ -123,17 +138,15 @@ Local verifier:
 forge test --match-contract StewardCouncilPipelineTest -vvv
 ```
 
-Live deployment scaffolding:
+Live verifier:
 
 ```shell
-forge script script/DeployStewardCouncilPipeline.s.sol --rpc-url "$SOMNIA_TESTNET_RPC" --private-key "$PRIVATE_KEY" --broadcast --legacy
-forge script script/SeedCouncilProofs.s.sol --rpc-url "$SOMNIA_TESTNET_RPC" --private-key "$PRIVATE_KEY" --broadcast --legacy
+node scripts/verify-council-proof.mjs
 ```
 
-The council proof should not replace the current live proof until it has its own
-deployed address, parse callback, three reviewer callbacks, final majority vote,
-and source verification. Once deployed, set `STEWARD_COUNCIL_PIPELINE` so
-`scripts/verify-source.mjs` includes the council contract in source checks.
+The council verifier checks the deployed bytecode, proposal creation tx, pipeline
+start tx, Parse Website request, three reviewer request ids, three reviewer
+callback txs, final `CouncilVoteCast`, and `MiniGovernor.votes(4, council)`.
 
 ## Proof Set
 
@@ -159,13 +172,15 @@ The verifier intentionally requires at least two runner addresses per request, n
 | --- | --- |
 | Steward | [`0x6932C7827E7BFd9f0015Ed93fA120379E0d20541`](https://shannon-explorer.somnia.network/address/0x6932C7827E7BFd9f0015Ed93fA120379E0d20541) |
 | MiniGovernor | [`0xa3773Ff7B2008bAb2E553E13e1E0ADE08a15f389`](https://shannon-explorer.somnia.network/address/0xa3773Ff7B2008bAb2E553E13e1E0ADE08a15f389) |
+| StewardCouncilPipeline | [`0xB890e1274eE308cBC8348a7E032394406215fd52`](https://shannon-explorer.somnia.network/address/0xB890e1274eE308cBC8348a7E032394406215fd52) |
 | SomniaAgents requester | [`0x037Bb9C718F3f7fe5eCBDB0b600D607b52706776`](https://shannon-explorer.somnia.network/address/0x037Bb9C718F3f7fe5eCBDB0b600D607b52706776) |
 | LLM Inference agent | [`12847293847561029384`](https://agents.testnet.somnia.network/agent/12847293847561029384) |
+| LLM Parse Website agent | [`12875401142070969085`](https://agents.testnet.somnia.network/agent/12875401142070969085) |
 
-`Steward` and `MiniGovernor` are source-verified on the Somnia explorer. After
-`StewardUrlPipeline` or `StewardCouncilPipeline` is deployed, setting
-`STEWARD_URL_PIPELINE` or `STEWARD_COUNCIL_PIPELINE` makes
-`scripts/verify-source.mjs` check those source verifications too.
+`Steward`, `MiniGovernor`, and `StewardCouncilPipeline` are source-verified on
+the Somnia explorer. After `StewardUrlPipeline` is deployed, setting
+`STEWARD_URL_PIPELINE` makes `scripts/verify-source.mjs` check that source
+verification too.
 
 ## Important Limitation
 

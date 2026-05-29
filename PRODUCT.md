@@ -5,7 +5,7 @@ Steward is not trying to replace DAO governance. It turns delegated governance i
 The core product claim is:
 
 ```text
-Delegate criteria once. Let a Somnia agent evaluate proposals. Verify every final vote from the request, receipt, and callback trail.
+Delegate criteria once. Let Somnia agents evaluate proposals. Verify every final vote from the request, receipt, callback, and council trail.
 ```
 
 ## Who Uses It
@@ -26,6 +26,7 @@ A normal governance bot can read a proposal, call an LLM, and submit a vote, but
 - The LLM agent response is tied to a request id and public receipt path.
 - The final vote is written by the callback path, not by a frontend-supplied vote button.
 - The verifier checks the onchain state, transaction logs, receipt service, and source-verified contracts.
+- The live council proof shows a higher-value path where Parse Website extracts proposal facts and three LLM reviewers vote by role before the majority outcome reaches the governor.
 
 ## Why Somnia Matters
 
@@ -52,14 +53,14 @@ These are valuable because the cost of non-participation is real, but the cost o
 
 ## Production Direction
 
-The hackathon MVP proves one delegate, one governor target, and three outcomes. A production Steward would add:
+The hackathon MVP proves one delegate, one governor target, three direct outcomes, and one live council majority proof. A production Steward would add:
 
-- URL proposal ingestion through Somnia's `LLM Parse Website` agent, followed by a second `LLM Inference` vote decision.
-- A council mode where the parsed proposal is reviewed by independent budget, risk, and participation LLM reviewers before the majority outcome is cast onchain.
+- More URL proposal ingestion cases through Somnia's `LLM Parse Website` agent, followed by `LLM Inference` vote decisions.
+- A production council mode where parsed proposals are reviewed by independent budget, risk, and participation LLM reviewers before the majority outcome is cast onchain.
 - Real Governor/Tally/Snapshot adapters.
 - Prompt and policy version pinning.
 - Multiple-agent quorum for higher-value proposals.
 - Delegate reputation and slashing for repeated bad outcomes.
 - UI for humans to approve or revoke criteria before expiry.
 
-The current proof is intentionally smaller: live Somnia contracts, three agent requests, nine validator receipts, transaction-level event verification, three callback-cast votes, source verification, and one reproducible proof command.
+The current proof is intentionally narrow: live Somnia contracts, three direct agent requests, nine validator receipts, one four-agent council job, transaction-level event verification, callback-cast votes, source verification for the base contracts and council pipeline, and one reproducible proof command.

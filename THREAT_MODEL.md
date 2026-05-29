@@ -50,7 +50,7 @@ Steward fails closed. If SomniaAgents returns a failed status, returns no succes
 
 ## Council Pipeline Safety Model
 
-`StewardCouncilPipeline` is implemented as an additive, locally tested upgrade path. It uses one Parse Website request plus three LLM reviewer requests. The safety model is deliberately conservative:
+`StewardCouncilPipeline` is implemented and live as an additive proof path. It uses one Parse Website request plus three LLM reviewer requests. The safety model is deliberately conservative:
 
 - Parse failure fails the job and refunds unused reviewer deposits because there is no trusted proposal source.
 - Each reviewer can only return `YES`, `NO`, or `ABSTAIN`; invalid or failed reviewer callbacks count as `ABSTAIN`.

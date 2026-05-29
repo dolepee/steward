@@ -1,14 +1,15 @@
 # Steward Judge Guide
 
-Steward is a verifiable DAO governance proxy on Somnia. A user stores voting criteria, Steward asks Somnia's live LLM Inference agent to evaluate a proposal, and the SomniaAgents callback casts the final YES, NO, or ABSTAIN vote onchain. The proof command also decodes the live LLM request payloads and checks validator receipt quorum, so judges can verify what the agent was asked before it voted and how the receipt trail was produced.
+Steward is a verifiable DAO governance proxy on Somnia. A user stores voting criteria, Steward asks Somnia's live LLM Inference agent to evaluate a proposal, and the SomniaAgents callback casts the final YES, NO, or ABSTAIN vote onchain. The latest council proof also composes Somnia's Parse Website agent with three independent LLM reviewers before casting a majority vote.
 
 ## First 60 Seconds
 
 1. Open `https://steward-ashy.vercel.app`.
 2. Check the three live proof cards: `YES`, `NO`, and `ABSTAIN`.
 3. For each card, inspect the proposal transaction, Somnia agent request, public receipt JSON, and callback vote transaction.
-4. Confirm the proof strip shows `9/9` validator receipts, decoded prompt proof, runner/quorum evidence, and both verified project contracts.
-5. Run `./scripts/verify-steward-proof.sh` from the repo. The final marker should be `STEWARD_FULL_PROOF_VALID`.
+4. Scroll to the Council section and inspect the live Parse Website -> budget/risk/participation reviewer -> majority vote path.
+5. Confirm the proof strip shows `9/9` validator receipts, decoded prompt proof, runner/quorum evidence, and verified contracts.
+6. Run `./scripts/verify-steward-proof.sh` from the repo. The final marker should be `STEWARD_FULL_PROOF_VALID`.
 
 ## Why It Matters
 
@@ -19,6 +20,7 @@ DAO delegation usually ends at a static delegate address or an offchain voting b
 - The verifier decodes each `inferString` payload and checks the exact criteria, proposal text, system prompt, and allowed outputs.
 - The contract only casts after SomniaAgents calls back with a valid `YES`, `NO`, or `ABSTAIN`.
 - The final governor vote and the agent receipt trail, including runner quorum, timing, and token usage, are publicly reproducible.
+- The live council path avoids a single-model decision by parsing a public proposal URL, asking three reviewer roles, and casting only the majority outcome.
 
 ## Live Proof Anchors
 
@@ -27,14 +29,23 @@ DAO delegation usually ends at a static delegate address or an offchain voting b
 | Chain | Somnia Testnet `50312` |
 | Steward | `0x6932C7827E7BFd9f0015Ed93fA120379E0d20541` |
 | MiniGovernor | `0xa3773Ff7B2008bAb2E553E13e1E0ADE08a15f389` |
+| StewardCouncilPipeline | `0xB890e1274eE308cBC8348a7E032394406215fd52` |
 | SomniaAgents requester | `0x037Bb9C718F3f7fe5eCBDB0b600D607b52706776` |
 | LLM Inference agent | `12847293847561029384` |
+| LLM Parse Website agent | `12875401142070969085` |
 
 | Outcome | Request ID | Callback result |
 | --- | --- | --- |
 | `YES` | `1698384` | Steward cast support `1` into MiniGovernor proposal `1`. |
 | `NO` | `1738101` | Steward cast support `2` into MiniGovernor proposal `2`. |
 | `ABSTAIN` | `1738108` | Steward cast support `3` into MiniGovernor proposal `3`. |
+
+| Council proof | Value |
+| --- | --- |
+| Proposal / job | Proposal `4`, job `1` |
+| Parse request | `3085689` |
+| Reviewer requests | `3085732`, `3085733`, `3085734` |
+| Result | `YES=3`, `NO=0`, `ABSTAIN=0`; council cast support `1` into MiniGovernor proposal `4`. |
 
 ## Verification Command
 
@@ -51,11 +62,12 @@ Expected markers:
 STEWARD_LIVE_PROOF_VALID
 STEWARD_AGENT_RECEIPTS_VALID
 STEWARD_TX_TRAIL_VALID
+STEWARD_COUNCIL_PROOF_VALID
 STEWARD_SOURCE_VERIFICATION_VALID
 STEWARD_FULL_PROOF_VALID
 ```
 
-The command checks live onchain state, Somnia's public agent receipt service, validator receipt steps, runner quorum, token usage, transaction-level event logs for the proof txs, decoded `inferString` request payloads, and explorer source verification for `Steward` and `MiniGovernor`.
+The command checks live onchain state, Somnia's public agent receipt service, validator receipt steps, runner quorum, token usage, transaction-level event logs for the proof txs, decoded `inferString` request payloads, the live council majority trail, and explorer source verification for `Steward`, `MiniGovernor`, and `StewardCouncilPipeline`.
 
 ## What Is Load-Bearing
 

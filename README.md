@@ -1,8 +1,20 @@
 # Steward
 
-Verifiable DAO governance proxy on Somnia. A user delegates voting criteria, a proposal appears, a Somnia Agent reasons against the criteria, and the callback path records a YES, NO, or ABSTAIN decision onchain.
+One delegate. Three votes. Nine Somnia agent receipts.
+
+[![CI](https://github.com/dolepee/steward/actions/workflows/test.yml/badge.svg)](https://github.com/dolepee/steward/actions/workflows/test.yml)
+[![Live app](https://img.shields.io/badge/live-steward--ashy.vercel.app-6bff7d)](https://steward-ashy.vercel.app)
+[![Somnia Testnet](https://img.shields.io/badge/Somnia-Testnet%2050312-10120d)](https://shannon-explorer.somnia.network/address/0x6932C7827E7BFd9f0015Ed93fA120379E0d20541)
+
+Steward is a verifiable DAO governance proxy on Somnia. A user delegates voting criteria, a proposal appears, a Somnia Agent reasons against the criteria, and the callback path records a YES, NO, or ABSTAIN decision onchain.
 
 The current MVP proves the full loop: `Steward` invokes the live Somnia LLM Inference agent, receives the async callback, casts a MiniGovernor vote, and stores the result onchain.
+
+## 30-Second Judge Path
+
+1. Open the live page: `https://steward-ashy.vercel.app`.
+2. Inspect the YES, NO, and ABSTAIN proof cards, each with proposal tx, agent request tx, agent receipt JSON, and callback vote tx.
+3. Clone the repo and run `./scripts/verify-steward-proof.sh`. The expected final marker is `STEWARD_FULL_PROOF_VALID`.
 
 ## Why This Is Somnia-Native
 

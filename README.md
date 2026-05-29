@@ -220,7 +220,7 @@ cast send "$STEWARD" \
   --gas-price 6000000000
 ```
 
-Expected demo path:
+Current execution path:
 
 1. `MiniGovernor.createProposal` creates a proposal.
 2. `Steward.delegate` stores the user's criteria hash and criteria text.
@@ -230,7 +230,7 @@ Expected demo path:
 
 ## Current Scope
 
-In scope for the first demo:
+In scope for the current proof set:
 
 - One Somnia LLM agent path.
 - One minimal governor.

@@ -39,13 +39,20 @@ Removing Somnia removes the product: there is no auditable agent request, no val
 
 ## Local Verification
 
+Fastest judge path:
+
+```shell
+./scripts/verify-steward-proof.sh
+```
+
+Expected final marker: `STEWARD_FULL_PROOF_VALID`. This command asserts both sides of the proof: live onchain Steward/MiniGovernor state and Somnia's public LLM receipt service for all three YES, NO, and ABSTAIN requests.
+
 ```shell
 forge fmt --check
 forge build
 forge test -vvv
 npm run build --prefix web
-./scripts/verify-live.sh
-node scripts/verify-agent-receipts.mjs
+./scripts/verify-steward-proof.sh
 ```
 
 ## Frontend

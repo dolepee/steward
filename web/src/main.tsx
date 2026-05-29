@@ -401,27 +401,34 @@ function App() {
             reason, refuse, and vote without trusting this frontend.
           </p>
         </div>
-        <div className="scorecard">
-          <article>
-            <span>Functionality</span>
-            <strong>Live loop</strong>
-            <p>Deployed contracts, three proposals, three cast votes, and script-verifiable state.</p>
-          </article>
-          <article>
-            <span>Agent-first</span>
-            <strong>Agent decides</strong>
-            <p>The vote is not precomputed by the app. SomniaAgents returns the support value.</p>
-          </article>
-          <article>
-            <span>Innovation</span>
-            <strong>Auditable delegate</strong>
-            <p>DAO delegation becomes inspectable agent reasoning, not a private bot workflow.</p>
-          </article>
-          <article>
-            <span>Autonomy</span>
-            <strong>Async callback</strong>
-            <p>After invocation, the platform response drives the final onchain vote path.</p>
-          </article>
+        <div className="judgeProof">
+          <div className="scorecard">
+            <article>
+              <span>Functionality</span>
+              <strong>Live loop</strong>
+              <p>Deployed contracts, three proposals, three cast votes, and script-verifiable state.</p>
+            </article>
+            <article>
+              <span>Agent-first</span>
+              <strong>Agent decides</strong>
+              <p>The vote is not precomputed by the app. SomniaAgents returns the support value.</p>
+            </article>
+            <article>
+              <span>Innovation</span>
+              <strong>Auditable delegate</strong>
+              <p>DAO delegation becomes inspectable agent reasoning, not a private bot workflow.</p>
+            </article>
+            <article>
+              <span>Autonomy</span>
+              <strong>Async callback</strong>
+              <p>After invocation, the platform response drives the final onchain vote path.</p>
+            </article>
+          </div>
+          <div className="proofCommand">
+            <span>Reproduce proof</span>
+            <code>./scripts/verify-steward-proof.sh</code>
+            <small>Expected: STEWARD_FULL_PROOF_VALID</small>
+          </div>
         </div>
       </section>
 

@@ -55,6 +55,16 @@ Removing Somnia removes the product: there is no auditable agent request, no val
 3. `Steward`: delegation criteria, vote request, LLM callback, onchain vote cast, and proof state storage. Built and tested.
 4. One-page frontend: delegation card, proposal feed, vote proof timeline.
 
+## V2 Work In Progress: URL Proposal Pipeline
+
+The stronger product direction is not a private bot that copies proposal text into a prompt. It is a two-agent Somnia pipeline:
+
+1. `StewardUrlPipeline` asks the `LLM Parse Website` agent to read a proposal URL and extract a factual proposal summary.
+2. The same contract sends that extracted summary plus the delegate criteria to the `LLM Inference` agent.
+3. The callback from the vote decision casts `YES`, `NO`, or `ABSTAIN` into `MiniGovernor`.
+
+This V2 path is additive and does not replace the live proof above. The current live proof remains the source-verified `Steward` loop. The URL pipeline is implemented and locally tested so it can become a separate live proof once deployed and funded.
+
 ## Local Verification
 
 Prerequisites:
@@ -77,6 +87,12 @@ forge test -vvv
 npm ci --prefix web
 npm run build --prefix web
 ./scripts/verify-steward-proof.sh
+```
+
+V2 URL pipeline local test:
+
+```shell
+forge test --match-contract StewardUrlPipelineTest -vvv
 ```
 
 ## Frontend

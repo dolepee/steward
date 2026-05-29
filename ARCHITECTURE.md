@@ -44,6 +44,28 @@ That means the Somnia agent path sits between proposal detection and final gover
 2. No successful callback, no `StewardVoteCast`.
 3. No parsed `YES`, `NO`, or `ABSTAIN`, no governor vote.
 
+## V2 URL Pipeline
+
+`StewardUrlPipeline` is the next additive architecture slice. It keeps the same callback discipline, but splits the agent work into two Somnia requests:
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Pipeline as StewardUrlPipeline
+    participant Parse as LLM Parse Website
+    participant Vote as LLM Inference
+    participant Governor as MiniGovernor
+
+    User->>Pipeline: startUrlVote(criteria, proposalUrl)
+    Pipeline->>Parse: ExtractString(proposal_summary, url)
+    Parse-->>Pipeline: callback(summary)
+    Pipeline->>Vote: inferString(criteria + summary)
+    Vote-->>Pipeline: callback(YES / NO / ABSTAIN)
+    Pipeline->>Governor: castVoteWithReason(...)
+```
+
+This is not part of the current live proof yet. It is implemented as a separate contract so the existing deployed `Steward` proof remains untouched while the stronger URL-ingestion path is tested and deployed independently.
+
 ## Callback Safety
 
 Steward guards the callback path with:

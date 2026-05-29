@@ -54,6 +54,7 @@ These are valuable because the cost of non-participation is real, but the cost o
 
 The hackathon MVP proves one delegate, one governor target, and three outcomes. A production Steward would add:
 
+- URL proposal ingestion through Somnia's `LLM Parse Website` agent, followed by a second `LLM Inference` vote decision.
 - Real Governor/Tally/Snapshot adapters.
 - Prompt and policy version pinning.
 - Multiple-agent quorum for higher-value proposals.

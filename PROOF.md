@@ -136,7 +136,9 @@ The verifier intentionally requires at least two runner addresses per request, n
 | SomniaAgents requester | [`0x037Bb9C718F3f7fe5eCBDB0b600D607b52706776`](https://shannon-explorer.somnia.network/address/0x037Bb9C718F3f7fe5eCBDB0b600D607b52706776) |
 | LLM Inference agent | [`12847293847561029384`](https://agents.testnet.somnia.network/agent/12847293847561029384) |
 
-`Steward` and `MiniGovernor` are source-verified on the Somnia explorer.
+`Steward` and `MiniGovernor` are source-verified on the Somnia explorer. After
+`StewardUrlPipeline` is deployed, setting `STEWARD_URL_PIPELINE` makes
+`scripts/verify-source.mjs` check that V2 source verification too.
 
 ## Important Limitation
 

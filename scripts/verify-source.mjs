@@ -15,6 +15,14 @@ const contracts = [
   },
 ];
 
+if (process.env.STEWARD_URL_PIPELINE) {
+  contracts.push({
+    label: "StewardUrlPipeline",
+    address: process.env.STEWARD_URL_PIPELINE,
+    expectedName: "StewardUrlPipeline",
+  });
+}
+
 function assert(condition, message) {
   if (!condition) {
     throw new Error(message);

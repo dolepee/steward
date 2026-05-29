@@ -235,3 +235,7 @@ Out of scope until the loop is proven:
 - Delegate marketplace.
 - Reputation scores.
 - Cross-chain governance.
+
+## License
+
+MIT.

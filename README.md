@@ -120,6 +120,13 @@ After the three parse callbacks and three vote callbacks finalize, set
 `URL_PIPELINE_NO_*`, and `URL_PIPELINE_ABSTAIN_*` tx fields. The expected final
 marker becomes `STEWARD_URL_PIPELINE_BATCH_VALID`.
 
+Collector path, to avoid manual explorer copying after the callbacks land:
+
+```shell
+URL_PIPELINE_FROM_BLOCK=<deploy-or-seed-block> node scripts/collect-url-pipeline-proof-env.mjs
+node scripts/verify-url-pipeline-trail.mjs
+```
+
 ## Frontend
 
 The web app is a single proof page in `web/`. It reads live `Steward.voteRequests(...)` and `MiniGovernor.votes(...)` state for the YES, NO, and ABSTAIN examples directly from Somnia Testnet, reads Somnia's public receipt service to display validator receipt quorum, runner count, timing, and token usage for each agent decision, and links both source-verified contracts from the proof strip. The repo verifier handles the deeper payload-level proof.

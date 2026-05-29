@@ -117,7 +117,6 @@ const receiptServiceBase = "https://receipts.testnet.agents.somnia.host/agent-re
 const judgeGuideUrl = "https://github.com/dolepee/steward/blob/master/JUDGE_GUIDE.md";
 const productNoteUrl = "https://github.com/dolepee/steward/blob/master/PRODUCT.md";
 const parseWebsiteDocsUrl = "https://docs.somnia.network/agents/base-agents/llm-parse-website";
-const urlPipelineWorkflowUrl = "https://github.com/dolepee/steward/actions/workflows/url-pipeline-proof.yml";
 const configuredUrlPipeline = (() => {
   const value = import.meta.env.VITE_STEWARD_URL_PIPELINE;
   return typeof value === "string" && /^0x[a-fA-F0-9]{40}$/.test(value) ? (value as Address) : undefined;
@@ -125,7 +124,7 @@ const configuredUrlPipeline = (() => {
 const stewardSystemPrompt =
   "You are Steward, an autonomous DAO voting delegate. Choose exactly one allowed value.";
 const allowedVoteOutputs = ["YES", "NO", "ABSTAIN"];
-const urlPipelineProofCommand = "./scripts/run-url-pipeline-proof.sh";
+const councilProofCommand = "node scripts/verify-council-proof.mjs";
 const defaultConsoleProposalUrl = "https://steward-ashy.vercel.app/proposals/community-grants.html";
 const defaultConsoleProposalText = "Approve a 500,000 USDC Q3 community grants program imported from a public URL.";
 const defaultConsoleCriteria =
@@ -827,7 +826,7 @@ function App() {
         <div className="mark">S</div>
         <strong className="brand">Steward</strong>
         <a href="#proof">Proof</a>
-        <a href="#url-pipeline">URL Pipeline</a>
+        <a href="#url-pipeline">Sources</a>
         <a href="#council">Council</a>
         {configuredUrlPipeline ? <a href="#console">Console</a> : null}
         <a href="#loop">Loop</a>
@@ -843,29 +842,33 @@ function App() {
       <section className="hero">
         <div className="copy">
           <p className="eyebrow">Somnia Agentathon · live on testnet</p>
-          <h1>Governance agents you can audit.</h1>
+          <h1>Proposal URLs become agent council votes.</h1>
           <p className="dek">
-            Steward lets a user sign voting criteria once. A Somnia Agent reads the proposal,
-            reasons against the mandate, and casts a DAO vote onchain through an async callback.
+            Steward stores a DAO voting mandate, asks Somnia's Parse Website agent to read
+            proposal pages, sends the result to independent LLM reviewers, and casts the
+            majority YES, NO, or ABSTAIN vote onchain.
           </p>
-          <p className="proofLine">One delegate · three votes · three live council outcomes · decoded LLM payloads</p>
+          <p className="proofLine">3 proposal URLs · 9 reviewer calls · YES / NO / ABSTAIN onchain</p>
           <div className="agentRail" aria-label="Steward agent governance loop">
             <div>
-              <span>1 · mandate</span>
-              <strong>Criteria stored onchain</strong>
+              <span>1 · source</span>
+              <strong>Public proposal URL</strong>
             </div>
             <div>
-              <span>2 · agent</span>
-              <strong>LLM request #{primaryProof.requestId.toString()}</strong>
+              <span>2 · council</span>
+              <strong>Parse + 3 reviewers</strong>
             </div>
             <div>
-              <span>3 · callback</span>
-              <strong>Vote cast by Steward</strong>
+              <span>3 · vote</span>
+              <strong>Majority cast onchain</strong>
             </div>
           </div>
           <div className="actions">
-            <a href={explorerTx(primaryProof.requestTx)} target="_blank" rel="noreferrer">
-              Open Somnia agent request
+            <a href="#council">
+              Open live council proof
+            </a>
+            <a className="secondary" href="https://github.com/dolepee/steward/blob/master/PROOF.md" target="_blank" rel="noreferrer">
+              Run verifier
             </a>
             <a className="secondary" href={judgeGuideUrl} target="_blank" rel="noreferrer">
               Read judge guide
@@ -1029,30 +1032,29 @@ function App() {
 
       <section className="urlPipeline" id="url-pipeline" aria-labelledby="url-pipeline-heading">
         <div className="urlPipelineLead">
-          <p className="eyebrow">V2 URL pipeline · deployment-ready</p>
-          <h2 id="url-pipeline-heading">A proposal URL becomes a vote, not a screenshot.</h2>
+          <p className="eyebrow">Proposal source layer · live council inputs</p>
+          <h2 id="url-pipeline-heading">The input is a URL, not operator-copied text.</h2>
           <p>
-            The upgraded path chains two Somnia agents: Parse Website reads the public proposal
-            page, then LLM Inference applies the delegate mandate and casts the final MiniGovernor
-            vote through a callback. The proof runner fails unless the known source URL produces
-            the expected YES, NO, or ABSTAIN outcome.
+            The live council proof starts from public proposal pages. Somnia's Parse Website agent
+            extracts the decision-critical facts, then budget, risk, and participation reviewers
+            independently return YES, NO, or ABSTAIN before the majority vote reaches MiniGovernor.
           </p>
           <div className="urlActions">
             <a href={parseWebsiteDocsUrl} target="_blank" rel="noreferrer">
               Parse Website docs
             </a>
             <a href="https://github.com/dolepee/steward/blob/master/PROOF.md" target="_blank" rel="noreferrer">
-              URL proof guide
+              Council proof guide
             </a>
-            <a href={urlPipelineWorkflowUrl} target="_blank" rel="noreferrer">
-              Public verifier
+            <a href="#council">
+              Live council proof
             </a>
           </div>
         </div>
         {configuredUrlPipeline ? (
           <div className="urlConsole" id="console">
             <div className="urlConsoleCopy">
-              <p className="eyebrow">Live V2 console</p>
+              <p className="eyebrow">Optional live console</p>
               <h2>Paste a proposal URL. Let Somnia vote.</h2>
               <p>
                 This is the product path behind the proof: create a MiniGovernor proposal, ask
@@ -1137,14 +1139,14 @@ function App() {
             ))}
           </div>
           <div className="urlProofCommand">
-            <span>Strict proof runner</span>
-            <code>{urlPipelineProofCommand}</code>
+            <span>Council source proof</span>
+            <code>{councilProofCommand}</code>
             <p>
-              Seeds three proposal URLs, waits for parse and vote callbacks, collects live logs,
-              then verifies URL source, extracted summary, LLM prompt, vote reason, and governor
-              state.
+              Verifies the three live proposal URL cases by checking Parse Website requests,
+              parsed summaries, nine reviewer request ids, majority counts, and final governor
+              votes.
             </p>
-            <small>Expected: STEWARD_URL_PIPELINE_PROOF_RUN_VALID</small>
+            <small>Expected: STEWARD_COUNCIL_PROOF_VALID</small>
           </div>
           <div className="proposalSources">
             {proposalSources.map((source) => (
@@ -1202,7 +1204,7 @@ function App() {
 
       <section className="council" id="council">
         <div className="councilLead">
-          <p className="eyebrow">V3 council path · live on Somnia</p>
+          <p className="eyebrow">Live council path · Somnia agents</p>
           <h2>Three proposals. Three reviewers each. Three outcomes.</h2>
           <p>
             The live council proof turns the single LLM decision into a small onchain
@@ -1268,7 +1270,7 @@ function App() {
       <section className="judge">
         <div>
           <p className="eyebrow">Judge path</p>
-          <h2>One delegate. Three proposals. Nine receipts. Three council outcomes.</h2>
+          <h2>Three proposal URLs. Nine reviewer receipts. Three council outcomes.</h2>
           <p>
             Steward is built around Somnia's agent callback path: the contract invokes the LLM
             agent, the subcommittee produces execution receipts, and the callback writes a binding

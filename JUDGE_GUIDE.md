@@ -1,23 +1,23 @@
 # Steward Judge Guide
 
-Steward is a verifiable DAO governance proxy on Somnia. A user stores voting criteria, Steward asks Somnia's live LLM Inference agent to evaluate a proposal, and the SomniaAgents callback casts the final YES, NO, or ABSTAIN vote onchain. The latest council proof also composes Somnia's Parse Website agent with three independent LLM reviewers and proves live YES, NO, and ABSTAIN majority outcomes.
+Steward is a verifiable DAO governance proxy on Somnia. A user stores voting criteria, Steward asks Somnia's Parse Website agent to read a proposal URL, three LLM reviewers evaluate the extracted facts, and the majority YES, NO, or ABSTAIN vote is cast onchain. The direct single-agent proof remains in the repo as the lower-level receipt trail.
 
 ## First 60 Seconds
 
 1. Open `https://steward-ashy.vercel.app`.
-2. Check the three live proof cards: `YES`, `NO`, and `ABSTAIN`.
-3. For each card, inspect the proposal transaction, Somnia agent request, public receipt JSON, and callback vote transaction.
-4. Scroll to the Council section and inspect the live Parse Website -> budget/risk/participation reviewer -> YES/NO/ABSTAIN majority proof set.
-5. Confirm the proof strip shows `9/9` validator receipts, decoded prompt proof, runner/quorum evidence, and verified contracts.
-6. Run `./scripts/verify-steward-proof.sh` from the repo. The final marker should be `STEWARD_FULL_PROOF_VALID`.
+2. Start at the Council section: three proposal URLs, three reviewer roles each, three final outcomes.
+3. Open one final vote transaction and confirm `StewardCouncilPipeline` casts into `MiniGovernor`.
+4. Run `node scripts/verify-council-proof.mjs`. The marker should be `STEWARD_COUNCIL_PROOF_VALID`.
+5. Check the direct YES, NO, and ABSTAIN proof cards for the lower-level Somnia LLM receipt path.
+6. Run `./scripts/verify-steward-proof.sh` for the full proof packet. The final marker should be `STEWARD_FULL_PROOF_VALID`.
 
 ## Why It Matters
 
 DAO delegation usually ends at a static delegate address or an offchain voting bot. Steward moves the decision path into an auditable agent loop:
 
 - The user delegates criteria, not a hardcoded vote.
-- `requestVote` invokes SomniaAgents with proposal text and the user's stored criteria.
-- The verifier decodes each `inferString` payload and checks the exact criteria, proposal text, system prompt, and allowed outputs.
+- The council path invokes Somnia's Parse Website agent with public proposal URLs, then asks three LLM reviewer roles to decide from the parsed facts and stored criteria.
+- The verifier checks each parse request, reviewer request id, majority tally, parsed summary, final reason, and governor vote.
 - The contract only casts after SomniaAgents calls back with a valid `YES`, `NO`, or `ABSTAIN`.
 - The final governor vote and the agent receipt trail, including runner quorum, timing, and token usage, are publicly reproducible.
 - The live council path avoids a single-model decision by parsing public proposal URLs, asking three reviewer roles, and casting only the majority outcome.

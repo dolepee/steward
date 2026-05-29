@@ -1,11 +1,11 @@
 # Steward Product Note
 
-Steward is not trying to replace DAO governance. It turns delegated governance into an auditable agent action.
+Steward is not trying to replace DAO governance. It turns proposal URLs into auditable Somnia agent council votes.
 
 The core product claim is:
 
 ```text
-Delegate criteria once. Let Somnia agents evaluate proposals. Verify every final vote from the request, receipt, callback, and council trail.
+Delegate criteria once. Give Steward a proposal URL. Verify the Parse Website result, reviewer votes, majority callback, and final governor vote.
 ```
 
 ## Who Uses It
@@ -26,7 +26,7 @@ A normal governance bot can read a proposal, call an LLM, and submit a vote, but
 - The LLM agent response is tied to a request id and public receipt path.
 - The final vote is written by the callback path, not by a frontend-supplied vote button.
 - The verifier checks the onchain state, transaction logs, receipt service, and source-verified contracts.
-- The live council proof shows a higher-value path where Parse Website extracts proposal facts and three LLM reviewers vote by role before the majority outcome reaches the governor. The proof set covers approve, reject, and abstain outcomes.
+- The live council proof shows the product path: Parse Website extracts proposal facts from public URLs and three LLM reviewers vote by role before the majority outcome reaches the governor. The proof set covers approve, reject, and abstain outcomes.
 
 ## Why Somnia Matters
 
@@ -38,11 +38,11 @@ Somnia gives Steward three things that are hard to fake in a demo:
 2. Async callback execution into the voting contract.
 3. Public receipt evidence for the agent execution path.
 
-That is why the live proof focuses on the full loop: `criteria -> LLM request -> receipt trail -> callback vote`.
+That is why the live proof focuses on the full loop: `proposal URL -> Parse Website -> reviewer council -> receipt trail -> callback vote`.
 
 ## Market Wedge
 
-The first realistic wedge is not high-stakes treasury control. It is low-risk governance automation where voters already delegate or abstain:
+The first realistic wedge is not high-stakes treasury control. It is low-risk governance automation where voters already delegate, abstain, or skim proposal pages too late:
 
 - Grant renewals under a fixed budget.
 - Routine parameter votes with clear policy thresholds.
@@ -55,7 +55,7 @@ These are valuable because the cost of non-participation is real, but the cost o
 
 The hackathon MVP proves one delegate, one governor target, three direct outcomes, and three live council majority outcomes. A production Steward would add:
 
-- More URL proposal ingestion cases through Somnia's `LLM Parse Website` agent, followed by `LLM Inference` vote decisions.
+- More proposal-source adapters around Somnia's `LLM Parse Website` agent.
 - A production council mode where parsed proposals are reviewed by independent budget, risk, and participation LLM reviewers before the majority outcome is cast onchain.
 - Real Governor/Tally/Snapshot adapters.
 - Prompt and policy version pinning.

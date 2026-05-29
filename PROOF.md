@@ -1,17 +1,18 @@
 # Steward Proof Guide
 
-Steward's strongest claim is simple: one delegated voting mandate produced three autonomous onchain votes through Somnia's LLM agent path, plus three live council outcomes that compose Parse Website with three independent LLM reviewers.
+Steward's strongest claim is simple: three public proposal URLs produced three autonomous onchain council votes through Somnia's Parse Website and LLM agent path. The repo also keeps the lower-level single-agent YES, NO, and ABSTAIN receipt trail.
 
 ## What This Proves
 
 | Claim | Evidence |
 | --- | --- |
-| Contract-invoked agent call | Each `requestVote` transaction calls SomniaAgents with the live LLM Inference agent ID. |
-| Agent-first governance action | Steward does not cast a vote until SomniaAgents calls back with `YES`, `NO`, or `ABSTAIN`. |
-| Async callback execution | Each final vote is written by `Steward.handleResponse` after the SomniaAgents callback. |
+| Proposal URL ingestion | Each council proof starts from a public proposal page and a Somnia Parse Website request. |
+| Reviewer council | Each parsed proposal fans out to budget, risk, and participation LLM reviewer requests. |
+| Agent-first governance action | Steward does not cast a council vote until the reviewer callbacks produce a majority `YES`, `NO`, or `ABSTAIN`. |
+| Async callback execution | Each final vote is written by the council pipeline after SomniaAgents callbacks. |
 | Public agent receipt trail | Somnia's receipt service returns threshold-2-of-3 request metadata, validator runner receipts, timing, token usage, and decoded LLM steps for each request. |
-| Transaction-level event trail | The verifier checks `ProposalCreated`, `RequestCreated`, `VoteRequested`, `RequestFinalized`, `VoteCast`, and `StewardVoteCast` logs for all three outcomes. It also decodes each `RequestCreated` payload and confirms the `inferString` call used the expected criteria, proposal text, system prompt, and allowed outputs. |
-| Verifiable final state | `MiniGovernor.votes(proposalId, Steward)` matches the agent-returned support value. |
+| Transaction-level event trail | The council verifier checks `ProposalCreated`, `RequestCreated`, `CouncilPipelineStarted`, `CouncilProposalParsed`, `CouncilReviewerRequested`, `CouncilReviewerDecided`, `CouncilVoteCast`, and `VoteCast` logs for all three outcomes. |
+| Verifiable final state | `MiniGovernor.votes(proposalId, StewardCouncilPipeline)` matches the majority support value. |
 | Council proof | `StewardCouncilPipeline` parsed three public proposal URLs, requested nine LLM reviewer decisions, and cast live YES, NO, and ABSTAIN majority votes into MiniGovernor. |
 
 ## Fast Verification
@@ -36,7 +37,7 @@ STEWARD_SOURCE_VERIFICATION_VALID
 STEWARD_FULL_PROOF_VALID
 ```
 
-## V2 URL Pipeline Proof Verifier
+## Optional URL Pipeline Proof Verifier
 
 `StewardUrlPipeline` is implemented and locally tested, but it is intentionally
 not included in the current live proof until it has its own deployed contract
@@ -111,7 +112,7 @@ both the Parse Website request and the LLM vote request, then checks threshold,
 runner quorum, agent id, decoded step evidence, timing, and the final LLM vote
 output.
 
-## V3 Council Pipeline Proof
+## Council Pipeline Proof
 
 `StewardCouncilPipeline` is now deployed with a three-outcome live proof. Each
 case uses one Parse Website request followed by three independent LLM reviewer

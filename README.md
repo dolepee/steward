@@ -9,6 +9,7 @@ One delegate. Three votes. Nine Somnia agent receipts.
 Steward is a verifiable DAO governance proxy on Somnia. A user delegates voting criteria, a proposal appears, a Somnia Agent reasons against the criteria, and the callback path records a YES, NO, or ABSTAIN decision onchain.
 
 The current MVP proves the full loop: `Steward` invokes the live Somnia LLM Inference agent, receives the async callback, casts a MiniGovernor vote, and stores the result onchain.
+Both project contracts are source-verified on the Somnia explorer.
 
 ## 30-Second Judge Path
 
@@ -102,6 +103,7 @@ npm run build --prefix web
 | Steward | `0x6932C7827E7BFd9f0015Ed93fA120379E0d20541` |
 | Steward deploy tx | `0x723f8717b19a48b524858c5f1a1416be2016a2d393427a788e9e7b80af506147` |
 | Delegation tx | `0xdf49c68c630deef7a319b8d0f6daaefa392be433343784295c8833f9460fd45b` |
+| Source verification | `Steward` and `MiniGovernor` verified on Somnia explorer |
 
 ### Steward vote proofs
 

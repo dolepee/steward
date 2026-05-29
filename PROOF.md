@@ -48,6 +48,8 @@ STEWARD_FULL_PROOF_VALID
 | SomniaAgents requester | [`0x037Bb9C718F3f7fe5eCBDB0b600D607b52706776`](https://shannon-explorer.somnia.network/address/0x037Bb9C718F3f7fe5eCBDB0b600D607b52706776) |
 | LLM Inference agent | [`12847293847561029384`](https://agents.testnet.somnia.network/agent/12847293847561029384) |
 
+`Steward` and `MiniGovernor` are source-verified on the Somnia explorer.
+
 ## Important Limitation
 
 The deployed Steward contract stores the receipt id returned by the SomniaAgents callback. The current live examples finalized with `receipt = 0`, so this proof uses Somnia's public receipt service plus the transaction-level request and callback logs. The project does not claim a nonzero onchain receipt id for these three examples.

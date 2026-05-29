@@ -1,6 +1,6 @@
 # Steward
 
-One delegate. Three votes. Nine Somnia agent receipts.
+One delegate. Three votes. Nine Somnia agent receipts. Three decoded LLM request payloads.
 
 [![CI](https://github.com/dolepee/steward/actions/workflows/test.yml/badge.svg)](https://github.com/dolepee/steward/actions/workflows/test.yml)
 [![Live Proof](https://github.com/dolepee/steward/actions/workflows/live-proof.yml/badge.svg)](https://github.com/dolepee/steward/actions/workflows/live-proof.yml)
@@ -9,7 +9,7 @@ One delegate. Three votes. Nine Somnia agent receipts.
 
 Steward is a verifiable DAO governance proxy on Somnia. A user delegates voting criteria, a proposal appears, a Somnia Agent reasons against the criteria, and the callback path records a YES, NO, or ABSTAIN decision onchain.
 
-The current MVP proves the full loop: `Steward` invokes the live Somnia LLM Inference agent, receives the async callback, casts a MiniGovernor vote, and stores the result onchain.
+The current MVP proves the full loop: `Steward` invokes the live Somnia LLM Inference agent, receives the async callback, casts a MiniGovernor vote, and stores the result onchain. The verifier also decodes each live `inferString` request payload and checks the exact proposal text, voting criteria, system prompt, and allowed vote outputs.
 Both project contracts are source-verified on the Somnia explorer.
 
 ## 30-Second Judge Path
@@ -17,6 +17,7 @@ Both project contracts are source-verified on the Somnia explorer.
 1. Open the live page: `https://steward-ashy.vercel.app`.
 2. Inspect the YES, NO, and ABSTAIN proof cards, each with proposal tx, agent request tx, agent receipt JSON, and callback vote tx.
 3. Clone the repo and run `./scripts/verify-steward-proof.sh`. The expected final marker is `STEWARD_FULL_PROOF_VALID`.
+4. The verifier checks live state, agent receipts, transaction logs, source verification, and decoded LLM request payloads.
 
 For the fastest review path, see [`JUDGE_GUIDE.md`](./JUDGE_GUIDE.md). For product/market framing, see [`PRODUCT.md`](./PRODUCT.md). For the direct receipt map, see [`PROOF.md`](./PROOF.md). For the contract and callback flow, see [`ARCHITECTURE.md`](./ARCHITECTURE.md). For trust assumptions and failure behavior, see [`THREAT_MODEL.md`](./THREAT_MODEL.md).
 
@@ -32,8 +33,9 @@ Removing Somnia removes the product: there is no auditable agent request, no val
 | --- | --- |
 | Functionality | Live contracts on Somnia Testnet, three proposals, three Somnia agent requests, three callback-cast votes, and reproducible verifier scripts. |
 | Agent-first design | The contract invokes SomniaAgents and waits for the LLM agent's YES, NO, or ABSTAIN response before changing governance state. |
-| Innovation and technical creativity | DAO delegation becomes auditable agent reasoning. The receipt is part of the value, not an afterthought. |
+| Innovation and technical creativity | DAO delegation becomes auditable agent reasoning. The request payload and receipt trail are part of the value, not an afterthought. |
 | Autonomous performance | After `requestVote`, the LLM subcommittee response and async callback drive the final vote without a human reviewer approving the decision. |
+| Verifiability | The full proof command decodes each live LLM request payload and confirms the mandate, proposal, system prompt, allowed outputs, receipts, callback logs, and final governor vote. |
 
 ## Live Somnia Testnet Constants
 
@@ -66,7 +68,7 @@ Fastest judge path:
 ./scripts/verify-steward-proof.sh
 ```
 
-Expected final marker: `STEWARD_FULL_PROOF_VALID`. This command asserts live onchain Steward/MiniGovernor state, Somnia's public LLM receipt service for all three YES, NO, and ABSTAIN requests, transaction-level event logs for the proof txs, and explorer source verification for both project contracts.
+Expected final marker: `STEWARD_FULL_PROOF_VALID`. This command asserts live onchain Steward/MiniGovernor state, Somnia's public LLM receipt service for all three YES, NO, and ABSTAIN requests, decoded `inferString` request payloads, transaction-level event logs for the proof txs, and explorer source verification for both project contracts.
 
 ```shell
 forge fmt --check
@@ -79,7 +81,7 @@ npm run build --prefix web
 
 ## Frontend
 
-The web app is a single proof page in `web/`. It reads live `Steward.voteRequests(...)` and `MiniGovernor.votes(...)` state for the YES, NO, and ABSTAIN examples directly from Somnia Testnet, reads Somnia's public receipt service to display the 3/3 validator receipt count for each agent decision, and links both source-verified contracts from the proof strip.
+The web app is a single proof page in `web/`. It reads live `Steward.voteRequests(...)` and `MiniGovernor.votes(...)` state for the YES, NO, and ABSTAIN examples directly from Somnia Testnet, reads Somnia's public receipt service to display the 3/3 validator receipt count for each agent decision, and links both source-verified contracts from the proof strip. The repo verifier handles the deeper payload-level proof.
 
 Live frontend: `https://steward-ashy.vercel.app`
 

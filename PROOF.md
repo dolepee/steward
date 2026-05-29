@@ -1,6 +1,6 @@
 # Steward Proof Guide
 
-Steward's strongest claim is simple: one delegated voting mandate produced three autonomous onchain votes through Somnia's LLM agent path.
+Steward's strongest claim is simple: one delegated voting mandate produced three autonomous onchain votes through Somnia's LLM agent path, with the live LLM request payloads decoded and verified.
 
 ## What This Proves
 

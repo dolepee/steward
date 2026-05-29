@@ -1,13 +1,13 @@
 # Steward Judge Guide
 
-Steward is a verifiable DAO governance proxy on Somnia. A user stores voting criteria, Steward asks Somnia's live LLM Inference agent to evaluate a proposal, and the SomniaAgents callback casts the final YES, NO, or ABSTAIN vote onchain.
+Steward is a verifiable DAO governance proxy on Somnia. A user stores voting criteria, Steward asks Somnia's live LLM Inference agent to evaluate a proposal, and the SomniaAgents callback casts the final YES, NO, or ABSTAIN vote onchain. The proof command also decodes the live LLM request payloads, so judges can verify what the agent was asked before it voted.
 
 ## First 60 Seconds
 
 1. Open `https://steward-ashy.vercel.app`.
 2. Check the three live proof cards: `YES`, `NO`, and `ABSTAIN`.
 3. For each card, inspect the proposal transaction, Somnia agent request, public receipt JSON, and callback vote transaction.
-4. Confirm the proof strip shows `9/9` validator receipts and both verified project contracts.
+4. Confirm the proof strip shows `9/9` validator receipts, decoded prompt proof, and both verified project contracts.
 5. Run `./scripts/verify-steward-proof.sh` from the repo. The final marker should be `STEWARD_FULL_PROOF_VALID`.
 
 ## Why It Matters
@@ -16,6 +16,7 @@ DAO delegation usually ends at a static delegate address or an offchain voting b
 
 - The user delegates criteria, not a hardcoded vote.
 - `requestVote` invokes SomniaAgents with proposal text and the user's stored criteria.
+- The verifier decodes each `inferString` payload and checks the exact criteria, proposal text, system prompt, and allowed outputs.
 - The contract only casts after SomniaAgents calls back with a valid `YES`, `NO`, or `ABSTAIN`.
 - The final governor vote and the agent receipt trail are both publicly reproducible.
 

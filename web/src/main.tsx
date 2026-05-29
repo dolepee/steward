@@ -1,7 +1,24 @@
+/// <reference types="vite/client" />
+
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { createPublicClient, defineChain, http, type Address } from "viem";
+import {
+  createPublicClient,
+  createWalletClient,
+  custom,
+  decodeEventLog,
+  defineChain,
+  formatEther,
+  http,
+  type Address,
+} from "viem";
 import "./styles.css";
+
+declare global {
+  interface Window {
+    ethereum?: unknown;
+  }
+}
 
 const somniaTestnet = defineChain({
   id: 50312,
@@ -98,10 +115,19 @@ const judgeGuideUrl = "https://github.com/dolepee/steward/blob/master/JUDGE_GUID
 const productNoteUrl = "https://github.com/dolepee/steward/blob/master/PRODUCT.md";
 const parseWebsiteDocsUrl = "https://docs.somnia.network/agents/base-agents/llm-parse-website";
 const urlPipelineWorkflowUrl = "https://github.com/dolepee/steward/actions/workflows/url-pipeline-proof.yml";
+const configuredUrlPipeline = (() => {
+  const value = import.meta.env.VITE_STEWARD_URL_PIPELINE;
+  return typeof value === "string" && /^0x[a-fA-F0-9]{40}$/.test(value) ? (value as Address) : undefined;
+})();
 const stewardSystemPrompt =
   "You are Steward, an autonomous DAO voting delegate. Choose exactly one allowed value.";
 const allowedVoteOutputs = ["YES", "NO", "ABSTAIN"];
 const urlPipelineProofCommand = "./scripts/run-url-pipeline-proof.sh";
+const defaultConsoleProposalUrl = "https://steward-ashy.vercel.app/proposals/community-grants.html";
+const defaultConsoleProposalText = "Approve a 500,000 USDC Q3 community grants program imported from a public URL.";
+const defaultConsoleCriteria =
+  "Vote YES for community grants under 1M, NO for team token unlocks, ABSTAIN if unclear.";
+const defaultVotingPeriod = 604_800n;
 const urlPipelineSteps = [
   {
     tag: "Source",
@@ -169,6 +195,23 @@ const stewardAbi = [
 const governorAbi = [
   {
     type: "function",
+    name: "nextProposalId",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+  {
+    type: "function",
+    name: "createProposal",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "description", type: "string" },
+      { name: "votingPeriod", type: "uint64" },
+    ],
+    outputs: [{ name: "proposalId", type: "uint256" }],
+  },
+  {
+    type: "function",
     name: "votes",
     stateMutability: "view",
     inputs: [
@@ -176,6 +219,49 @@ const governorAbi = [
       { name: "voter", type: "address" },
     ],
     outputs: [{ name: "support", type: "uint8" }],
+  },
+] as const;
+
+const urlPipelineAbi = [
+  {
+    type: "function",
+    name: "quoteUrlVote",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [
+      { name: "platformDeposit", type: "uint256" },
+      { name: "parseAgentBudget", type: "uint256" },
+      { name: "parseDeposit", type: "uint256" },
+      { name: "voteDeposit", type: "uint256" },
+      { name: "totalDeposit", type: "uint256" },
+    ],
+  },
+  {
+    type: "function",
+    name: "startUrlVote",
+    stateMutability: "payable",
+    inputs: [
+      { name: "governor", type: "address" },
+      { name: "proposalId", type: "uint256" },
+      { name: "criteriaText", type: "string" },
+      { name: "proposalUrl", type: "string" },
+      { name: "resolveUrl", type: "bool" },
+    ],
+    outputs: [
+      { name: "jobId", type: "uint256" },
+      { name: "parseRequestId", type: "uint256" },
+    ],
+  },
+  {
+    type: "event",
+    name: "UrlPipelineStarted",
+    inputs: [
+      { name: "jobId", type: "uint256", indexed: true },
+      { name: "parseRequestId", type: "uint256", indexed: true },
+      { name: "governor", type: "address", indexed: true },
+      { name: "proposalId", type: "uint256", indexed: false },
+      { name: "proposalUrl", type: "string", indexed: false },
+    ],
   },
 ] as const;
 
@@ -208,6 +294,25 @@ type ReceiptState = {
   loading: boolean;
   summaries?: Record<string, ReceiptSummary>;
   source?: "live" | "linked";
+};
+
+type UrlConsoleForm = {
+  proposalUrl: string;
+  proposalText: string;
+  criteria: string;
+};
+
+type UrlConsoleState = {
+  account?: Address;
+  requiredDeposit?: bigint;
+  createTx?: `0x${string}`;
+  startTx?: `0x${string}`;
+  proposalId?: bigint;
+  jobId?: bigint;
+  parseRequestId?: bigint;
+  status: string;
+  busy: boolean;
+  error?: string;
 };
 
 type AgentReceiptResponse = {
@@ -316,6 +421,32 @@ function timeoutAfter(ms: number) {
   });
 }
 
+async function ensureSomniaWallet() {
+  if (!window.ethereum) {
+    throw new Error("No injected wallet found. Install or unlock a browser wallet to start a live URL vote.");
+  }
+
+  const wallet = createWalletClient({
+    chain: somniaTestnet,
+    transport: custom(window.ethereum as Parameters<typeof custom>[0]),
+  });
+  const [account] = await wallet.requestAddresses();
+  if (!account) throw new Error("Wallet connection did not return an account.");
+
+  try {
+    await wallet.switchChain({ id: somniaTestnet.id });
+  } catch {
+    try {
+      await wallet.addChain({ chain: somniaTestnet });
+      await wallet.switchChain({ id: somniaTestnet.id });
+    } catch {
+      throw new Error("Switch your wallet to Somnia Testnet before starting the URL vote.");
+    }
+  }
+
+  return { wallet, account };
+}
+
 function App() {
   const [live, setLive] = useState<ProofState>({
     loading: false,
@@ -327,6 +458,158 @@ function App() {
     summaries: linkedReceiptSummaries(),
     source: "linked",
   });
+  const [urlConsoleForm, setUrlConsoleForm] = useState<UrlConsoleForm>({
+    proposalUrl: defaultConsoleProposalUrl,
+    proposalText: defaultConsoleProposalText,
+    criteria: defaultConsoleCriteria,
+  });
+  const [urlConsole, setUrlConsole] = useState<UrlConsoleState>({
+    status: "Ready to quote the two-agent URL vote deposit.",
+    busy: false,
+  });
+
+  async function quoteUrlPipeline() {
+    if (!configuredUrlPipeline) return;
+
+    setUrlConsole((state) => ({ ...state, busy: true, error: undefined, status: "Reading required Somnia agent deposit..." }));
+    try {
+      const quote = await client.readContract({
+        address: configuredUrlPipeline,
+        abi: urlPipelineAbi,
+        functionName: "quoteUrlVote",
+      });
+      setUrlConsole((state) => ({
+        ...state,
+        requiredDeposit: quote[4],
+        busy: false,
+        status: `Required deposit: ${formatEther(quote[4])} STT. Includes Parse Website and LLM Inference.`,
+      }));
+    } catch (error) {
+      setUrlConsole((state) => ({
+        ...state,
+        busy: false,
+        error: error instanceof Error ? error.message : "Could not quote URL pipeline deposit.",
+        status: "Quote failed.",
+      }));
+    }
+  }
+
+  async function startUrlPipelineVote() {
+    if (!configuredUrlPipeline) return;
+
+    setUrlConsole((state) => ({
+      ...state,
+      busy: true,
+      error: undefined,
+      createTx: undefined,
+      startTx: undefined,
+      proposalId: undefined,
+      jobId: undefined,
+      parseRequestId: undefined,
+      status: "Connecting wallet...",
+    }));
+
+    try {
+      const { wallet, account } = await ensureSomniaWallet();
+      const requiredDeposit =
+        urlConsole.requiredDeposit ??
+        (await client.readContract({
+          address: configuredUrlPipeline,
+          abi: urlPipelineAbi,
+          functionName: "quoteUrlVote",
+        }))[4];
+
+      setUrlConsole((state) => ({
+        ...state,
+        account,
+        requiredDeposit,
+        status: "Creating a MiniGovernor proposal from the URL source...",
+      }));
+
+      const proposalId = await client.readContract({
+        address: proofAddresses.governor as Address,
+        abi: governorAbi,
+        functionName: "nextProposalId",
+      });
+
+      const createTx = await wallet.writeContract({
+        account,
+        address: proofAddresses.governor as Address,
+        abi: governorAbi,
+        functionName: "createProposal",
+        args: [urlConsoleForm.proposalText, defaultVotingPeriod],
+      });
+
+      setUrlConsole((state) => ({
+        ...state,
+        createTx,
+        proposalId,
+        status: `Proposal #${proposalId.toString()} submitted. Waiting for confirmation...`,
+      }));
+
+      await client.waitForTransactionReceipt({ hash: createTx });
+
+      setUrlConsole((state) => ({
+        ...state,
+        status: "Starting Parse Website -> LLM vote pipeline...",
+      }));
+
+      const startTx = await wallet.writeContract({
+        account,
+        address: configuredUrlPipeline,
+        abi: urlPipelineAbi,
+        functionName: "startUrlVote",
+        args: [proofAddresses.governor as Address, proposalId, urlConsoleForm.criteria, urlConsoleForm.proposalUrl, false],
+        value: requiredDeposit,
+      });
+
+      setUrlConsole((state) => ({
+        ...state,
+        startTx,
+        status: "URL pipeline started. Waiting for start transaction confirmation...",
+      }));
+
+      const startReceipt = await client.waitForTransactionReceipt({ hash: startTx });
+      let jobId: bigint | undefined;
+      let parseRequestId: bigint | undefined;
+
+      for (const log of startReceipt.logs) {
+        if (log.address.toLowerCase() !== configuredUrlPipeline.toLowerCase()) continue;
+        try {
+          const decoded = decodeEventLog({
+            abi: urlPipelineAbi,
+            data: log.data,
+            topics: log.topics,
+          });
+          if (decoded.eventName === "UrlPipelineStarted") {
+            const args = decoded.args as { jobId: bigint; parseRequestId: bigint };
+            jobId = args.jobId;
+            parseRequestId = args.parseRequestId;
+            break;
+          }
+        } catch {
+          // Ignore unrelated logs from the same transaction.
+        }
+      }
+
+      setUrlConsole((state) => ({
+        ...state,
+        busy: false,
+        jobId,
+        parseRequestId,
+        status: jobId
+          ? `Job #${jobId.toString()} started. Parse Website request #${parseRequestId?.toString()} is now in Somnia's agent queue.`
+          : "URL pipeline transaction confirmed. Use the explorer and proof workflow to follow callbacks.",
+      }));
+    } catch (error) {
+      setUrlConsole((state) => ({
+        ...state,
+        busy: false,
+        error: error instanceof Error ? error.message : "URL vote request failed.",
+        status: "Request stopped.",
+      }));
+    }
+  }
 
   useEffect(() => {
     if (!window.location.hash) return;
@@ -498,6 +781,7 @@ function App() {
         <strong className="brand">Steward</strong>
         <a href="#proof">Proof</a>
         <a href="#url-pipeline">URL Pipeline</a>
+        {configuredUrlPipeline ? <a href="#console">Console</a> : null}
         <a href="#loop">Loop</a>
         <a href="#product">Product</a>
         <a href={judgeGuideUrl} target="_blank" rel="noreferrer">
@@ -717,6 +1001,83 @@ function App() {
             </a>
           </div>
         </div>
+        {configuredUrlPipeline ? (
+          <div className="urlConsole" id="console">
+            <div className="urlConsoleCopy">
+              <p className="eyebrow">Live V2 console</p>
+              <h2>Paste a proposal URL. Let Somnia vote.</h2>
+              <p>
+                This is the product path behind the proof: create a MiniGovernor proposal, ask
+                Parse Website to read the source page, then let LLM Inference cast the final vote
+                against the delegated mandate.
+              </p>
+              <div className="consoleStatus">
+                <span>Pipeline</span>
+                <strong>{shortAddress(configuredUrlPipeline)}</strong>
+              </div>
+            </div>
+            <div className="urlConsolePanel">
+              <label>
+                Proposal URL
+                <input
+                  value={urlConsoleForm.proposalUrl}
+                  onChange={(event) => setUrlConsoleForm((form) => ({ ...form, proposalUrl: event.target.value }))}
+                  disabled={urlConsole.busy}
+                />
+              </label>
+              <label>
+                MiniGovernor proposal text
+                <textarea
+                  value={urlConsoleForm.proposalText}
+                  onChange={(event) => setUrlConsoleForm((form) => ({ ...form, proposalText: event.target.value }))}
+                  disabled={urlConsole.busy}
+                />
+              </label>
+              <label>
+                Delegated criteria
+                <textarea
+                  value={urlConsoleForm.criteria}
+                  onChange={(event) => setUrlConsoleForm((form) => ({ ...form, criteria: event.target.value }))}
+                  disabled={urlConsole.busy}
+                />
+              </label>
+              <div className="consoleButtons">
+                <button type="button" onClick={quoteUrlPipeline} disabled={urlConsole.busy}>
+                  Quote agent deposit
+                </button>
+                <button type="button" onClick={startUrlPipelineVote} disabled={urlConsole.busy}>
+                  Create proposal + start URL vote
+                </button>
+              </div>
+              <div className="consoleOutput">
+                <span>Status</span>
+                <p>{urlConsole.status}</p>
+                {urlConsole.requiredDeposit ? <p>Deposit: {formatEther(urlConsole.requiredDeposit)} STT</p> : null}
+                {urlConsole.proposalId ? <p>Proposal #{urlConsole.proposalId.toString()}</p> : null}
+                {urlConsole.jobId ? <p>Pipeline job #{urlConsole.jobId.toString()}</p> : null}
+                {urlConsole.parseRequestId ? <p>Parse request #{urlConsole.parseRequestId.toString()}</p> : null}
+                <div className="txLinks">
+                  {urlConsole.createTx ? (
+                    <a href={explorerTx(urlConsole.createTx)} target="_blank" rel="noreferrer">
+                      Proposal tx
+                    </a>
+                  ) : null}
+                  {urlConsole.startTx ? (
+                    <a href={explorerTx(urlConsole.startTx)} target="_blank" rel="noreferrer">
+                      Pipeline tx
+                    </a>
+                  ) : null}
+                  {urlConsole.parseRequestId ? (
+                    <a href={agentReceiptUrl(urlConsole.parseRequestId)} target="_blank" rel="noreferrer">
+                      Parse receipt
+                    </a>
+                  ) : null}
+                </div>
+                {urlConsole.error ? <p className="consoleError">{urlConsole.error}</p> : null}
+              </div>
+            </div>
+          </div>
+        ) : null}
         <div className="urlPipelineBoard">
           <div className="pipelineSteps">
             {urlPipelineSteps.map((step) => (

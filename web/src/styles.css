@@ -553,6 +553,7 @@ main {
 }
 
 .urlPipelineLead,
+.urlConsole,
 .proposalSources article,
 .pipelineSteps article,
 .urlProofCommand {
@@ -610,6 +611,159 @@ main {
 .urlPipelineBoard {
   display: grid;
   gap: 12px;
+}
+
+.urlConsole {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
+  gap: 16px;
+  padding: clamp(20px, 3vw, 32px);
+  border-radius: 36px;
+}
+
+.urlConsoleCopy h2 {
+  max-width: 620px;
+  margin: 0;
+  font-size: clamp(42px, 5vw, 78px);
+  line-height: 0.86;
+  letter-spacing: -0.075em;
+}
+
+.urlConsoleCopy p:not(.eyebrow) {
+  max-width: 620px;
+  margin: 22px 0 0;
+  color: rgba(16, 18, 13, 0.68);
+  font-size: 18px;
+  line-height: 1.45;
+}
+
+.urlConsoleCopy code {
+  color: #17351d;
+  font-family: inherit;
+  font-weight: 950;
+}
+
+.consoleStatus {
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 24px;
+  padding: 14px 16px;
+  border: 1px solid rgba(16, 18, 13, 0.14);
+  border-radius: 22px;
+  background: rgba(107, 255, 125, 0.16);
+}
+
+.consoleStatus span,
+.consoleOutput span {
+  display: block;
+  color: rgba(16, 18, 13, 0.5);
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.consoleStatus strong {
+  display: block;
+  margin-top: 6px;
+  color: #10120d;
+  font-size: 22px;
+  letter-spacing: -0.04em;
+  overflow-wrap: anywhere;
+}
+
+.urlConsolePanel {
+  display: grid;
+  gap: 12px;
+}
+
+.urlConsolePanel label {
+  display: grid;
+  gap: 8px;
+  color: rgba(16, 18, 13, 0.62);
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.urlConsolePanel input,
+.urlConsolePanel textarea {
+  width: 100%;
+  border: 1px solid rgba(16, 18, 13, 0.16);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.62);
+  color: #10120d;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 750;
+  letter-spacing: normal;
+  outline: none;
+  padding: 13px 14px;
+  text-transform: none;
+}
+
+.urlConsolePanel textarea {
+  min-height: 82px;
+  resize: vertical;
+}
+
+.urlConsolePanel input:disabled,
+.urlConsolePanel textarea:disabled,
+.consoleButtons button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.consoleButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.consoleButtons button {
+  border: 0;
+  border-radius: 999px;
+  background: #10120d;
+  color: #f5f2e8;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  padding: 13px 16px;
+  text-transform: uppercase;
+}
+
+.consoleButtons button + button {
+  background: #6bff7d;
+  color: #10120d;
+}
+
+.consoleOutput {
+  padding: 18px;
+  border-radius: 22px;
+  background:
+    linear-gradient(135deg, rgba(16, 18, 13, 0.94), rgba(31, 48, 27, 0.94)),
+    #10120d;
+  color: #f8f4e6;
+}
+
+.consoleOutput span {
+  color: rgba(248, 244, 230, 0.58);
+}
+
+.consoleOutput p {
+  margin: 10px 0 0;
+  color: rgba(248, 244, 230, 0.82);
+  font-size: 15px;
+  line-height: 1.42;
+  overflow-wrap: anywhere;
+}
+
+.consoleOutput .consoleError {
+  color: #ffb0ba;
 }
 
 .pipelineSteps {
@@ -1032,6 +1186,7 @@ main {
   .judge,
   .scorecard,
   .useCases,
+  .urlConsole,
   .pipelineSteps,
   .proposalSources,
   .proofCoverage,

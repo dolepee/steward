@@ -4,6 +4,16 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
+for dependency in cast node; do
+  if ! command -v "$dependency" >/dev/null 2>&1; then
+    echo "ERROR: missing required command '$dependency'" >&2
+    if [[ "$dependency" == "cast" ]]; then
+      echo "Install Foundry first: https://book.getfoundry.sh/getting-started/installation" >&2
+    fi
+    exit 1
+  fi
+done
+
 "$ROOT_DIR/scripts/verify-live.sh"
 node "$ROOT_DIR/scripts/verify-agent-receipts.mjs"
 

@@ -51,6 +51,11 @@ Removing Somnia removes the product: there is no auditable agent request, no val
 
 ## Local Verification
 
+Prerequisites:
+
+- Foundry, for `forge` and `cast`.
+- Node.js 22+.
+
 Fastest judge path:
 
 ```shell
@@ -63,6 +68,7 @@ Expected final marker: `STEWARD_FULL_PROOF_VALID`. This command asserts both sid
 forge fmt --check
 forge build
 forge test -vvv
+npm ci --prefix web
 npm run build --prefix web
 ./scripts/verify-steward-proof.sh
 ```

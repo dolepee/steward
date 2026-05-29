@@ -115,6 +115,11 @@ Seed three URL-pipeline proof jobs against the public proposal source pages:
 forge script script/SeedUrlPipelineProofs.s.sol --rpc-url "$SOMNIA_TESTNET_RPC" --broadcast --legacy
 ```
 
+`StewardUrlPipeline.quoteUrlVote()` breaks the required value into platform
+deposit, Parse Website budget, and LLM vote deposit. The request scripts use
+that quote and optionally accept `URL_PIPELINE_DEPOSIT_BUFFER`; any overpayment
+is recorded as a claimable refund instead of reverting the demo transaction.
+
 After the three parse callbacks and three vote callbacks finalize, set
 `URL_PIPELINE_CASES=YES,NO,ABSTAIN` and the prefixed `URL_PIPELINE_YES_*`,
 `URL_PIPELINE_NO_*`, and `URL_PIPELINE_ABSTAIN_*` tx fields. The expected final

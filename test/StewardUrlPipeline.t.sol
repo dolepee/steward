@@ -67,6 +67,23 @@ contract StewardUrlPipelineTest is Test {
         assertEq(confidenceThreshold, 70);
     }
 
+    function testQuoteUrlVoteBreaksDownDeposit() public view {
+        (
+            uint256 platformDeposit,
+            uint256 parseAgentBudget,
+            uint256 parseDeposit,
+            uint256 voteDeposit,
+            uint256 totalDeposit
+        ) = pipeline.quoteUrlVote();
+
+        assertEq(platformDeposit, 0.03 ether);
+        assertEq(parseAgentBudget, 0.3 ether);
+        assertEq(parseDeposit, 0.33 ether);
+        assertEq(voteDeposit, 0.24 ether);
+        assertEq(totalDeposit, 0.57 ether);
+        assertEq(pipeline.requiredDeposit(), totalDeposit);
+    }
+
     function testParseCallbackCreatesLlmVoteRequest() public {
         (uint256 jobId, uint256 parseRequestId, uint256 proposalId) = _startPipeline();
 
@@ -191,6 +208,35 @@ contract StewardUrlPipelineTest is Test {
             "https://forum.example/proposals/community-grants",
             false
         );
+    }
+
+    function testOverpaymentBecomesClaimableRefund() public {
+        address requester = address(0xCAFE);
+        vm.deal(requester, 2 ether);
+        uint256 proposalId = governor.createProposal("Imported proposal from forum URL.", 7 days);
+        uint256 deposit = pipeline.requiredDeposit();
+        uint256 surplus = 0.05 ether;
+
+        vm.prank(requester);
+        (uint256 jobId,) = pipeline.startUrlVote{value: deposit + surplus}(
+            address(governor),
+            proposalId,
+            "Vote YES for community grants under 1M, NO for team token unlocks, ABSTAIN if unclear.",
+            "https://forum.example/proposals/community-grants",
+            false
+        );
+
+        assertEq(jobId, 1);
+        assertEq(platform.lastValue(), 0.33 ether);
+        assertEq(pipeline.claimableRefunds(requester), surplus);
+        assertEq(address(pipeline).balance, pipeline.LLM_INFERENCE_DEPOSIT() + surplus);
+
+        uint256 balanceBefore = requester.balance;
+        vm.prank(requester);
+        pipeline.claimRefund();
+
+        assertEq(requester.balance, balanceBefore + surplus);
+        assertEq(pipeline.claimableRefunds(requester), 0);
     }
 
     function testUnauthorizedCallbackReverts() public {

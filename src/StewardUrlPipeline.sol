@@ -94,6 +94,7 @@ contract StewardUrlPipeline {
         uint256 indexed jobId, uint256 indexed requestId, ResponseStatus platformStatus, string reason, uint256 receipt
     );
     event UnusedVoteDepositRefunded(uint256 indexed jobId, address indexed recipient, uint256 amount, bool success);
+    event SurplusDepositRecorded(uint256 indexed jobId, address indexed recipient, uint256 amount);
 
     constructor(address somniaAgents_, uint256 parseWebsiteAgentId_, uint256 llmAgentId_) {
         if (somniaAgents_ == address(0) || parseWebsiteAgentId_ == 0 || llmAgentId_ == 0) revert InvalidAddress();
@@ -103,9 +104,26 @@ contract StewardUrlPipeline {
     }
 
     function requiredDeposit() public view returns (uint256) {
-        return
-            SOMNIA_AGENTS.getRequestDeposit() + (PARSE_WEBSITE_COST_PER_AGENT * SUBCOMMITTEE_SIZE)
-                + LLM_INFERENCE_DEPOSIT;
+        (,,,, uint256 totalDeposit) = quoteUrlVote();
+        return totalDeposit;
+    }
+
+    function quoteUrlVote()
+        public
+        view
+        returns (
+            uint256 platformDeposit,
+            uint256 parseAgentBudget,
+            uint256 parseDeposit,
+            uint256 voteDeposit,
+            uint256 totalDeposit
+        )
+    {
+        platformDeposit = SOMNIA_AGENTS.getRequestDeposit();
+        parseAgentBudget = PARSE_WEBSITE_COST_PER_AGENT * SUBCOMMITTEE_SIZE;
+        parseDeposit = platformDeposit + parseAgentBudget;
+        voteDeposit = LLM_INFERENCE_DEPOSIT;
+        totalDeposit = parseDeposit + voteDeposit;
     }
 
     function claimRefund() external {
@@ -161,8 +179,8 @@ contract StewardUrlPipeline {
         if (governor == address(0)) revert InvalidAddress();
         if (bytes(criteriaText).length == 0 || bytes(proposalUrl).length == 0) revert EmptyInput();
 
-        uint256 expectedDeposit = requiredDeposit();
-        if (msg.value != expectedDeposit) revert IncorrectDeposit(expectedDeposit, msg.value);
+        (,, uint256 parseDeposit,, uint256 expectedDeposit) = quoteUrlVote();
+        if (msg.value < expectedDeposit) revert IncorrectDeposit(expectedDeposit, msg.value);
 
         jobId = nextJobId++;
         bytes memory parsePayload = abi.encodeCall(
@@ -179,7 +197,6 @@ contract StewardUrlPipeline {
             )
         );
 
-        uint256 parseDeposit = SOMNIA_AGENTS.getRequestDeposit() + (PARSE_WEBSITE_COST_PER_AGENT * SUBCOMMITTEE_SIZE);
         parseRequestId = SOMNIA_AGENTS.createRequest{value: parseDeposit}(
             PARSE_WEBSITE_AGENT_ID, address(this), this.handleResponse.selector, parsePayload
         );
@@ -204,6 +221,12 @@ contract StewardUrlPipeline {
         jobForRequest[parseRequestId] = jobId;
 
         emit UrlPipelineStarted(jobId, parseRequestId, governor, proposalId, proposalUrl);
+
+        uint256 surplus = msg.value - expectedDeposit;
+        if (surplus > 0) {
+            claimableRefunds[msg.sender] += surplus;
+            emit SurplusDepositRecorded(jobId, msg.sender, surplus);
+        }
     }
 
     function handleResponse(

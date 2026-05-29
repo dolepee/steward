@@ -21,7 +21,14 @@ contract SeedUrlPipelineProofs is Script {
             "CRITERIA_TEXT",
             string("Vote YES for community grants under 1M, NO for team token unlocks, ABSTAIN if unclear.")
         );
-        uint256 requiredDeposit = pipeline.requiredDeposit();
+        uint256 buffer = vm.envOr("URL_PIPELINE_DEPOSIT_BUFFER", uint256(0));
+        (
+            uint256 platformDeposit,
+            uint256 parseAgentBudget,
+            uint256 parseDeposit,
+            uint256 voteDeposit,
+            uint256 requiredDeposit
+        ) = pipeline.quoteUrlVote();
 
         ProofSeed[3] memory seeds = [
             ProofSeed({
@@ -59,12 +66,17 @@ contract SeedUrlPipelineProofs is Script {
             })
         ];
 
+        console2.log("platformDeposit", platformDeposit);
+        console2.log("parseAgentBudget", parseAgentBudget);
+        console2.log("parseDeposit", parseDeposit);
+        console2.log("voteDeposit", voteDeposit);
         console2.log("requiredDepositEach", requiredDeposit);
+        console2.log("depositBufferEach", buffer);
 
         vm.startBroadcast();
         for (uint256 i = 0; i < seeds.length; i++) {
             uint256 proposalId = governor.createProposal(seeds[i].proposalText, votingPeriod);
-            (uint256 jobId, uint256 parseRequestId) = pipeline.startUrlVote{value: requiredDeposit}(
+            (uint256 jobId, uint256 parseRequestId) = pipeline.startUrlVote{value: requiredDeposit + buffer}(
                 address(governor), proposalId, criteriaText, seeds[i].proposalUrl, seeds[i].resolveUrl
             );
 

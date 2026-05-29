@@ -1,0 +1,37 @@
+#!/usr/bin/env node
+
+const EXPLORER_API = "https://somnia.w3us.site/api/v2/addresses";
+
+const contracts = [
+  {
+    label: "Steward",
+    address: "0x6932C7827E7BFd9f0015Ed93fA120379E0d20541",
+    expectedName: "Steward",
+  },
+  {
+    label: "MiniGovernor",
+    address: "0xa3773Ff7B2008bAb2E553E13e1E0ADE08a15f389",
+    expectedName: "MiniGovernor",
+  },
+];
+
+function assert(condition, message) {
+  if (!condition) {
+    throw new Error(message);
+  }
+}
+
+for (const contract of contracts) {
+  const response = await fetch(`${EXPLORER_API}/${contract.address}`);
+  assert(response.ok, `${contract.label}: explorer API returned ${response.status}`);
+
+  const body = await response.json();
+  assert(body.hash?.toLowerCase() === contract.address.toLowerCase(), `${contract.label}: address mismatch`);
+  assert(body.is_contract === true, `${contract.label}: explorer does not mark address as a contract`);
+  assert(body.is_verified === true, `${contract.label}: source is not verified`);
+  assert(body.name === contract.expectedName, `${contract.label}: expected source name ${contract.expectedName}`);
+
+  console.log(`${contract.label}: ${contract.address}, source verified as ${body.name}`);
+}
+
+console.log("STEWARD_SOURCE_VERIFICATION_VALID");

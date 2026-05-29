@@ -65,7 +65,7 @@ Fastest judge path:
 ./scripts/verify-steward-proof.sh
 ```
 
-Expected final marker: `STEWARD_FULL_PROOF_VALID`. This command asserts both sides of the proof: live onchain Steward/MiniGovernor state and Somnia's public LLM receipt service for all three YES, NO, and ABSTAIN requests.
+Expected final marker: `STEWARD_FULL_PROOF_VALID`. This command asserts live onchain Steward/MiniGovernor state, Somnia's public LLM receipt service for all three YES, NO, and ABSTAIN requests, and explorer source verification for both project contracts.
 
 ```shell
 forge fmt --check

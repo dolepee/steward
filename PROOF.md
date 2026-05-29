@@ -104,7 +104,10 @@ That verifier checks the full two-agent trail: the start transaction must create
 a Somnia `LLM Parse Website` request with the expected URL extraction payload,
 the parse callback must create the second `LLM Inference` vote request with the
 extracted proposal facts, and the final callback must cast the MiniGovernor vote
-from `StewardUrlPipeline`.
+from `StewardUrlPipeline`. It also fetches Somnia's public receipt service for
+both the Parse Website request and the LLM vote request, then checks threshold,
+runner quorum, agent id, decoded step evidence, timing, and the final LLM vote
+output.
 
 ## Proof Set
 

@@ -10,6 +10,7 @@ const LLM_AGENT_ID = BigInt(process.env.LLM_AGENT_ID ?? "12847293847561029384");
 
 const EXTRACT_STRING_SELECTOR = "0xc2dd1a7a";
 const INFER_STRING_SELECTOR = "0xfe7ca098";
+const RECEIPT_BASE = process.env.SOMNIA_RECEIPT_BASE ?? "https://receipts.testnet.agents.somnia.host/agent-receipts";
 const EXPECTED_SYSTEM = "You are Steward, an autonomous DAO voting delegate. Choose exactly one allowed value.";
 const EXPECTED_ALLOWED_VALUES = ["YES", "NO", "ABSTAIN"];
 const EXPECTED_PARSE_KEY = "proposal_summary";
@@ -201,6 +202,98 @@ function arrayEquals(actual, expected) {
   return actual.length === expected.length && actual.every((value, index) => value === expected[index]);
 }
 
+function receiptUrl(requestId) {
+  const params = new URLSearchParams({
+    requestId: requestId.toString(),
+    contractAddress: SOMNIA_AGENTS,
+    type: "minimal",
+  });
+  return `${RECEIPT_BASE}?${params.toString()}`;
+}
+
+function receiptStepNames(receipt) {
+  return new Set((receipt?.agentReceipt?.steps ?? []).map((step) => step.name).filter(Boolean));
+}
+
+function receiptStepContent(receipt, name) {
+  return receipt?.agentReceipt?.steps?.find((step) => step.name === name)?.content;
+}
+
+async function fetchJsonWithRetry(url, label, attempts = 4) {
+  let lastError;
+
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    try {
+      const response = await fetch(url, { signal: AbortSignal.timeout(20_000) });
+      assert(response.ok, `${label}: receipt service returned ${response.status}`);
+      return response.json();
+    } catch (error) {
+      lastError = error;
+      if (attempt === attempts) break;
+      await sleep(1_500 * attempt);
+    }
+  }
+
+  throw lastError;
+}
+
+async function verifyAgentReceipts({ label, requestId, agentId, expectedResponse, expectedStepHints }) {
+  const body = await fetchJsonWithRetry(receiptUrl(requestId), label);
+  assert(body.requestId === requestId.toString(), `${label}: receipt request id mismatch`);
+  assert(body.contractAddress?.toLowerCase() === SOMNIA_AGENTS, `${label}: receipt contract mismatch`);
+  assert(
+    body.requestDetails?.callbackAddress?.toLowerCase() === STEWARD_URL_PIPELINE,
+    `${label}: receipt callback address mismatch`,
+  );
+  assert(
+    body.requestDetails?.requester?.toLowerCase() === STEWARD_URL_PIPELINE,
+    `${label}: receipt requester mismatch`,
+  );
+  assert(body.requestDetails?.subcommitteeSize === 3, `${label}: unexpected receipt subcommittee size`);
+  assert(body.requestDetails?.threshold === 2, `${label}: unexpected receipt threshold`);
+
+  const receipts = body.receipts ?? [];
+  assert(receipts.length >= 2, `${label}: expected at least two validator receipts`);
+
+  const successful = receipts.filter((receipt) => receipt.status === "success");
+  assert(successful.length >= 2, `${label}: expected at least two successful receipts`);
+
+  const runnerAddresses = new Set(
+    successful
+      .map((receipt) => receipt.agentRunnerAddress?.toLowerCase())
+      .filter((address) => typeof address === "string" && address.length > 0),
+  );
+  assert(runnerAddresses.size >= 2, `${label}: expected at least two runner addresses`);
+
+  for (const receipt of successful) {
+    assert(receipt.agentId === agentId.toString(), `${label}: receipt agent id mismatch`);
+    assert(receipt.elapsedMs > 0, `${label}: missing receipt timing`);
+
+    const stepNames = receiptStepNames(receipt);
+    assert(stepNames.size > 0, `${label}: receipt has no decoded steps`);
+
+    for (const requiredStep of ["handler_started", "handler_completed"]) {
+      assert(stepNames.has(requiredStep), `${label}: missing receipt step ${requiredStep}`);
+    }
+
+    const hasExpectedAgentStep = expectedStepHints.some((hint) =>
+      [...stepNames].some((stepName) => stepName.toLowerCase().includes(hint)),
+    );
+    assert(hasExpectedAgentStep, `${label}: receipt steps do not show expected agent work`);
+
+    if (expectedResponse !== undefined) {
+      assert(receiptStepContent(receipt, "llm_response") === expectedResponse, `${label}: unexpected LLM response`);
+      assert(receipt.agentReceipt?.llmUsage?.requests === 1, `${label}: missing LLM usage`);
+      assert(receipt.agentReceipt?.llmUsage?.totalTokens > 0, `${label}: missing token usage`);
+    }
+  }
+
+  const maxElapsedMs = Math.max(...successful.map((receipt) => receipt.elapsedMs));
+  console.log(
+    `${label}: receipt quorum valid (${successful.length}/${receipts.length} successful, ${runnerAddresses.size} runners, max ${maxElapsedMs}ms)`,
+  );
+}
+
 function decodeRequestCreatedData(data) {
   const payloadOffset = toSafeNumber(uintAt(data, 32, "payload offset"), "payload offset");
   const subcommitteeOffset = toSafeNumber(uintAt(data, 64, "subcommittee offset"), "subcommittee offset");
@@ -366,6 +459,12 @@ async function verifyProof(proof) {
   assert(parsePayload.url === proof.proposalUrl, `${proof.label}: unexpected proposal URL`);
   assert(parsePayload.numPages === 3n, `${proof.label}: unexpected parse numPages`);
   assert(parsePayload.confidenceThreshold === 70n, `${proof.label}: unexpected parse confidence threshold`);
+  await verifyAgentReceipts({
+    label: `${proof.label} Parse Website`,
+    requestId: parseRequestId,
+    agentId: PARSE_WEBSITE_AGENT_ID,
+    expectedStepHints: ["request", "scrape", "extract"],
+  });
 
   const parseCallbackReceipt = await receiptWithRetry(proof.parseCallbackTx, `${proof.label} URL parse callback`);
   assert(
@@ -419,6 +518,13 @@ async function verifyProof(proof) {
     arrayEquals(votePayload.allowedValues, EXPECTED_ALLOWED_VALUES),
     `${proof.label}: unexpected vote allowed values ${votePayload.allowedValues.join(", ")}`,
   );
+  await verifyAgentReceipts({
+    label: `${proof.label} LLM vote`,
+    requestId: voteRequestId,
+    agentId: LLM_AGENT_ID,
+    expectedResponse: proof.expectedReason,
+    expectedStepHints: ["request_decoded", "llm_response", "response_encoded"],
+  });
 
   const voteCallbackReceipt = await receiptWithRetry(proof.voteCallbackTx, `${proof.label} URL vote callback`);
   assert(

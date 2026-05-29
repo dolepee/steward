@@ -114,7 +114,10 @@ Public GitHub verifier path after deployment: open the
 workflow, provide the deployed `StewardUrlPipeline` address and the deploy or
 seed `from_block`, then run it. The workflow collects the URL pipeline logs,
 exports the proof environment, checks that the seeded URLs produced the expected
-`YES`, `NO`, and `ABSTAIN` cases, and runs `node scripts/verify-url-pipeline-trail.mjs`.
+`YES`, `NO`, and `ABSTAIN` cases, then runs
+`node scripts/verify-url-pipeline-trail.mjs`. The verifier checks transaction
+logs, decoded Parse Website and LLM payloads, final governor votes, and public
+Somnia receipt quorum for both agent calls.
 
 Seed three URL-pipeline proof jobs against the public proposal source pages:
 
@@ -145,6 +148,9 @@ after the YES, NO, and ABSTAIN cases are all complete. Expected final markers:
 `STEWARD_URL_PIPELINE_BATCH_VALID` and `STEWARD_URL_PIPELINE_PROOF_RUN_VALID`.
 The collector labels known proof jobs by source URL rather than by returned vote,
 so the verifier fails if a seeded URL produces the wrong governance outcome.
+The verifier also fetches Somnia's public receipt service for each Parse Website
+and LLM vote request, then checks threshold, runner evidence, agent id, timing,
+and the LLM vote output.
 
 Collector-only path, to avoid manual explorer copying after callbacks land:
 

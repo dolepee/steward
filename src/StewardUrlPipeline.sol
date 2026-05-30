@@ -18,7 +18,7 @@ contract StewardUrlPipeline {
     uint8 public constant PARSE_CONFIDENCE_THRESHOLD = 70;
     uint256 public constant SUBCOMMITTEE_SIZE = 3;
     uint256 public constant PARSE_WEBSITE_COST_PER_AGENT = 0.1 ether;
-    uint256 public constant LLM_INFERENCE_DEPOSIT = 0.24 ether;
+    uint256 public constant LLM_INFERENCE_AGENT_BUDGET = 0.21 ether;
 
     enum PipelineState {
         None,
@@ -44,6 +44,7 @@ contract StewardUrlPipeline {
         string reason;
         uint256 parseReceipt;
         uint256 voteReceipt;
+        uint256 voteRequestDeposit;
     }
 
     error InvalidAddress();
@@ -93,7 +94,7 @@ contract StewardUrlPipeline {
     event UrlPipelineFailed(
         uint256 indexed jobId, uint256 indexed requestId, ResponseStatus platformStatus, string reason, uint256 receipt
     );
-    event UnusedVoteDepositRefunded(uint256 indexed jobId, address indexed recipient, uint256 amount, bool success);
+    event UnusedVoteDepositRecorded(uint256 indexed jobId, address indexed recipient, uint256 amount);
     event SurplusDepositRecorded(uint256 indexed jobId, address indexed recipient, uint256 amount);
 
     constructor(address somniaAgents_, uint256 parseWebsiteAgentId_, uint256 llmAgentId_) {
@@ -106,6 +107,10 @@ contract StewardUrlPipeline {
     function requiredDeposit() public view returns (uint256) {
         (,,,, uint256 totalDeposit) = quoteUrlVote();
         return totalDeposit;
+    }
+
+    function voteRequestDeposit() public view returns (uint256) {
+        return SOMNIA_AGENTS.getRequestDeposit() + LLM_INFERENCE_AGENT_BUDGET;
     }
 
     function quoteUrlVote()
@@ -122,7 +127,7 @@ contract StewardUrlPipeline {
         platformDeposit = SOMNIA_AGENTS.getRequestDeposit();
         parseAgentBudget = PARSE_WEBSITE_COST_PER_AGENT * SUBCOMMITTEE_SIZE;
         parseDeposit = platformDeposit + parseAgentBudget;
-        voteDeposit = LLM_INFERENCE_DEPOSIT;
+        voteDeposit = voteRequestDeposit();
         totalDeposit = parseDeposit + voteDeposit;
     }
 
@@ -181,6 +186,7 @@ contract StewardUrlPipeline {
 
         (,, uint256 parseDeposit,, uint256 expectedDeposit) = quoteUrlVote();
         if (msg.value < expectedDeposit) revert IncorrectDeposit(expectedDeposit, msg.value);
+        uint256 quotedVoteRequestDeposit = voteRequestDeposit();
 
         jobId = nextJobId++;
         bytes memory parsePayload = abi.encodeCall(
@@ -216,7 +222,8 @@ contract StewardUrlPipeline {
             extractedSummary: "",
             reason: "",
             parseReceipt: 0,
-            voteReceipt: 0
+            voteReceipt: 0,
+            voteRequestDeposit: quotedVoteRequestDeposit
         });
         jobForRequest[parseRequestId] = jobId;
 
@@ -306,14 +313,20 @@ contract StewardUrlPipeline {
             )
         );
 
-        uint256 voteRequestId = SOMNIA_AGENTS.createRequest{value: LLM_INFERENCE_DEPOSIT}(
+        try SOMNIA_AGENTS.createRequest{value: job.voteRequestDeposit}(
             LLM_AGENT_ID, address(this), this.handleResponse.selector, votePayload
-        );
+        ) returns (
+            uint256 voteRequestId
+        ) {
+            job.voteRequestId = voteRequestId;
+            jobForRequest[voteRequestId] = jobId;
 
-        job.voteRequestId = voteRequestId;
-        jobForRequest[voteRequestId] = jobId;
-
-        emit UrlVoteDecisionRequested(jobId, voteRequestId, _hashString(job.criteriaText), _hashString(summary));
+            emit UrlVoteDecisionRequested(jobId, voteRequestId, _hashString(job.criteriaText), _hashString(summary));
+        } catch {
+            _failJob(jobId, 0, job, ResponseStatus.Failed, "Vote decision request could not be created.", 0);
+            claimableRefunds[job.requester] += job.voteRequestDeposit;
+            emit UnusedVoteDepositRecorded(jobId, job.requester, job.voteRequestDeposit);
+        }
     }
 
     function _handleVoteResponse(
@@ -463,11 +476,8 @@ contract StewardUrlPipeline {
     }
 
     function _refundUnusedVoteDeposit(uint256 jobId, UrlPipelineJob storage job) private {
-        (bool success,) = job.requester.call{value: LLM_INFERENCE_DEPOSIT}("");
-        if (!success) {
-            claimableRefunds[job.requester] += LLM_INFERENCE_DEPOSIT;
-        }
-        emit UnusedVoteDepositRefunded(jobId, job.requester, LLM_INFERENCE_DEPOSIT, success);
+        claimableRefunds[job.requester] += job.voteRequestDeposit;
+        emit UnusedVoteDepositRecorded(jobId, job.requester, job.voteRequestDeposit);
     }
 
     receive() external payable {}

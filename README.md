@@ -51,7 +51,7 @@ Removing Somnia removes the product: there is no auditable agent request, no val
 | AgentRegistry | `0x08D1Fc808f1983d2Ea7B63a28ECD4d8C885Cd02A` |
 | LLM Inference agent ID | [`12847293847561029384`](https://agents.testnet.somnia.network/agent/12847293847561029384) |
 | LLM Parse Website agent ID | [`12875401142070969085`](https://agents.testnet.somnia.network/agent/12875401142070969085) |
-| Practical LLM request value | Current deployment used `0.24 STT`; current source quotes `SomniaAgents.getRequestDeposit() + 0.21 STT` per reviewer. |
+| Practical LLM request value | Current deployment used `0.24 STT`; current source quotes `SomniaAgents.getRequestDeposit() + 0.21 STT` per LLM vote/reviewer request. |
 
 ## MVP Build Order
 

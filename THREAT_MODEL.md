@@ -66,6 +66,8 @@ The known tradeoff is timing. A third party can spend their own funds to start a
 - Reviewer request deposits are quoted from the current Somnia platform deposit plus a fixed agent budget, stored per job, and refunded through `claimRefund` if unused.
 - The contract emits one event per reviewer request and decision so a live proof can reconstruct the full council trail.
 
+The optional single-reviewer `StewardUrlPipeline` follows the same deposit pattern: the vote-request deposit is dynamically quoted, snapshotted per job, and credited to `claimRefund` if the vote request is unused or cannot be created.
+
 ## Production Hardening Path
 
 Before production use, Steward would need a real governor adapter, stronger prompt/version pinning, explicit proposal source authentication, multi-agent or policy quorum options, and a reputation or slashing layer for bad delegate outcomes.

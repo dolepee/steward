@@ -82,6 +82,26 @@ contract StewardUrlPipelineTest is Test {
         assertEq(voteDeposit, 0.24 ether);
         assertEq(totalDeposit, 0.57 ether);
         assertEq(pipeline.requiredDeposit(), totalDeposit);
+        assertEq(pipeline.voteRequestDeposit(), 0.24 ether);
+    }
+
+    function testQuoteUrlVoteUsesDynamicVotePlatformDeposit() public {
+        platform.setRequestDeposit(0.05 ether);
+
+        (
+            uint256 platformDeposit,
+            uint256 parseAgentBudget,
+            uint256 parseDeposit,
+            uint256 voteDeposit,
+            uint256 totalDeposit
+        ) = pipeline.quoteUrlVote();
+
+        assertEq(platformDeposit, 0.05 ether);
+        assertEq(parseAgentBudget, 0.3 ether);
+        assertEq(parseDeposit, 0.35 ether);
+        assertEq(voteDeposit, 0.26 ether);
+        assertEq(totalDeposit, 0.61 ether);
+        assertEq(pipeline.voteRequestDeposit(), 0.26 ether);
     }
 
     function testParseCallbackCreatesLlmVoteRequest() public {
@@ -92,7 +112,7 @@ contract StewardUrlPipelineTest is Test {
         assertEq(platform.lastAgentId(), LLM_AGENT_ID);
         assertEq(platform.lastCallbackAddress(), address(pipeline));
         assertEq(platform.lastCallbackSelector(), pipeline.handleResponse.selector);
-        assertEq(platform.lastValue(), 0.24 ether);
+        assertEq(platform.lastValue(), pipeline.voteRequestDeposit());
         assertEq(_selector(platform.lastPayload()), ILLMInferenceAgent.inferString.selector);
 
         (string memory prompt, string memory system, bool chainOfThought, string[] memory allowedValues) =
@@ -156,7 +176,15 @@ contract StewardUrlPipelineTest is Test {
         uint256 balanceBefore = requester.balance;
         platform.fail(parseRequestId, ResponseStatus.Failed, 701);
 
-        assertEq(requester.balance, balanceBefore + pipeline.LLM_INFERENCE_DEPOSIT());
+        uint256 expectedRefund = 0.24 ether;
+        assertEq(requester.balance, balanceBefore);
+        assertEq(pipeline.claimableRefunds(requester), expectedRefund);
+
+        vm.prank(requester);
+        pipeline.claimRefund();
+
+        assertEq(requester.balance, balanceBefore + expectedRefund);
+        assertEq(pipeline.claimableRefunds(requester), 0);
         assertEq(platform.nextRequestId(), 2);
         (StewardUrlPipeline.PipelineState state, ResponseStatus parseStatus,,,,,,,,) = pipeline.jobOverview(1);
         assertEq(uint8(state), uint8(StewardUrlPipeline.PipelineState.Failed));
@@ -179,7 +207,41 @@ contract StewardUrlPipelineTest is Test {
 
         platform.fail(parseRequestId, ResponseStatus.Failed, 707);
 
-        assertEq(pipeline.claimableRefunds(address(requester)), pipeline.LLM_INFERENCE_DEPOSIT());
+        assertEq(pipeline.claimableRefunds(address(requester)), 0.24 ether);
+    }
+
+    function testVoteRequestCreationFailureFailsAndRefundsWithoutReverting() public {
+        platform.setEnforceRequestDeposit(true);
+        (uint256 jobId, uint256 parseRequestId, uint256 proposalId) = _startPipeline();
+        platform.setRequestDeposit(0.3 ether);
+
+        platform.finalizeString(parseRequestId, "Proposal asks for 500K USDC for a Q3 community grants program.", 709);
+
+        assertEq(governor.votes(proposalId, address(pipeline)), 0);
+        assertEq(platform.nextRequestId(), 2);
+        assertEq(pipeline.claimableRefunds(address(this)), 0.24 ether);
+
+        (
+            StewardUrlPipeline.PipelineState state,
+            ResponseStatus parseStatus,
+            ResponseStatus voteStatus,,
+            uint256 voteRequestId,
+            uint8 support,
+            string memory summary,
+            string memory reason,
+            uint256 parseReceipt,
+            uint256 voteReceipt
+        ) = pipeline.jobOverview(jobId);
+
+        assertEq(uint8(state), uint8(StewardUrlPipeline.PipelineState.Failed));
+        assertEq(uint8(parseStatus), uint8(ResponseStatus.Success));
+        assertEq(uint8(voteStatus), uint8(ResponseStatus.Failed));
+        assertEq(voteRequestId, 0);
+        assertEq(support, 0);
+        assertEq(summary, "Proposal asks for 500K USDC for a Q3 community grants program.");
+        assertEq(reason, "Vote decision request could not be created.");
+        assertEq(parseReceipt, 709);
+        assertEq(voteReceipt, 0);
     }
 
     function testInvalidVoteOutputFailsWithoutVoting() public {
@@ -229,7 +291,7 @@ contract StewardUrlPipelineTest is Test {
         assertEq(jobId, 1);
         assertEq(platform.lastValue(), 0.33 ether);
         assertEq(pipeline.claimableRefunds(requester), surplus);
-        assertEq(address(pipeline).balance, pipeline.LLM_INFERENCE_DEPOSIT() + surplus);
+        assertEq(address(pipeline).balance, pipeline.voteRequestDeposit() + surplus);
 
         uint256 balanceBefore = requester.balance;
         vm.prank(requester);

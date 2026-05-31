@@ -1488,3 +1488,474 @@ main {
     font-size: clamp(44px, 15vw, 72px);
   }
 }
+
+/* Investor-grade ops room skin: stronger than the earlier proof-card pattern. */
+:root {
+  --ink: #edf5ef;
+  --paper: #05070b;
+  --line: rgba(221, 255, 246, 0.14);
+  --muted: rgba(237, 245, 239, 0.62);
+  --green: #80ffd2;
+  --acid: #f1ff8a;
+  --amber: #ffc978;
+  --panel: rgba(11, 17, 25, 0.74);
+  font-family:
+    "IBM Plex Mono",
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Consolas,
+    monospace;
+  color: var(--ink);
+  background: var(--paper);
+}
+
+body {
+  background:
+    radial-gradient(circle at 78% 9%, rgba(128, 255, 210, 0.17), transparent 28%),
+    radial-gradient(circle at 8% 28%, rgba(241, 255, 138, 0.09), transparent 24%),
+    linear-gradient(135deg, #04060a 0%, #08111a 48%, #030405 100%);
+  color: var(--ink);
+}
+
+body::before {
+  background-image:
+    linear-gradient(rgba(218, 255, 248, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(218, 255, 248, 0.055) 1px, transparent 1px),
+    linear-gradient(135deg, rgba(128, 255, 210, 0.07), transparent 36%);
+  background-size:
+    52px 52px,
+    52px 52px,
+    100% 100%;
+  mask-image: linear-gradient(to bottom, black, transparent 94%);
+}
+
+main {
+  width: min(1500px, calc(100% - 48px));
+  padding: 24px 0 64px;
+}
+
+.nav {
+  align-items: stretch;
+  border-color: rgba(221, 255, 246, 0.12);
+  background:
+    linear-gradient(180deg, rgba(13, 20, 31, 0.92), rgba(6, 9, 14, 0.88)),
+    rgba(6, 9, 14, 0.86);
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.nav a {
+  color: rgba(237, 245, 239, 0.72);
+  letter-spacing: -0.02em;
+  opacity: 1;
+}
+
+.nav a.active,
+.nav a:hover {
+  color: var(--green);
+}
+
+.mark {
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 35% 28%, #ffffff 0 10%, transparent 11%),
+    linear-gradient(135deg, var(--green), var(--acid));
+  box-shadow:
+    0 18px 52px rgba(128, 255, 210, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.18) inset;
+}
+
+.brand {
+  color: #ffffff;
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.06em;
+}
+
+.eyebrow,
+.proofLine,
+.receiptTop,
+.receipt span,
+.live span,
+.grid span,
+.judge span,
+.councilBoard span,
+.councilCommand span,
+.pipelineSteps span,
+.urlProofCommand span,
+.proposalSources span,
+.useCases span,
+.consoleStatus span,
+.consoleOutput span {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+.hero {
+  min-height: calc(100vh - 64px);
+  grid-template-columns: minmax(0, 0.82fr) minmax(520px, 1.18fr);
+  padding-top: clamp(44px, 5vw, 92px);
+}
+
+.copy h1,
+.councilLead h2,
+.urlPipelineLead h2,
+.urlConsoleCopy h2,
+.productLead h2,
+.judge h2 {
+  color: #f6fff7;
+  font-family: "Newsreader", Georgia, serif;
+  font-weight: 800;
+  letter-spacing: -0.075em;
+}
+
+.copy h1 {
+  max-width: 720px;
+  font-size: clamp(74px, 7.2vw, 132px);
+  line-height: 0.78;
+}
+
+.eyebrow {
+  color: var(--green);
+}
+
+.dek,
+.councilLead p:not(.eyebrow),
+.urlPipelineLead p:not(.eyebrow),
+.urlConsoleCopy p:not(.eyebrow),
+.productLead p:not(.eyebrow),
+.judge > div:first-child p:not(.eyebrow) {
+  color: var(--muted);
+}
+
+.proofLine {
+  border-color: rgba(128, 255, 210, 0.24);
+  background: rgba(128, 255, 210, 0.08);
+  color: var(--green);
+}
+
+.heroStats article,
+.grid article,
+.productLead,
+.useCases article,
+.councilLead,
+.councilBoard article,
+.urlPipelineLead,
+.urlConsole,
+.proposalSources article,
+.pipelineSteps article,
+.judge,
+.proofCommand {
+  border-color: var(--line);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.018)),
+    var(--panel);
+  box-shadow:
+    0 28px 80px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+.heroStats strong,
+.grid h2,
+.productLead h2,
+.useCases strong,
+.councilLead h2,
+.councilBoard strong,
+.urlPipelineLead h2,
+.urlConsoleCopy h2,
+.pipelineSteps strong,
+.proposalSources h3,
+.judge h2,
+.proofCommand code,
+.consoleStatus strong {
+  color: #f6fff7;
+}
+
+.heroStats span,
+.grid p,
+.productLead p:not(.eyebrow),
+.useCases p,
+.councilLead p:not(.eyebrow),
+.councilBoard p,
+.urlPipelineLead p:not(.eyebrow),
+.urlConsoleCopy p:not(.eyebrow),
+.pipelineSteps p,
+.proposalSources p,
+.judge > div:first-child p:not(.eyebrow),
+.proofCommand small {
+  color: var(--muted);
+}
+
+.heroStats article {
+  border-radius: 12px;
+}
+
+.heroStats strong {
+  font-family: "Newsreader", Georgia, serif;
+}
+
+.receipt {
+  border-color: rgba(128, 255, 210, 0.16);
+  border-radius: 18px 70px 18px 70px;
+  background:
+    radial-gradient(circle at 82% 8%, rgba(128, 255, 210, 0.18), transparent 28%),
+    linear-gradient(145deg, rgba(6, 17, 19, 0.98), rgba(7, 12, 20, 0.98)),
+    #060b12;
+  box-shadow:
+    0 52px 140px rgba(0, 0, 0, 0.46),
+    0 0 0 1px rgba(128, 255, 210, 0.05) inset;
+}
+
+.receipt::after {
+  background:
+    linear-gradient(rgba(128, 255, 210, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(128, 255, 210, 0.055) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+.proofSpotlight {
+  border-color: rgba(128, 255, 210, 0.22);
+  border-radius: 14px 48px 14px 48px;
+  background:
+    radial-gradient(circle at 86% 8%, rgba(128, 255, 210, 0.2), transparent 32%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.025));
+}
+
+.spotlightTop strong,
+.voteCard strong,
+.payloadDeck strong,
+.quorumDeck strong,
+.decision strong {
+  font-family: "Newsreader", Georgia, serif;
+}
+
+.spotlightTop strong {
+  color: #fbf8ea;
+}
+
+.proofSpotlight p,
+.criteria p,
+.decodedPayloads > p,
+.receiptQuorum > p,
+.voteCard p,
+.payloadDeck p,
+.quorumDeck p,
+.councilCommand p,
+.urlProofCommand p,
+.consoleOutput p {
+  color: rgba(237, 245, 239, 0.76);
+}
+
+.proofMeter article,
+.criteria,
+.decision,
+.voteCard,
+.decodedPayloads,
+.receiptQuorum,
+.quorumDeck article,
+.payloadDeck article,
+.live div,
+.consoleOutput {
+  border-color: rgba(221, 255, 246, 0.12);
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.voteCard.yes strong,
+.councilBoard .yes strong,
+.proposalSources .yes strong {
+  color: var(--green);
+}
+
+.voteCard.no strong,
+.councilBoard .no strong,
+.proposalSources .no strong {
+  color: #ff7f95;
+}
+
+.voteCard.abstain strong,
+.councilBoard .abstain strong,
+.proposalSources .abstain strong {
+  color: var(--acid);
+}
+
+.txLinks a,
+.urlActions a,
+.proposalSources a,
+.productLead a,
+.actions a,
+.payloadDeck a,
+.proofCoverage span,
+.consoleButtons button {
+  border-color: rgba(128, 255, 210, 0.18);
+  background: rgba(128, 255, 210, 0.09);
+  color: #eafff8;
+}
+
+.actions a:first-child,
+.urlActions a:first-child,
+.consoleButtons button + button {
+  background: var(--green);
+  color: #04100c;
+}
+
+.actions .secondary,
+.urlActions a + a,
+.councilLead .txLinks a,
+.councilBoard article .txLinks a {
+  border-color: rgba(221, 255, 246, 0.16);
+  background: rgba(255, 255, 255, 0.055);
+  color: #eafff8;
+}
+
+.councilCommand,
+.urlProofCommand,
+.scorecard article,
+.live {
+  border: 1px solid rgba(128, 255, 210, 0.14);
+  background:
+    radial-gradient(circle at 84% 0%, rgba(128, 255, 210, 0.16), transparent 34%),
+    #060b12;
+}
+
+.scorecard strong,
+.councilCommand code,
+.urlProofCommand code,
+.proofMeter strong,
+.criteria code,
+.decodedPayloads code {
+  color: var(--green);
+}
+
+.urlConsolePanel input,
+.urlConsolePanel textarea {
+  border-color: rgba(221, 255, 246, 0.16);
+  background: rgba(255, 255, 255, 0.07);
+  color: #f6fff7;
+}
+
+.consoleStatus {
+  border-color: rgba(128, 255, 210, 0.18);
+  background: rgba(128, 255, 210, 0.08);
+}
+
+.error {
+  background: rgba(255, 127, 149, 0.14);
+  color: #ffdce2;
+}
+
+@media (min-width: 1120px) {
+  main {
+    margin: 0 auto;
+    padding-left: 276px;
+  }
+
+  .nav {
+    position: fixed;
+    top: 24px;
+    bottom: 24px;
+    left: max(24px, calc((100vw - 1500px) / 2 + 24px));
+    width: 228px;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 8px;
+    padding: 20px;
+    border-radius: 30px;
+  }
+
+  .nav::after {
+    display: block;
+    margin-top: auto;
+    padding-top: 18px;
+    border-top: 1px solid rgba(221, 255, 246, 0.12);
+    color: rgba(237, 245, 239, 0.48);
+    content: "LIVE TESTNET\A 5 URL RUNS\A 15 REVIEWER CALLS";
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    line-height: 1.8;
+    white-space: pre;
+  }
+
+  .brandLink {
+    margin: 0 0 14px;
+  }
+
+  .nav a:not(.brandLink) {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+  }
+
+  .nav a.active {
+    border-color: rgba(128, 255, 210, 0.18);
+    background: rgba(128, 255, 210, 0.08);
+  }
+}
+
+@media (max-width: 1119px) {
+  main {
+    width: min(100% - 24px, 980px);
+  }
+
+  .nav {
+    position: sticky;
+    top: 12px;
+  }
+
+  .brandLink {
+    margin-right: auto;
+  }
+}
+
+@media (max-width: 900px) {
+  .hero {
+    grid-template-columns: 1fr;
+    padding-top: 58px;
+  }
+
+  .copy h1 {
+    font-size: clamp(56px, 15vw, 86px);
+  }
+
+  .receipt {
+    border-radius: 20px 44px 20px 44px;
+  }
+}
+
+@media (max-width: 560px) {
+  main {
+    width: min(100% - 20px, 420px);
+  }
+
+  .nav {
+    gap: 10px;
+    padding: 12px;
+    border-radius: 24px;
+  }
+
+  .brandLink {
+    margin-right: 0;
+  }
+
+  .copy h1,
+  .councilLead h2,
+  .urlPipelineLead h2,
+  .urlConsoleCopy h2,
+  .productLead h2,
+  .judge h2 {
+    letter-spacing: -0.065em;
+    line-height: 0.9;
+  }
+
+  .councilLead h2,
+  .urlPipelineLead h2,
+  .urlConsoleCopy h2,
+  .productLead h2,
+  .judge h2 {
+    font-size: clamp(40px, 10.8vw, 52px);
+    line-height: 0.96;
+  }
+}

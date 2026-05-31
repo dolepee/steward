@@ -181,6 +181,13 @@ const proposalSources = [
     url: "/proposals/security-grants.html",
     fact: "750,000 USDC security grants budget",
   },
+  {
+    label: "External proposal",
+    outcome: "YES",
+    title: "Developer DAO DevConnect Funding Proposal",
+    url: "https://forum.developerdao.com/t/devconnect-funding-proposal/3371",
+    fact: "12,000 USDC request on an external governance forum",
+  },
 ];
 const councilCases = [
   {
@@ -235,6 +242,20 @@ const councilCases = [
     startTx: "0x3b8650132c0607f1da7d654df2dffc4fd5f7be1bc5871b66fe9b47346afa8b82",
     parseTx: "0xf0d50e537fd182918156c832adec2692a35552ee1bbc4c71f1b42d0321f523f5",
     finalVoteTx: "0x7a1de92ec5a0f67dc395c45c730fe6a1d2cb42447f2f705442828ad3f3003960",
+  },
+  {
+    outcome: "YES",
+    proposal: "Developer DAO DevConnect Funding Proposal",
+    proposalId: "8",
+    jobId: "5",
+    parseRequestId: "3547601",
+    reviewerRequestIds: "3547653 / 3547654 / 3547655",
+    tally: "YES=3 / NO=0 / ABSTAIN=0",
+    detail:
+      "The council approved an external Developer DAO forum proposal requesting 12,000 USDC for DevConnect community growth and event participation.",
+    startTx: "0x899bc8a97ca0372ebf1f88619d3ff2e587b73062ef468d90e6b3e2824e0a155d",
+    parseTx: "0x4f12e27e982bae539198f1a7c7e7c4051f2273fbeeb7ce57cb40d3cff2e90610",
+    finalVoteTx: "0x72bb5ebf65edfd899ced20c86a9297c5b1d02cc7d63440032d63004198a74231",
   },
 ];
 const councilProof = {
@@ -869,7 +890,7 @@ function App() {
             proposal pages, sends the result to independent LLM reviewers, and casts the
             majority YES, NO, or ABSTAIN vote onchain.
           </p>
-          <p className="proofLine">4 proposal URLs · 12 reviewer calls · YES / NO / ABSTAIN onchain</p>
+          <p className="proofLine">5 proposal URLs · 15 reviewer calls · external forum proof included</p>
           <div className="agentRail" aria-label="Steward agent governance loop">
             <div>
               <span>1 · source</span>
@@ -1163,8 +1184,8 @@ function App() {
             <span>Council source proof</span>
             <code>{councilProofCommand}</code>
             <p>
-              Verifies the four live proposal URL cases by checking Parse Website requests,
-              parsed summaries, twelve reviewer request ids, majority counts, and final governor
+              Verifies the five live proposal URL cases by checking Parse Website requests,
+              parsed summaries, fifteen reviewer request ids, majority counts, and final governor
               votes.
             </p>
             <small>Expected: STEWARD_COUNCIL_PROOF_VALID</small>
@@ -1226,19 +1247,20 @@ function App() {
       <section className="council" id="council">
         <div className="councilLead">
           <p className="eyebrow">Live council path · Somnia agents</p>
-          <h2>Four proposals. Three reviewers each. Three outcomes.</h2>
+          <h2>Five proposals. Three reviewers each. Three outcomes.</h2>
           <p>
             The live council proof turns the single LLM decision into a small onchain
             review council. Parse Website reads each public proposal URL, then budget,
             risk, and participation reviewers independently return YES, NO, or ABSTAIN.
-            The contract proves four live runs spanning all three outcomes on Somnia.
+            The contract proves five live runs spanning all three outcomes on Somnia, including
+            one external Developer DAO forum proposal.
           </p>
           <div className="txLinks">
             <a href={explorerAddress(proofAddresses.councilPipeline)} target="_blank" rel="noreferrer">
               Council contract
             </a>
             {councilCases.map((proof) => (
-              <a href={explorerTx(proof.finalVoteTx)} target="_blank" rel="noreferrer" key={`${proof.outcome}-final`}>
+              <a href={explorerTx(proof.finalVoteTx)} target="_blank" rel="noreferrer" key={`${proof.jobId}-final`}>
                 {proof.outcome} final vote
               </a>
             ))}
@@ -1271,7 +1293,7 @@ function App() {
             <span>Batch council proof</span>
             <code>node scripts/verify-council-proof.mjs</code>
             <p>
-              Verifies proposal ids 4, 5, 6, and 7; parse requests; twelve reviewer request ids;
+              Verifies proposal ids 4, 5, 6, 7, and 8; parse requests; fifteen reviewer request ids;
               three majority outcomes; and the final MiniGovernor votes from the council
               contract. Local tests still cover parse failure refunds, three-way ABSTAIN,
               and one-reviewer failure.
@@ -1291,7 +1313,7 @@ function App() {
       <section className="judge">
         <div>
           <p className="eyebrow">Judge path</p>
-          <h2>Four proposal URLs. Twelve reviewer receipts. Three council outcomes.</h2>
+          <h2>Five proposal URLs. Fifteen reviewer receipts. Three council outcomes.</h2>
           <p>
             Steward is built around Somnia's agent callback path: the contract invokes the LLM
             agent, the subcommittee produces execution receipts, and the callback writes a binding

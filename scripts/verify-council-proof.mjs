@@ -98,6 +98,27 @@ const proofCases = [
     expectedSummary: "750,000 USDC",
     expectedFinalReason: "YES: Steward council majority: YES=3, NO=0, ABSTAIN=0.",
   },
+  {
+    label: "EXTERNAL_DEVCONNECT",
+    proposalTx: "0x2fa8f7114e7cfc40665a110568f62bed5c9218417e627d72a5b83cf06dabcc11",
+    startTx: "0x899bc8a97ca0372ebf1f88619d3ff2e587b73062ef468d90e6b3e2824e0a155d",
+    parseCallbackTx: "0x4f12e27e982bae539198f1a7c7e7c4051f2273fbeeb7ce57cb40d3cff2e90610",
+    reviewerCallbackTxs: [
+      "0x33652cf16053fac4b42a82c1981431af6e39943d232bd7b5588fb8948c2cb63d",
+      "0x210262b850e232e2f29e0f82d8d590eb09fa864f1455188cbc615a71c6198489",
+      "0x72bb5ebf65edfd899ced20c86a9297c5b1d02cc7d63440032d63004198a74231",
+    ],
+    finalVoteTx: "0x72bb5ebf65edfd899ced20c86a9297c5b1d02cc7d63440032d63004198a74231",
+    proposalId: 8n,
+    jobId: 5n,
+    parseRequestId: 3547601n,
+    reviewerRequestIds: [3547653n, 3547654n, 3547655n],
+    expectedSupport: 1n,
+    expectedCounts: { yes: 3n, no: 0n, abstain: 0n },
+    expectedReviewerReason: "YES",
+    expectedSummary: "$12,000 USDC",
+    expectedFinalReason: "YES: Steward council majority: YES=3, NO=0, ABSTAIN=0.",
+  },
 ];
 
 const topics = {
@@ -116,12 +137,22 @@ function assert(condition, message) {
 }
 
 function cast(args, label) {
-  try {
-    return execFileSync("cast", args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
-  } catch (error) {
-    const stderr = error.stderr?.toString()?.trim();
-    throw new Error(`${label} failed${stderr ? `: ${stderr}` : ""}`);
+  const attempts = Number.parseInt(process.env.STEWARD_CAST_RETRIES ?? "4", 10);
+  let lastError;
+
+  for (let attempt = 1; attempt <= Math.max(1, attempts); attempt++) {
+    try {
+      return execFileSync("cast", args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
+    } catch (error) {
+      lastError = error;
+      if (attempt < attempts) {
+        execFileSync("sleep", [String(attempt)], { stdio: "ignore" });
+      }
+    }
   }
+
+  const stderr = lastError?.stderr?.toString()?.trim();
+  throw new Error(`${label} failed${stderr ? `: ${stderr}` : ""}`);
 }
 
 function call(address, signature, ...args) {
@@ -352,5 +383,5 @@ for (const proof of proofCases) {
 }
 
 console.log(`Council pipeline: ${COUNCIL}`);
-console.log("Council outcomes: YES / NO / ABSTAIN plus security grants YES");
+console.log("Council outcomes: YES / NO / ABSTAIN plus security grants YES plus external DevConnect YES");
 console.log("STEWARD_COUNCIL_PROOF_VALID");

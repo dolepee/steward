@@ -5,7 +5,7 @@ Steward is a verifiable DAO governance proxy on Somnia. A user stores voting cri
 ## First 60 Seconds
 
 1. Open `https://steward-ashy.vercel.app`.
-2. Start at the Council section: four proposal URLs, three reviewer roles each, three final outcomes.
+2. Start at the Council section: five proposal URLs, three reviewer roles each, three final outcomes. One proof uses an external Developer DAO governance forum URL.
 3. Open one final vote transaction and confirm `StewardCouncilPipeline` casts into `MiniGovernor`.
 4. Run `node scripts/verify-council-proof.mjs`. The marker should be `STEWARD_COUNCIL_PROOF_VALID`.
 5. Check the direct YES, NO, and ABSTAIN proof cards for the lower-level Somnia LLM receipt path.
@@ -46,6 +46,7 @@ DAO delegation usually ends at a static delegate address or an offchain voting b
 | `NO` | `5` / `2` | `3090443` | `3090480`, `3090481`, `3090482` | `YES=0`, `NO=3`, `ABSTAIN=0` |
 | `ABSTAIN` | `6` / `3` | `3090879` | `3090907`, `3090908`, `3090909` | `YES=0`, `NO=0`, `ABSTAIN=3` |
 | `YES` | `7` / `4` | `3101870` | `3101910`, `3101911`, `3101912` | `YES=3`, `NO=0`, `ABSTAIN=0` |
+| `YES external` | `8` / `5` | `3547601` | `3547653`, `3547654`, `3547655` | `YES=3`, `NO=0`, `ABSTAIN=0` |
 
 ## Verification Command
 

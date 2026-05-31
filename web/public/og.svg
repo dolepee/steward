@@ -1,48 +1,50 @@
 <svg width="1200" height="675" viewBox="0 0 1200 675" fill="none" xmlns="http://www.w3.org/2000/svg">
   <rect width="1200" height="675" fill="#F5F2E8"/>
-  <path d="M0 0H1200V675H0V0Z" fill="#F5F2E8"/>
-  <path d="M0 0H1200V675H0V0Z" fill="url(#glow)"/>
-  <g opacity="0.16">
-    <path d="M0 105H1200M0 210H1200M0 315H1200M0 420H1200M0 525H1200M0 630H1200" stroke="#10120D"/>
-    <path d="M90 0V675M180 0V675M270 0V675M360 0V675M450 0V675M540 0V675M630 0V675M720 0V675M810 0V675M900 0V675M990 0V675M1080 0V675" stroke="#10120D"/>
+  <path d="M0 0H1200V675H0V0Z" fill="url(#paperGlow)"/>
+  <g opacity="0.14">
+    <path d="M0 96H1200M0 192H1200M0 288H1200M0 384H1200M0 480H1200M0 576H1200" stroke="#10120D"/>
+    <path d="M96 0V675M192 0V675M288 0V675M384 0V675M480 0V675M576 0V675M672 0V675M768 0V675M864 0V675M960 0V675M1056 0V675" stroke="#10120D"/>
   </g>
 
   <circle cx="88" cy="82" r="48" fill="#6BFF7D"/>
   <text x="88" y="96" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-size="31" fill="#081008">S</text>
   <text x="154" y="98" font-family="Arial Black, Arial, sans-serif" font-size="47" fill="#10120D">Steward</text>
-  <text x="820" y="82" font-family="Arial, sans-serif" font-size="19" font-weight="900" letter-spacing="10" fill="#17351D">SOMNIA TESTNET</text>
-  <text x="820" y="114" font-family="Arial, sans-serif" font-size="15" font-weight="900" letter-spacing="7" fill="#5C6656">ONCHAIN CALLBACK VOTES</text>
+  <text x="744" y="78" font-family="Arial, sans-serif" font-size="18" font-weight="900" letter-spacing="9" fill="#17351D">SOMNIA AGENTATHON</text>
+  <text x="744" y="111" font-family="Arial, sans-serif" font-size="15" font-weight="900" letter-spacing="6" fill="#5C6656">LIVE ON TESTNET</text>
 
-  <text x="72" y="188" font-family="Arial, sans-serif" font-size="18" font-weight="900" letter-spacing="8" fill="#17351D">CONTRACT-INVOKED DAO AGENT</text>
-  <text x="68" y="285" font-family="Arial Black, Arial, sans-serif" font-size="72" letter-spacing="-5" fill="#10120D">Governance</text>
-  <text x="68" y="362" font-family="Arial Black, Arial, sans-serif" font-size="72" letter-spacing="-5" fill="#10120D">agents you</text>
-  <text x="68" y="439" font-family="Arial Black, Arial, sans-serif" font-size="72" letter-spacing="-5" fill="#10120D">can audit.</text>
+  <text x="72" y="184" font-family="Arial, sans-serif" font-size="18" font-weight="900" letter-spacing="8" fill="#17351D">PUBLIC PROPOSAL URLS</text>
+  <text x="68" y="277" font-family="Arial Black, Arial, sans-serif" font-size="72" letter-spacing="-5" fill="#10120D">Agent council</text>
+  <text x="68" y="354" font-family="Arial Black, Arial, sans-serif" font-size="72" letter-spacing="-5" fill="#10120D">votes you can</text>
+  <text x="68" y="431" font-family="Arial Black, Arial, sans-serif" font-size="72" letter-spacing="-5" fill="#10120D">verify.</text>
 
-  <rect x="72" y="496" width="602" height="76" rx="30" fill="#FFFDF1" stroke="#D6D0BD"/>
-  <text x="104" y="526" font-family="Arial, sans-serif" font-size="15" font-weight="900" letter-spacing="6" fill="#5C6656">ONE DELEGATE · THREE VOTES</text>
-  <text x="104" y="557" font-family="Arial Black, Arial, sans-serif" font-size="26" fill="#10120D">9 receipts · decoded prompts</text>
+  <rect x="72" y="496" width="604" height="78" rx="30" fill="#FFFDF1" stroke="#D6D0BD"/>
+  <text x="104" y="527" font-family="Arial, sans-serif" font-size="15" font-weight="900" letter-spacing="6" fill="#5C6656">5 URL RUNS · 15 REVIEWER CALLS</text>
+  <text x="104" y="559" font-family="Arial Black, Arial, sans-serif" font-size="27" fill="#10120D">External forum proof included</text>
 
-  <rect x="728" y="156" width="396" height="410" rx="44" fill="#10180F"/>
-  <text x="768" y="215" font-family="Arial, sans-serif" font-size="15" font-weight="900" letter-spacing="6" fill="#C1FF7D">AGENT LOOP</text>
+  <rect x="724" y="156" width="404" height="418" rx="46" fill="#10180F"/>
+  <path d="M724 156H1128V574H724V156Z" fill="url(#panelGlow)"/>
+  <text x="766" y="215" font-family="Arial, sans-serif" font-size="15" font-weight="900" letter-spacing="6" fill="#C1FF7D">COUNCIL PIPELINE</text>
 
-  <rect x="768" y="246" width="316" height="70" rx="22" fill="#263724" stroke="#4A5B43"/>
-  <text x="792" y="291" font-family="Arial Black, Arial, sans-serif" font-size="33" fill="#F8F4E6">CRITERIA</text>
+  <rect x="766" y="248" width="320" height="72" rx="22" fill="#263724" stroke="#4A5B43"/>
+  <text x="790" y="293" font-family="Arial Black, Arial, sans-serif" font-size="31" fill="#F8F4E6">PARSE WEBSITE</text>
 
-  <rect x="768" y="340" width="316" height="70" rx="22" fill="#263724" stroke="#4A5B43"/>
-  <text x="792" y="385" font-family="Arial Black, Arial, sans-serif" font-size="33" fill="#66FF75">LLM REQUEST</text>
+  <rect x="766" y="342" width="320" height="72" rx="22" fill="#263724" stroke="#4A5B43"/>
+  <text x="790" y="387" font-family="Arial Black, Arial, sans-serif" font-size="31" fill="#66FF75">3 LLM REVIEWERS</text>
 
-  <rect x="768" y="434" width="316" height="70" rx="22" fill="#263724" stroke="#4A5B43"/>
-  <text x="792" y="479" font-family="Arial Black, Arial, sans-serif" font-size="33" fill="#F0FF77">CALLBACK VOTE</text>
+  <rect x="766" y="436" width="320" height="72" rx="22" fill="#263724" stroke="#4A5B43"/>
+  <text x="790" y="481" font-family="Arial Black, Arial, sans-serif" font-size="31" fill="#F0FF77">ONCHAIN VOTE</text>
 
-  <text x="768" y="538" font-family="Arial, sans-serif" font-size="16" font-weight="900" letter-spacing="5" fill="#F8F4E6">YES · NO · ABSTAIN</text>
-
-  <rect x="728" y="588" width="396" height="54" rx="27" fill="#FFFDF1" stroke="#D6D0BD"/>
-  <text x="760" y="622" font-family="Arial, sans-serif" font-size="17" font-weight="900" letter-spacing="4" fill="#17351D">FULL PROOF VALID · VERIFIED</text>
+  <rect x="724" y="592" width="404" height="54" rx="27" fill="#FFFDF1" stroke="#D6D0BD"/>
+  <text x="756" y="626" font-family="Arial, sans-serif" font-size="17" font-weight="900" letter-spacing="4" fill="#17351D">STEWARD_FULL_PROOF_VALID</text>
 
   <defs>
-    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(176 139) rotate(27.1125) scale(575 395)">
+    <radialGradient id="paperGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(166 150) rotate(29) scale(590 420)">
       <stop stop-color="#6BFF7D" stop-opacity="0.28"/>
       <stop offset="1" stop-color="#F5F2E8" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="panelGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1040 180) rotate(117) scale(360 260)">
+      <stop stop-color="#6BFF7D" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#10180F" stop-opacity="0"/>
     </radialGradient>
   </defs>
 </svg>

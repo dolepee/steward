@@ -261,6 +261,7 @@ const councilCases = [
 const councilProof = {
   deployTx: "0x0f9c058cb1d07c2885177e4e104c2115ccf6e87f37eb289a867005def970f1e3",
 };
+const externalCouncilCase = councilCases[councilCases.length - 1]!;
 
 const stewardAbi = [
   {
@@ -536,6 +537,16 @@ async function ensureSomniaWallet() {
 }
 
 function App() {
+  const normalizedPath = window.location.pathname.replace(/\/+$/, "") || "/";
+  const route = ["/", "/proof", "/sources", "/council", "/guide", "/console"].includes(normalizedPath)
+    ? normalizedPath
+    : "/";
+  const isHomeRoute = route === "/";
+  const isProofRoute = route === "/proof";
+  const isSourcesRoute = route === "/sources" || route === "/console";
+  const isCouncilRoute = route === "/council";
+  const isGuideRoute = route === "/guide";
+  const navClass = (target: string) => (route === target ? "active" : undefined);
   const [live, setLive] = useState<ProofState>({
     loading: false,
     proofs: linkedProofs(),
@@ -866,47 +877,49 @@ function App() {
     <main>
       <nav className="nav">
         <div className="mark">S</div>
-        <strong className="brand">Steward</strong>
-        <a href="#proof">Proof</a>
-        <a href="#url-pipeline">Sources</a>
-        <a href="#council">Council</a>
-        {configuredUrlPipeline ? <a href="#console">Console</a> : null}
-        <a href="#loop">Loop</a>
-        <a href="#product">Product</a>
+        <a className="brandLink" href="/">
+          <strong className="brand">Steward</strong>
+        </a>
+        <a className={navClass("/proof")} href="/proof">Proof</a>
+        <a className={navClass("/sources")} href="/sources">Sources</a>
+        <a className={navClass("/council")} href="/council">Council</a>
+        {configuredUrlPipeline ? <a className={navClass("/console")} href="/console">Console</a> : null}
+        <a className={navClass("/guide")} href="/guide">Guide</a>
         <a href={judgeGuideUrl} target="_blank" rel="noreferrer">
-          Guide
+          Docs
         </a>
         <a href="https://github.com/dolepee/steward" target="_blank" rel="noreferrer">
           GitHub
         </a>
       </nav>
 
-      <section className="hero">
+      {isHomeRoute || isProofRoute ? (
+      <section className={`hero ${isProofRoute ? "heroProof" : ""}`}>
         <div className="copy">
-          <p className="eyebrow">Somnia Agentathon · live on testnet</p>
-          <h1>Proposal URLs become agent council votes.</h1>
+          <p className="eyebrow">{isProofRoute ? "Proof room · live receipts" : "Somnia Agentathon · live on testnet"}</p>
+          <h1>{isProofRoute ? "Every agent vote has a receipt trail." : "Proposal URLs become agent council votes."}</h1>
           <p className="dek">
-            Steward stores a DAO voting mandate, asks Somnia's Parse Website agent to read
-            proposal pages, sends the result to independent LLM reviewers, and casts the
-            majority YES, NO, or ABSTAIN vote onchain.
+            {isProofRoute
+              ? "Open the external forum source, Parse Website transaction, reviewer ids, final MiniGovernor vote, and baseline LLM receipt set without trusting this frontend."
+              : "Steward stores a DAO voting mandate, asks Somnia's Parse Website agent to read proposal pages, sends the result to independent LLM reviewers, and casts the majority YES, NO, or ABSTAIN vote onchain."}
           </p>
           <p className="proofLine">5 proposal URLs · 15 reviewer calls · external forum proof included</p>
-          <div className="agentRail" aria-label="Steward agent governance loop">
-            <div>
-              <span>1 · source</span>
-              <strong>Public proposal URL</strong>
-            </div>
-            <div>
-              <span>2 · council</span>
-              <strong>Parse + 3 reviewers</strong>
-            </div>
-            <div>
-              <span>3 · vote</span>
-              <strong>Majority cast onchain</strong>
-            </div>
+          <div className="heroStats" aria-label="Steward live proof metrics">
+            <article>
+              <strong>5</strong>
+              <span>URL-to-vote runs</span>
+            </article>
+            <article>
+              <strong>15</strong>
+              <span>reviewer callbacks</span>
+            </article>
+            <article>
+              <strong>1</strong>
+              <span>external forum source</span>
+            </article>
           </div>
           <div className="actions">
-            <a href="#council">
+            <a href="/council">
               Open live council proof
             </a>
             <a className="secondary" href="https://github.com/dolepee/steward/blob/master/PROOF.md" target="_blank" rel="noreferrer">
@@ -922,8 +935,44 @@ function App() {
         </div>
 
         <div className="receipt" id="proof">
+          <div className="proofSpotlight">
+            <div className="spotlightTop">
+              <span>External proposal proof</span>
+              <strong>Developer DAO → YES</strong>
+            </div>
+            <p>
+              Somnia's Parse Website agent read a real Developer DAO forum proposal requesting
+              12,000 USDC. Three independent reviewers approved it, and Steward cast the
+              MiniGovernor vote onchain.
+            </p>
+            <div className="proofMeter" aria-label="External council proof trail">
+              <article>
+                <span>Parse</span>
+                <strong>#{externalCouncilCase.parseRequestId}</strong>
+              </article>
+              <article>
+                <span>Reviewers</span>
+                <strong>{externalCouncilCase.reviewerRequestIds}</strong>
+              </article>
+              <article>
+                <span>Tally</span>
+                <strong>{externalCouncilCase.tally}</strong>
+              </article>
+            </div>
+            <div className="txLinks">
+              <a href="https://forum.developerdao.com/t/devconnect-funding-proposal/3371" target="_blank" rel="noreferrer">
+                Source forum
+              </a>
+              <a href={explorerTx(externalCouncilCase.parseTx)} target="_blank" rel="noreferrer">
+                Parse tx
+              </a>
+              <a href={explorerTx(externalCouncilCase.finalVoteTx)} target="_blank" rel="noreferrer">
+                Final vote
+              </a>
+            </div>
+          </div>
           <div className="receiptTop">
-            <span>Onchain vote proof</span>
+            <span>Baseline direct LLM proof</span>
             <strong>
               {live.loading ? "reading..." : allCast ? (live.source === "linked" ? "LINKED TX PROOFS" : "YES · NO · ABSTAIN") : "CHECK STATE"}
             </strong>
@@ -1048,7 +1097,9 @@ function App() {
           </div>
         </div>
       </section>
+      ) : null}
 
+      {isHomeRoute ? (
       <section className="grid" id="loop">
         <article>
           <span>1</span>
@@ -1071,11 +1122,15 @@ function App() {
           <p>Steward casts the vote in MiniGovernor and emits an indexable audit trail.</p>
         </article>
       </section>
+      ) : null}
 
+      {isSourcesRoute ? (
       <section className="urlPipeline" id="url-pipeline" aria-labelledby="url-pipeline-heading">
         <div className="urlPipelineLead">
-          <p className="eyebrow">Proposal source layer · live council inputs</p>
-          <h2 id="url-pipeline-heading">The input is a URL, not operator-copied text.</h2>
+          <p className="eyebrow">{route === "/console" ? "Execution console · optional live path" : "Proposal source layer · live council inputs"}</p>
+          <h2 id="url-pipeline-heading">
+            {route === "/console" ? "Create a proposal, then let Somnia read and vote." : "The input is a URL, not operator-copied text."}
+          </h2>
           <p>
             The live council proof starts from public proposal pages. Somnia's Parse Website agent
             extracts the decision-critical facts, then budget, risk, and participation reviewers
@@ -1088,7 +1143,7 @@ function App() {
             <a href="https://github.com/dolepee/steward/blob/master/PROOF.md" target="_blank" rel="noreferrer">
               Council proof guide
             </a>
-            <a href="#council">
+            <a href="/council">
               Live council proof
             </a>
           </div>
@@ -1205,7 +1260,9 @@ function App() {
           </div>
         </div>
       </section>
+      ) : null}
 
+      {isHomeRoute || isGuideRoute ? (
       <section className="product" id="product">
         <div className="productLead">
           <p className="eyebrow">Product wedge</p>
@@ -1243,7 +1300,9 @@ function App() {
           </article>
         </div>
       </section>
+      ) : null}
 
+      {isCouncilRoute ? (
       <section className="council" id="council">
         <div className="councilLead">
           <p className="eyebrow">Live council path · Somnia agents</p>
@@ -1309,7 +1368,9 @@ function App() {
           </div>
         </div>
       </section>
+      ) : null}
 
+      {isGuideRoute ? (
       <section className="judge">
         <div>
           <p className="eyebrow">Judge path</p>
@@ -1326,7 +1387,7 @@ function App() {
             <article>
               <span>Functionality</span>
               <strong>Live loop</strong>
-              <p>Deployed contracts, three proposals, three cast votes, and script-verifiable state.</p>
+              <p>Five URL council votes, three baseline votes, source-verified contracts, and script-verifiable state.</p>
             </article>
             <article>
               <span>Agent-first</span>
@@ -1358,6 +1419,7 @@ function App() {
           </div>
         </div>
       </section>
+      ) : null}
 
       <section className="live">
         <div>

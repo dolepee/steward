@@ -904,6 +904,28 @@ function App() {
               : "Steward stores a DAO voting mandate, asks Somnia's Parse Website agent to read proposal pages, sends the result to independent LLM reviewers, and casts the majority YES, NO, or ABSTAIN vote onchain."}
           </p>
           <p className="proofLine">5 proposal URLs · 15 reviewer calls · external forum proof included</p>
+          <div className="chainOfCustody" aria-label="Agent vote chain of custody">
+            <article>
+              <span>01</span>
+              <strong>Source URL</strong>
+              <p>Developer DAO forum proposal</p>
+            </article>
+            <article>
+              <span>02</span>
+              <strong>Parse Website</strong>
+              <p>Request #{externalCouncilCase.parseRequestId}</p>
+            </article>
+            <article>
+              <span>03</span>
+              <strong>3 reviewers</strong>
+              <p>Budget, risk, participation</p>
+            </article>
+            <article>
+              <span>04</span>
+              <strong>Governor vote</strong>
+              <p>{externalCouncilCase.tally}</p>
+            </article>
+          </div>
           <div className="heroStats" aria-label="Steward live proof metrics">
             <article>
               <strong>5</strong>
@@ -935,6 +957,11 @@ function App() {
         </div>
 
         <div className="receipt" id="proof">
+          <div className="opsHeader" aria-label="Steward command center status">
+            <span>STWD / COUNCIL-05</span>
+            <strong>VERIFIED EXTERNAL RUN</strong>
+            <small>Somnia Testnet · live callbacks</small>
+          </div>
           <div className="proofSpotlight">
             <div className="spotlightTop">
               <span>External proposal proof</span>
@@ -970,6 +997,23 @@ function App() {
                 Final vote
               </a>
             </div>
+          </div>
+          <div className="reviewerBoard" aria-label="External council reviewer results">
+            <article>
+              <span>Budget reviewer</span>
+              <strong>YES</strong>
+              <p>12,000 USDC request is within delegated public-goods limits.</p>
+            </article>
+            <article>
+              <span>Risk reviewer</span>
+              <strong>YES</strong>
+              <p>No team unlock, no treasury drain, and source page is public.</p>
+            </article>
+            <article>
+              <span>Participation reviewer</span>
+              <strong>YES</strong>
+              <p>DevConnect growth work maps to DAO participation criteria.</p>
+            </article>
           </div>
           <div className="receiptTop">
             <span>Baseline direct LLM proof</span>

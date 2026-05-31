@@ -9,7 +9,7 @@ Delegate DAO voting criteria once onchain; Steward's Somnia agent council watche
 
 Steward is a verifiable autonomous DAO governance proxy on Somnia. A user stores voting criteria onchain once. When a proposal URL appears, a watcher executes that stored mandate, Somnia agents parse and review the proposal, and the callback path records a YES, NO, or ABSTAIN decision onchain.
 
-The strongest live proof is now the delegated council V2: `StewardCouncilDelegationPipeline` stores the mandate, `scripts/watch-delegated-council.mjs` detects a changed proposal source, and the wrapper forwards the stored criteria into the already-live `StewardCouncilPipeline`. The council asks Somnia's `LLM Parse Website` agent to read the proposal page, sends the parsed facts to three independent LLM reviewers (`budget`, `risk`, and `participation`), and casts the majority outcome into `MiniGovernor`. The V2 proof shows a watcher-triggered stored delegation producing a live YES vote; the fallback council proof still shows five URL-to-vote runs spanning YES, NO, and ABSTAIN.
+The strongest live proof is now the delegated council V2: `StewardCouncilDelegationPipeline` stores the mandate, `scripts/watch-delegated-council.mjs` detects changed proposal sources, and the wrapper forwards the stored criteria into the already-live `StewardCouncilPipeline`. The council asks Somnia's `LLM Parse Website` agent to read each proposal page, sends the parsed facts to three independent LLM reviewers (`budget`, `risk`, and `participation`), and casts the majority outcome into `MiniGovernor`. The V2 proof now shows the same stored delegation producing live watcher-triggered `YES`, `NO`, and `ABSTAIN` votes.
 
 Execution is permissionless on purpose. A delegation owner controls the mandate text, governor, expiry, and revocation; any executor or watcher can pay the Somnia request deposit to trigger evaluation for an active delegation. In the delegated V2 path, the executor cannot replace the stored criteria, governor, downstream council contract, authorized callback sender, agent ids, or final vote target. The model is closer to permissionless settlement than a private bot.
 
@@ -18,9 +18,9 @@ The base `Steward` proof remains as a lower-level receipt trail: it invokes the 
 ## 30-Second Judge Path
 
 1. Open the live page: `https://steward-ashy.vercel.app/council`.
-2. Start with the V2 card: delegation `1` was stored onchain, the watcher created proposal `9`, and council job `6` cast YES.
-3. Open the V2 final-vote tx and confirm the council contract, not the frontend, cast into `MiniGovernor`.
-4. Clone the repo and run `node scripts/verify-delegated-council-proof.mjs`. The expected marker is `STEWARD_DELEGATED_COUNCIL_PROOF_VALID`.
+2. Start with the V2 card: delegation `1` was stored onchain once, then watcher executions `1`, `2`, and `3` produced `YES`, `NO`, and `ABSTAIN`.
+3. Open any V2 final-vote tx and confirm the council contract, not the frontend, cast into `MiniGovernor`.
+4. Clone the repo and run `node scripts/verify-delegated-council-proofs.mjs`. The expected marker is `STEWARD_DELEGATED_COUNCIL_PROOFS_VALID`.
 5. Run `./scripts/verify-steward-proof.sh` for the full proof packet. The expected final marker is `STEWARD_FULL_PROOF_VALID`.
 
 For the fastest review path, see [`JUDGE_GUIDE.md`](./JUDGE_GUIDE.md). For product/market framing, see [`PRODUCT.md`](./PRODUCT.md). For the direct receipt map, see [`PROOF.md`](./PROOF.md). For the contract and callback flow, see [`ARCHITECTURE.md`](./ARCHITECTURE.md). For trust assumptions and failure behavior, see [`THREAT_MODEL.md`](./THREAT_MODEL.md).
@@ -35,11 +35,11 @@ Removing Somnia removes the product: there is no auditable agent request, no val
 
 | Criterion | Steward proof |
 | --- | --- |
-| Functionality | Live contracts on Somnia Testnet, watcher-triggered stored delegation, five fallback council URL votes, three direct proposal votes, Somnia agent requests, callback-cast votes, and reproducible verifier scripts. |
+| Functionality | Live contracts on Somnia Testnet, watcher-triggered stored delegation with YES/NO/ABSTAIN outcomes, five fallback council URL votes, three direct proposal votes, Somnia agent requests, callback-cast votes, and reproducible verifier scripts. |
 | Agent-first design | Steward invokes Somnia's Parse Website and LLM Inference agents, then waits for authenticated platform callbacks before changing governance state. |
 | Innovation and technical creativity | DAO delegation becomes auditable agent reasoning. V2 separates stored mandate execution from the multi-agent council, and the council composes Parse Website plus three independent LLM reviewers before casting a majority vote. |
-| Autonomous performance | The watcher executes a stored delegation when proposal source content changes; after that, Somnia's async agent callbacks drive the final vote without a human reviewer approving the decision. |
-| Verifiability | The full proof command checks stored delegation state, watcher-created proposal, downstream council job, reviewer decisions, callback logs, final governor vote, and source verification for the stable live contracts. |
+| Autonomous performance | The watcher executes a stored delegation when proposal source content changes; after that, Somnia's async agent callbacks drive each final vote without a human reviewer approving the decision. |
+| Verifiability | The full proof command checks stored delegation state, watcher-created proposals, downstream council jobs, reviewer decisions, callback logs, final governor votes, and source verification for the stable live contracts. |
 
 ## Live Somnia Testnet Constants
 
@@ -94,28 +94,27 @@ The frontend publishes four plain-HTML proposal source pages for deterministic p
 
 `StewardCouncilDelegationPipeline` is the autonomy upgrade. It stores the owner mandate onchain and lets a watcher execute that mandate when a proposal source changes. The wrapper does not take new criteria at execution time; it reads the stored criteria and calls the live `StewardCouncilPipeline`, which runs the Parse Website plus three-reviewer council flow.
 
-Live delegated proof:
+Live delegated proof set:
 
 | Artifact | Value |
 | --- | --- |
 | Delegated wrapper | [`0xd01f2e924A0846fdC7cEF677e8887CEE589DCa64`](https://shannon-explorer.somnia.network/address/0xd01f2e924A0846fdC7cEF677e8887CEE589DCa64) |
 | Wrapper deploy tx | [`0x73cd19f6ba11f7dccb70ef8ed8e3afd321cc4aa2b3f99dd24fbb0658002031a9`](https://shannon-explorer.somnia.network/tx/0x73cd19f6ba11f7dccb70ef8ed8e3afd321cc4aa2b3f99dd24fbb0658002031a9) |
 | Stored delegation tx | [`0xac1cff99c68e12dfbf1ffe91533aa711da6f4ec30145ef2b611168fa4e8c9d2f`](https://shannon-explorer.somnia.network/tx/0xac1cff99c68e12dfbf1ffe91533aa711da6f4ec30145ef2b611168fa4e8c9d2f) |
-| Watcher-created proposal tx | [`0xf6e7f52f3753fb8de8dc7eae0201fc76910bc4b484705e06d8dbc2a5a1565285`](https://shannon-explorer.somnia.network/tx/0xf6e7f52f3753fb8de8dc7eae0201fc76910bc4b484705e06d8dbc2a5a1565285) |
-| Watcher execution tx | [`0xfd8eb6788a53a71ad7dc19239535446f22f807a65beab455a5ffda376e84087e`](https://shannon-explorer.somnia.network/tx/0xfd8eb6788a53a71ad7dc19239535446f22f807a65beab455a5ffda376e84087e) |
-| Parse callback tx | [`0x4bd3e9eacc09d57f6fef12daa88d0e1707c2cf287ea3ffd312e1f92e8f9aae85`](https://shannon-explorer.somnia.network/tx/0x4bd3e9eacc09d57f6fef12daa88d0e1707c2cf287ea3ffd312e1f92e8f9aae85) |
-| Final vote tx | [`0xb47bf7b3cca5f28aa1cb80b6c7b96c6c6d8ae0def215fe4e719a58381991f166`](https://shannon-explorer.somnia.network/tx/0xb47bf7b3cca5f28aa1cb80b6c7b96c6c6d8ae0def215fe4e719a58381991f166) |
-| Delegation / execution / council job | `1` / `1` / `6` |
-| Proposal / parse request | `9` / `3578516` |
-| Final tally | `YES=3, NO=0, ABSTAIN=0` |
+
+| Outcome | Proposal / execution / job | Parse request | Watcher execution tx | Parse callback tx | Final vote tx | Tally |
+| --- | --- | --- | --- | --- | --- | --- |
+| `YES` | `9` / `1` / `6` | `3578516` | [`tx`](https://shannon-explorer.somnia.network/tx/0xfd8eb6788a53a71ad7dc19239535446f22f807a65beab455a5ffda376e84087e) | [`tx`](https://shannon-explorer.somnia.network/tx/0x4bd3e9eacc09d57f6fef12daa88d0e1707c2cf287ea3ffd312e1f92e8f9aae85) | [`tx`](https://shannon-explorer.somnia.network/tx/0xb47bf7b3cca5f28aa1cb80b6c7b96c6c6d8ae0def215fe4e719a58381991f166) | `YES=3, NO=0, ABSTAIN=0` |
+| `NO` | `10` / `2` / `7` | `3586459` | [`tx`](https://shannon-explorer.somnia.network/tx/0x8ae266600d7db6047cb92cf8e9b0d273bc9e928895eb0f03754e08f0900180fa) | [`tx`](https://shannon-explorer.somnia.network/tx/0xc076e8cdf1947d1c1af63cf30984dbc81e6b9a923aed6c5d403f63b4144f2c63) | [`tx`](https://shannon-explorer.somnia.network/tx/0xa813db445a7e67097f813f990e83109392ff6693560af72ba78fb80c704245df) | `YES=0, NO=3, ABSTAIN=0` |
+| `ABSTAIN` | `11` / `3` / `8` | `3586764` | [`tx`](https://shannon-explorer.somnia.network/tx/0x6b5c981ef7aea55842f4d64b11ebf61778e8836e2819eebfc901cf5821bf202a) | [`tx`](https://shannon-explorer.somnia.network/tx/0x7b0c790854290a7c1b8d006cb21444a5a173f7e9ad17ab2f31fb5a5ce4d69e6e) | [`tx`](https://shannon-explorer.somnia.network/tx/0x30266873508326a2f15b057da398998ecaad3b94a493cde4756f7c548250a4e8) | `YES=0, NO=0, ABSTAIN=3` |
 
 Local verification:
 
 ```shell
-node scripts/verify-delegated-council-proof.mjs
+node scripts/verify-delegated-council-proofs.mjs
 ```
 
-Expected marker: `STEWARD_DELEGATED_COUNCIL_PROOF_VALID`.
+Expected marker: `STEWARD_DELEGATED_COUNCIL_PROOFS_VALID`.
 
 ## Live Council Pipeline
 
@@ -168,7 +167,7 @@ Fastest judge path:
 ./scripts/verify-steward-proof.sh
 ```
 
-Expected final marker: `STEWARD_FULL_PROOF_VALID`. This command asserts live onchain Steward/MiniGovernor state, Somnia's public LLM receipt service for all three YES, NO, and ABSTAIN requests, validator runner quorum, receipt timing, LLM token usage, decoded `inferString` request payloads, transaction-level event logs for the proof txs, the delegated council V2 proof, the five-case live council fallback proof set, and explorer source verification for `Steward`, `MiniGovernor`, and `StewardCouncilPipeline`. If `STEWARD_URL_PIPELINE` is set, the source verifier also checks that deployed URL pipeline contract.
+Expected final marker: `STEWARD_FULL_PROOF_VALID`. This command asserts live onchain Steward/MiniGovernor state, Somnia's public LLM receipt service for all three YES, NO, and ABSTAIN requests, validator runner quorum, receipt timing, LLM token usage, decoded `inferString` request payloads, transaction-level event logs for the proof txs, the delegated council V2 YES/NO/ABSTAIN proof set, the five-case live council fallback proof set, and explorer source verification for `Steward`, `MiniGovernor`, and `StewardCouncilPipeline`. If `STEWARD_URL_PIPELINE` is set, the source verifier also checks that deployed URL pipeline contract.
 
 ```shell
 forge fmt --check
@@ -243,7 +242,7 @@ node scripts/verify-url-pipeline-trail.mjs
 
 ## Frontend
 
-The web app in `web/` is a multi-route proof surface: `/council` leads with the delegated V2 watcher proof, `/proof` shows the lower-level receipt trail, `/sources` shows the public proposal inputs, `/guide` explains the review path, and `/console` is reserved for optional live execution. It reads live `Steward.voteRequests(...)` and `MiniGovernor.votes(...)` state for the YES, NO, and ABSTAIN examples directly from Somnia Testnet, reads Somnia's public receipt service to display validator receipt quorum, runner count, timing, and token usage for each agent decision, and links the delegated V2 plus five-case council proof set. The repo verifier handles the deeper payload-level proof.
+The web app in `web/` is a multi-route proof surface: `/council` leads with the delegated V2 watcher proof set, `/proof` shows the lower-level receipt trail, `/sources` shows the public proposal inputs, `/guide` explains the review path, and `/console` is reserved for optional live execution. It reads live `Steward.voteRequests(...)` and `MiniGovernor.votes(...)` state for the YES, NO, and ABSTAIN examples directly from Somnia Testnet, reads Somnia's public receipt service to display validator receipt quorum, runner count, timing, and token usage for each agent decision, and links the delegated V2 plus five-case council proof set. The repo verifier handles the deeper payload-level proof.
 
 After `StewardUrlPipeline` is deployed, set `VITE_STEWARD_URL_PIPELINE` before building the frontend. That exposes the browser console for the single-reviewer path: create a MiniGovernor proposal, quote the Somnia agent deposit, and start the Parse Website -> LLM vote pipeline from the page. Without that env value, the console is hidden so the public site does not advertise an inactive path.
 

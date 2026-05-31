@@ -126,7 +126,7 @@ const stewardSystemPrompt =
   "You are Steward, an autonomous DAO voting delegate. Choose exactly one allowed value.";
 const allowedVoteOutputs = ["YES", "NO", "ABSTAIN"];
 const councilProofCommand = "node scripts/verify-council-proof.mjs";
-const delegatedCouncilProofCommand = "node scripts/verify-delegated-council-proof.mjs";
+const delegatedCouncilProofCommand = "node scripts/verify-delegated-council-proofs.mjs";
 const defaultConsoleProposalUrl = "https://steward-ashy.vercel.app/proposals/community-grants.html";
 const defaultConsoleProposalText = "Approve a 500,000 USDC Q3 community grants program imported from a public URL.";
 const defaultConsoleCriteria =
@@ -263,20 +263,59 @@ const councilCases = [
 const councilProof = {
   deployTx: "0x0f9c058cb1d07c2885177e4e104c2115ccf6e87f37eb289a867005def970f1e3",
 };
-const delegatedCouncilProof = {
+const delegatedCouncilCommon = {
   delegationId: "1",
-  executionId: "1",
-  proposalId: "9",
-  councilJobId: "6",
-  parseRequestId: "3578516",
-  tally: "YES=3 / NO=0 / ABSTAIN=0",
   deploymentTx: "0x73cd19f6ba11f7dccb70ef8ed8e3afd321cc4aa2b3f99dd24fbb0658002031a9",
   delegationTx: "0xac1cff99c68e12dfbf1ffe91533aa711da6f4ec30145ef2b611168fa4e8c9d2f",
-  proposalTx: "0xf6e7f52f3753fb8de8dc7eae0201fc76910bc4b484705e06d8dbc2a5a1565285",
-  startTx: "0xfd8eb6788a53a71ad7dc19239535446f22f807a65beab455a5ffda376e84087e",
-  parseTx: "0x4bd3e9eacc09d57f6fef12daa88d0e1707c2cf287ea3ffd312e1f92e8f9aae85",
-  finalVoteTx: "0xb47bf7b3cca5f28aa1cb80b6c7b96c6c6d8ae0def215fe4e719a58381991f166",
 };
+const delegatedCouncilCases = [
+  {
+    ...delegatedCouncilCommon,
+    outcome: "YES",
+    proposal: "Q3 Community Grants Program",
+    executionId: "1",
+    proposalId: "9",
+    councilJobId: "6",
+    parseRequestId: "3578516",
+    tally: "YES=3 / NO=0 / ABSTAIN=0",
+    detail: "The stored mandate approved the under-1M community grants proposal.",
+    proposalTx: "0xf6e7f52f3753fb8de8dc7eae0201fc76910bc4b484705e06d8dbc2a5a1565285",
+    startTx: "0xfd8eb6788a53a71ad7dc19239535446f22f807a65beab455a5ffda376e84087e",
+    parseTx: "0x4bd3e9eacc09d57f6fef12daa88d0e1707c2cf287ea3ffd312e1f92e8f9aae85",
+    finalVoteTx: "0xb47bf7b3cca5f28aa1cb80b6c7b96c6c6d8ae0def215fe4e719a58381991f166",
+  },
+  {
+    ...delegatedCouncilCommon,
+    outcome: "NO",
+    proposal: "Early Foundation Team Token Unlock",
+    executionId: "2",
+    proposalId: "10",
+    councilJobId: "7",
+    parseRequestId: "3586459",
+    tally: "YES=0 / NO=3 / ABSTAIN=0",
+    detail: "The same stored mandate rejected an early team-token unlock.",
+    proposalTx: "0x5e8713927c427ab2e9b69bcd98aef308258257f2fa7d18592dc355e728642cbc",
+    startTx: "0x8ae266600d7db6047cb92cf8e9b0d273bc9e928895eb0f03754e08f0900180fa",
+    parseTx: "0xc076e8cdf1947d1c1af63cf30984dbc81e6b9a923aed6c5d403f63b4144f2c63",
+    finalVoteTx: "0xa813db445a7e67097f813f990e83109392ff6693560af72ba78fb80c704245df",
+  },
+  {
+    ...delegatedCouncilCommon,
+    outcome: "ABSTAIN",
+    proposal: "Ecosystem Partnerships Working Group",
+    executionId: "3",
+    proposalId: "11",
+    councilJobId: "8",
+    parseRequestId: "3586764",
+    tally: "YES=0 / NO=0 / ABSTAIN=3",
+    detail: "The same stored mandate abstained when the proposal had no budget and insufficient decision detail.",
+    proposalTx: "0x292e9234e73b362ed3267be76d1b0402c41c8b85de6a843457ff27957fe4e44a",
+    startTx: "0x6b5c981ef7aea55842f4d64b11ebf61778e8836e2819eebfc901cf5821bf202a",
+    parseTx: "0x7b0c790854290a7c1b8d006cb21444a5a173f7e9ad17ab2f31fb5a5ce4d69e6e",
+    finalVoteTx: "0x30266873508326a2f15b057da398998ecaad3b94a493cde4756f7c548250a4e8",
+  },
+];
+const delegatedCouncilProof = delegatedCouncilCases[0]!;
 const externalCouncilCase = councilCases[councilCases.length - 1]!;
 
 const stewardAbi = [
@@ -919,7 +958,7 @@ function App() {
               ? "Open the external forum source, Parse Website transaction, reviewer ids, final MiniGovernor vote, and baseline LLM receipt set without trusting this frontend."
               : "Steward stores a DAO voting mandate, asks Somnia's Parse Website agent to read proposal pages, sends the result to independent LLM reviewers, and casts the majority YES, NO, or ABSTAIN vote onchain."}
           </p>
-          <p className="proofLine">5 proposal URLs · 15 reviewer calls · external forum proof included</p>
+          <p className="proofLine">Delegated V2 YES/NO/ABSTAIN · 5 fallback URL proofs · external forum included</p>
           <div className="chainOfCustody" aria-label="Agent vote chain of custody">
             <article>
               <span>01</span>
@@ -1366,7 +1405,7 @@ function App() {
       <section className="council" id="council">
         <div className="councilLead">
           <p className="eyebrow">Autonomous delegated council · live V2</p>
-          <h2>Delegate once. A watcher found a proposal. Somnia agents cast YES.</h2>
+          <h2>Delegate once. Watchers found proposals. Somnia agents cast YES, NO, and ABSTAIN.</h2>
           <p>
             Steward V2 stores the voting mandate onchain, then a watcher triggers the
             stored delegation when a proposal source changes. The wrapper cannot replace
@@ -1390,44 +1429,45 @@ function App() {
           </div>
         </div>
         <div className="councilBoard">
-          <article className="yes">
-            <span>Watcher-triggered stored delegation</span>
-            <strong>YES</strong>
-            <small>
-              Delegation #{delegatedCouncilProof.delegationId} · execution #{delegatedCouncilProof.executionId}
-            </small>
-            <small>
-              Council job #{delegatedCouncilProof.councilJobId} · parse #{delegatedCouncilProof.parseRequestId}
-            </small>
-            <p>
-              A stored mandate approved the community grants URL without resupplying
-              criteria at runtime. The council reviewers returned {delegatedCouncilProof.tally}.
-            </p>
-            <div className="txLinks">
-              <a href={explorerTx(delegatedCouncilProof.delegationTx)} target="_blank" rel="noreferrer">
-                Store mandate
-              </a>
-              <a href={explorerTx(delegatedCouncilProof.proposalTx)} target="_blank" rel="noreferrer">
-                Proposal
-              </a>
-              <a href={explorerTx(delegatedCouncilProof.startTx)} target="_blank" rel="noreferrer">
-                Watcher
-              </a>
-              <a href={explorerTx(delegatedCouncilProof.parseTx)} target="_blank" rel="noreferrer">
-                Parse
-              </a>
-              <a href={explorerTx(delegatedCouncilProof.finalVoteTx)} target="_blank" rel="noreferrer">
-                Vote
-              </a>
-            </div>
-          </article>
+          {delegatedCouncilCases.map((proof) => (
+            <article className={proof.outcome.toLowerCase()} key={proof.councilJobId}>
+              <span>Watcher-triggered stored delegation</span>
+              <strong>{proof.outcome}</strong>
+              <small>
+                Proposal #{proof.proposalId} · execution #{proof.executionId}
+              </small>
+              <small>
+                Council job #{proof.councilJobId} · parse #{proof.parseRequestId}
+              </small>
+              <p>
+                {proof.detail} The council reviewers returned {proof.tally}.
+              </p>
+              <div className="txLinks">
+                <a href={explorerTx(proof.delegationTx)} target="_blank" rel="noreferrer">
+                  Store mandate
+                </a>
+                <a href={explorerTx(proof.proposalTx)} target="_blank" rel="noreferrer">
+                  Proposal
+                </a>
+                <a href={explorerTx(proof.startTx)} target="_blank" rel="noreferrer">
+                  Watcher
+                </a>
+                <a href={explorerTx(proof.parseTx)} target="_blank" rel="noreferrer">
+                  Parse
+                </a>
+                <a href={explorerTx(proof.finalVoteTx)} target="_blank" rel="noreferrer">
+                  Vote
+                </a>
+              </div>
+            </article>
+          ))}
           <div className="councilCommand">
             <span>Delegated council proof</span>
             <code>{delegatedCouncilProofCommand}</code>
             <p>
-              Verifies the stored delegation, watcher-created proposal, wrapper execution,
-              downstream council job, three successful reviewers, final YES tally, and the
-              MiniGovernor vote from the council pipeline.
+              Verifies the stored delegation, watcher-created proposals, wrapper executions,
+              downstream council jobs, nine successful reviewer decisions, final YES/NO/ABSTAIN
+              tallies, and the MiniGovernor votes from the council pipeline.
             </p>
             <div className="txLinks">
               <a href={explorerTx(delegatedCouncilProof.deploymentTx)} target="_blank" rel="noreferrer">

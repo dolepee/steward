@@ -1,13 +1,13 @@
 # Steward Judge Guide
 
-Steward is a verifiable autonomous DAO governance proxy on Somnia. A user stores voting criteria onchain once, a watcher detects a proposal URL, Steward asks Somnia's Parse Website agent to read it, three LLM reviewers evaluate the extracted facts, and the majority YES, NO, or ABSTAIN vote is cast onchain. The direct single-agent proof remains in the repo as the lower-level receipt trail.
+Steward is a verifiable autonomous DAO governance proxy on Somnia. A user stores voting criteria onchain once, watchers detect proposal URLs, Steward asks Somnia's Parse Website agent to read each source, three LLM reviewers evaluate the extracted facts, and the majority YES, NO, or ABSTAIN vote is cast onchain. The direct single-agent proof remains in the repo as the lower-level receipt trail.
 
 ## First 60 Seconds
 
 1. Open `https://steward-ashy.vercel.app/council`.
-2. Start with the delegated V2 proof: delegation `1`, watcher-created proposal `9`, wrapper execution `1`, downstream council job `6`, final YES vote.
+2. Start with the delegated V2 proof: delegation `1`, watcher-created proposals `9`, `10`, and `11`, wrapper executions `1`, `2`, and `3`, downstream council jobs `6`, `7`, and `8`, final YES/NO/ABSTAIN votes.
 3. Open the final vote transaction and confirm `StewardCouncilPipeline` casts into `MiniGovernor`.
-4. Run `node scripts/verify-delegated-council-proof.mjs`. The marker should be `STEWARD_DELEGATED_COUNCIL_PROOF_VALID`.
+4. Run `node scripts/verify-delegated-council-proofs.mjs`. The marker should be `STEWARD_DELEGATED_COUNCIL_PROOFS_VALID`.
 5. Check the fallback Council section: five proposal URLs, three reviewer roles each, three final outcomes, including one external Developer DAO governance forum URL.
 6. Run `./scripts/verify-steward-proof.sh` for the full proof packet. The final marker should be `STEWARD_FULL_PROOF_VALID`.
 
@@ -50,13 +50,11 @@ DAO delegation usually ends at a static delegate address or an offchain voting b
 | `YES` | `7` / `4` | `3101870` | `3101910`, `3101911`, `3101912` | `YES=3`, `NO=0`, `ABSTAIN=0` |
 | `YES external` | `8` / `5` | `3547601` | `3547653`, `3547654`, `3547655` | `YES=3`, `NO=0`, `ABSTAIN=0` |
 
-| Delegated V2 artifact | Value |
-| --- | --- |
-| Delegation / execution / council job | `1` / `1` / `6` |
-| Proposal / parse request | `9` / `3578516` |
-| Watcher execution tx | `0xfd8eb6788a53a71ad7dc19239535446f22f807a65beab455a5ffda376e84087e` |
-| Final vote tx | `0xb47bf7b3cca5f28aa1cb80b6c7b96c6c6d8ae0def215fe4e719a58381991f166` |
-| Result | `YES=3`, `NO=0`, `ABSTAIN=0` |
+| Delegated V2 outcome | Proposal / execution / job | Parse request | Watcher execution tx | Final vote tx | Result |
+| --- | --- | --- | --- | --- | --- |
+| `YES` | `9` / `1` / `6` | `3578516` | `0xfd8eb6788a53a71ad7dc19239535446f22f807a65beab455a5ffda376e84087e` | `0xb47bf7b3cca5f28aa1cb80b6c7b96c6c6d8ae0def215fe4e719a58381991f166` | `YES=3`, `NO=0`, `ABSTAIN=0` |
+| `NO` | `10` / `2` / `7` | `3586459` | `0x8ae266600d7db6047cb92cf8e9b0d273bc9e928895eb0f03754e08f0900180fa` | `0xa813db445a7e67097f813f990e83109392ff6693560af72ba78fb80c704245df` | `YES=0`, `NO=3`, `ABSTAIN=0` |
+| `ABSTAIN` | `11` / `3` / `8` | `3586764` | `0x6b5c981ef7aea55842f4d64b11ebf61778e8836e2819eebfc901cf5821bf202a` | `0x30266873508326a2f15b057da398998ecaad3b94a493cde4756f7c548250a4e8` | `YES=0`, `NO=0`, `ABSTAIN=3` |
 
 ## Verification Command
 
@@ -75,11 +73,12 @@ STEWARD_AGENT_RECEIPTS_VALID
 STEWARD_TX_TRAIL_VALID
 STEWARD_COUNCIL_PROOF_VALID
 STEWARD_DELEGATED_COUNCIL_PROOF_VALID
+STEWARD_DELEGATED_COUNCIL_PROOFS_VALID
 STEWARD_SOURCE_VERIFICATION_VALID
 STEWARD_FULL_PROOF_VALID
 ```
 
-The command checks live onchain state, Somnia's public agent receipt service, validator receipt steps, runner quorum, token usage, transaction-level event logs for the proof txs, decoded `inferString` request payloads, the delegated watcher proof, the live council majority trail, and explorer source verification for `Steward`, `MiniGovernor`, and `StewardCouncilPipeline`.
+The command checks live onchain state, Somnia's public agent receipt service, validator receipt steps, runner quorum, token usage, transaction-level event logs for the proof txs, decoded `inferString` request payloads, the delegated watcher YES/NO/ABSTAIN proof set, the live council majority trail, and explorer source verification for `Steward`, `MiniGovernor`, and `StewardCouncilPipeline`.
 
 ## What Is Load-Bearing
 

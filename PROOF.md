@@ -1,13 +1,13 @@
 # Steward Proof Guide
 
-Steward's strongest claim is simple: one stored onchain delegation was executed by a watcher when a proposal source appeared, then Somnia's Parse Website and LLM council path produced an onchain YES vote. The fallback proof also shows five public proposal URLs producing five autonomous onchain council votes across YES, NO, and ABSTAIN. One URL is an external Developer DAO governance forum page. The repo also keeps the lower-level single-agent YES, NO, and ABSTAIN receipt trail.
+Steward's strongest claim is simple: one stored onchain delegation was executed by a watcher for three proposal sources, then Somnia's Parse Website and LLM council path produced live onchain YES, NO, and ABSTAIN votes. The fallback proof also shows five public proposal URLs producing five autonomous onchain council votes across YES, NO, and ABSTAIN. One URL is an external Developer DAO governance forum page. The repo also keeps the lower-level single-agent YES, NO, and ABSTAIN receipt trail.
 
 ## What This Proves
 
 | Claim | Evidence |
 | --- | --- |
 | Proposal URL ingestion | Each council proof starts from a public proposal page and a Somnia Parse Website request. |
-| Stored delegation autonomy | The delegated V2 proof stores criteria once, then the watcher starts proposal `9` without resupplying the mandate. |
+| Stored delegation autonomy | The delegated V2 proof stores criteria once, then the watcher starts proposals `9`, `10`, and `11` without resupplying the mandate. |
 | Reviewer council | Each parsed proposal fans out to budget, risk, and participation LLM reviewer requests. |
 | Agent-first governance action | Steward does not cast a council vote until the reviewer callbacks produce a majority `YES`, `NO`, or `ABSTAIN`. |
 | Async callback execution | Each final vote is written by the council pipeline after SomniaAgents callbacks. |
@@ -15,7 +15,7 @@ Steward's strongest claim is simple: one stored onchain delegation was executed 
 | Transaction-level event trail | The council verifier checks `ProposalCreated`, `RequestCreated`, `CouncilPipelineStarted`, `CouncilProposalParsed`, `CouncilReviewerRequested`, `CouncilReviewerDecided`, `CouncilVoteCast`, and `VoteCast` logs for all five council jobs. |
 | Verifiable final state | `MiniGovernor.votes(proposalId, StewardCouncilPipeline)` matches the majority support value. |
 | Council proof | `StewardCouncilPipeline` parsed five public proposal URLs, requested fifteen LLM reviewer decisions, and cast live YES, NO, and ABSTAIN majority votes into MiniGovernor. |
-| Delegated V2 proof | `StewardCouncilDelegationPipeline` execution `1` forwards stored delegation `1` into council job `6`; the final MiniGovernor vote is YES. |
+| Delegated V2 proof | `StewardCouncilDelegationPipeline` executions `1`, `2`, and `3` forward stored delegation `1` into council jobs `6`, `7`, and `8`; final MiniGovernor votes are YES, NO, and ABSTAIN. |
 
 ## Fast Verification
 
@@ -36,6 +36,7 @@ STEWARD_AGENT_RECEIPTS_VALID
 STEWARD_TX_TRAIL_VALID
 STEWARD_COUNCIL_PROOF_VALID
 STEWARD_DELEGATED_COUNCIL_PROOF_VALID
+STEWARD_DELEGATED_COUNCIL_PROOFS_VALID
 STEWARD_SOURCE_VERIFICATION_VALID
 STEWARD_FULL_PROOF_VALID
 ```
@@ -46,24 +47,23 @@ STEWARD_FULL_PROOF_VALID
 | --- | --- |
 | Delegated wrapper | [`0xd01f2e924A0846fdC7cEF677e8887CEE589DCa64`](https://shannon-explorer.somnia.network/address/0xd01f2e924A0846fdC7cEF677e8887CEE589DCa64) |
 | Stored delegation tx | [`0xac1cff99c68e12dfbf1ffe91533aa711da6f4ec30145ef2b611168fa4e8c9d2f`](https://shannon-explorer.somnia.network/tx/0xac1cff99c68e12dfbf1ffe91533aa711da6f4ec30145ef2b611168fa4e8c9d2f) |
-| Watcher-created proposal tx | [`0xf6e7f52f3753fb8de8dc7eae0201fc76910bc4b484705e06d8dbc2a5a1565285`](https://shannon-explorer.somnia.network/tx/0xf6e7f52f3753fb8de8dc7eae0201fc76910bc4b484705e06d8dbc2a5a1565285) |
-| Watcher execution tx | [`0xfd8eb6788a53a71ad7dc19239535446f22f807a65beab455a5ffda376e84087e`](https://shannon-explorer.somnia.network/tx/0xfd8eb6788a53a71ad7dc19239535446f22f807a65beab455a5ffda376e84087e) |
-| Parse callback tx | [`0x4bd3e9eacc09d57f6fef12daa88d0e1707c2cf287ea3ffd312e1f92e8f9aae85`](https://shannon-explorer.somnia.network/tx/0x4bd3e9eacc09d57f6fef12daa88d0e1707c2cf287ea3ffd312e1f92e8f9aae85) |
-| Final vote tx | [`0xb47bf7b3cca5f28aa1cb80b6c7b96c6c6d8ae0def215fe4e719a58381991f166`](https://shannon-explorer.somnia.network/tx/0xb47bf7b3cca5f28aa1cb80b6c7b96c6c6d8ae0def215fe4e719a58381991f166) |
-| Delegation / execution / council job | `1` / `1` / `6` |
-| Proposal / parse request | `9` / `3578516` |
-| Final tally | `YES=3`, `NO=0`, `ABSTAIN=0` |
+
+| Outcome | Proposal / execution / job | Parse request | Watcher execution tx | Parse callback tx | Final vote tx | Tally |
+| --- | --- | --- | --- | --- | --- | --- |
+| `YES` | `9` / `1` / `6` | `3578516` | [`tx`](https://shannon-explorer.somnia.network/tx/0xfd8eb6788a53a71ad7dc19239535446f22f807a65beab455a5ffda376e84087e) | [`tx`](https://shannon-explorer.somnia.network/tx/0x4bd3e9eacc09d57f6fef12daa88d0e1707c2cf287ea3ffd312e1f92e8f9aae85) | [`tx`](https://shannon-explorer.somnia.network/tx/0xb47bf7b3cca5f28aa1cb80b6c7b96c6c6d8ae0def215fe4e719a58381991f166) | `YES=3`, `NO=0`, `ABSTAIN=0` |
+| `NO` | `10` / `2` / `7` | `3586459` | [`tx`](https://shannon-explorer.somnia.network/tx/0x8ae266600d7db6047cb92cf8e9b0d273bc9e928895eb0f03754e08f0900180fa) | [`tx`](https://shannon-explorer.somnia.network/tx/0xc076e8cdf1947d1c1af63cf30984dbc81e6b9a923aed6c5d403f63b4144f2c63) | [`tx`](https://shannon-explorer.somnia.network/tx/0xa813db445a7e67097f813f990e83109392ff6693560af72ba78fb80c704245df) | `YES=0`, `NO=3`, `ABSTAIN=0` |
+| `ABSTAIN` | `11` / `3` / `8` | `3586764` | [`tx`](https://shannon-explorer.somnia.network/tx/0x6b5c981ef7aea55842f4d64b11ebf61778e8836e2819eebfc901cf5821bf202a) | [`tx`](https://shannon-explorer.somnia.network/tx/0x7b0c790854290a7c1b8d006cb21444a5a173f7e9ad17ab2f31fb5a5ce4d69e6e) | [`tx`](https://shannon-explorer.somnia.network/tx/0x30266873508326a2f15b057da398998ecaad3b94a493cde4756f7c548250a4e8) | `YES=0`, `NO=0`, `ABSTAIN=3` |
 
 Run:
 
 ```shell
-node scripts/verify-delegated-council-proof.mjs
+node scripts/verify-delegated-council-proofs.mjs
 ```
 
 Expected marker:
 
 ```text
-STEWARD_DELEGATED_COUNCIL_PROOF_VALID
+STEWARD_DELEGATED_COUNCIL_PROOFS_VALID
 ```
 
 ## Optional URL Pipeline Proof Verifier

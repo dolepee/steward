@@ -1,12 +1,13 @@
 # Steward Proof Guide
 
-Steward's strongest claim is simple: five public proposal URLs produced five autonomous onchain council votes through Somnia's Parse Website and LLM agent path. One URL is an external Developer DAO governance forum page. The repo also keeps the lower-level single-agent YES, NO, and ABSTAIN receipt trail.
+Steward's strongest claim is simple: one stored onchain delegation was executed by a watcher when a proposal source appeared, then Somnia's Parse Website and LLM council path produced an onchain YES vote. The fallback proof also shows five public proposal URLs producing five autonomous onchain council votes across YES, NO, and ABSTAIN. One URL is an external Developer DAO governance forum page. The repo also keeps the lower-level single-agent YES, NO, and ABSTAIN receipt trail.
 
 ## What This Proves
 
 | Claim | Evidence |
 | --- | --- |
 | Proposal URL ingestion | Each council proof starts from a public proposal page and a Somnia Parse Website request. |
+| Stored delegation autonomy | The delegated V2 proof stores criteria once, then the watcher starts proposal `9` without resupplying the mandate. |
 | Reviewer council | Each parsed proposal fans out to budget, risk, and participation LLM reviewer requests. |
 | Agent-first governance action | Steward does not cast a council vote until the reviewer callbacks produce a majority `YES`, `NO`, or `ABSTAIN`. |
 | Async callback execution | Each final vote is written by the council pipeline after SomniaAgents callbacks. |
@@ -14,6 +15,7 @@ Steward's strongest claim is simple: five public proposal URLs produced five aut
 | Transaction-level event trail | The council verifier checks `ProposalCreated`, `RequestCreated`, `CouncilPipelineStarted`, `CouncilProposalParsed`, `CouncilReviewerRequested`, `CouncilReviewerDecided`, `CouncilVoteCast`, and `VoteCast` logs for all five council jobs. |
 | Verifiable final state | `MiniGovernor.votes(proposalId, StewardCouncilPipeline)` matches the majority support value. |
 | Council proof | `StewardCouncilPipeline` parsed five public proposal URLs, requested fifteen LLM reviewer decisions, and cast live YES, NO, and ABSTAIN majority votes into MiniGovernor. |
+| Delegated V2 proof | `StewardCouncilDelegationPipeline` execution `1` forwards stored delegation `1` into council job `6`; the final MiniGovernor vote is YES. |
 
 ## Fast Verification
 
@@ -33,8 +35,35 @@ STEWARD_LIVE_PROOF_VALID
 STEWARD_AGENT_RECEIPTS_VALID
 STEWARD_TX_TRAIL_VALID
 STEWARD_COUNCIL_PROOF_VALID
+STEWARD_DELEGATED_COUNCIL_PROOF_VALID
 STEWARD_SOURCE_VERIFICATION_VALID
 STEWARD_FULL_PROOF_VALID
+```
+
+## Delegated Council V2 Proof
+
+| Artifact | Value |
+| --- | --- |
+| Delegated wrapper | [`0xd01f2e924A0846fdC7cEF677e8887CEE589DCa64`](https://shannon-explorer.somnia.network/address/0xd01f2e924A0846fdC7cEF677e8887CEE589DCa64) |
+| Stored delegation tx | [`0xac1cff99c68e12dfbf1ffe91533aa711da6f4ec30145ef2b611168fa4e8c9d2f`](https://shannon-explorer.somnia.network/tx/0xac1cff99c68e12dfbf1ffe91533aa711da6f4ec30145ef2b611168fa4e8c9d2f) |
+| Watcher-created proposal tx | [`0xf6e7f52f3753fb8de8dc7eae0201fc76910bc4b484705e06d8dbc2a5a1565285`](https://shannon-explorer.somnia.network/tx/0xf6e7f52f3753fb8de8dc7eae0201fc76910bc4b484705e06d8dbc2a5a1565285) |
+| Watcher execution tx | [`0xfd8eb6788a53a71ad7dc19239535446f22f807a65beab455a5ffda376e84087e`](https://shannon-explorer.somnia.network/tx/0xfd8eb6788a53a71ad7dc19239535446f22f807a65beab455a5ffda376e84087e) |
+| Parse callback tx | [`0x4bd3e9eacc09d57f6fef12daa88d0e1707c2cf287ea3ffd312e1f92e8f9aae85`](https://shannon-explorer.somnia.network/tx/0x4bd3e9eacc09d57f6fef12daa88d0e1707c2cf287ea3ffd312e1f92e8f9aae85) |
+| Final vote tx | [`0xb47bf7b3cca5f28aa1cb80b6c7b96c6c6d8ae0def215fe4e719a58381991f166`](https://shannon-explorer.somnia.network/tx/0xb47bf7b3cca5f28aa1cb80b6c7b96c6c6d8ae0def215fe4e719a58381991f166) |
+| Delegation / execution / council job | `1` / `1` / `6` |
+| Proposal / parse request | `9` / `3578516` |
+| Final tally | `YES=3`, `NO=0`, `ABSTAIN=0` |
+
+Run:
+
+```shell
+node scripts/verify-delegated-council-proof.mjs
+```
+
+Expected marker:
+
+```text
+STEWARD_DELEGATED_COUNCIL_PROOF_VALID
 ```
 
 ## Optional URL Pipeline Proof Verifier

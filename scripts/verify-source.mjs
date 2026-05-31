@@ -18,6 +18,11 @@ const contracts = [
     address: "0xB890e1274eE308cBC8348a7E032394406215fd52",
     expectedName: "StewardCouncilPipeline",
   },
+  {
+    label: "StewardCouncilDelegationPipeline",
+    address: "0xd01f2e924A0846fdC7cEF677e8887CEE589DCa64",
+    expectedName: "StewardCouncilDelegationPipeline",
+  },
 ];
 
 if (process.env.STEWARD_URL_PIPELINE) {
@@ -33,6 +38,14 @@ if (process.env.STEWARD_COUNCIL_PIPELINE) {
     label: "StewardCouncilPipeline",
     address: process.env.STEWARD_COUNCIL_PIPELINE,
     expectedName: "StewardCouncilPipeline",
+  });
+}
+
+if (process.env.STEWARD_COUNCIL_DELEGATION_PIPELINE) {
+  contracts.push({
+    label: "StewardCouncilDelegationPipeline",
+    address: process.env.STEWARD_COUNCIL_DELEGATION_PIPELINE,
+    expectedName: "StewardCouncilDelegationPipeline",
   });
 }
 

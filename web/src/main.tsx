@@ -106,6 +106,7 @@ const proofAddresses = {
   somniaAgents: "0x037Bb9C718F3f7fe5eCBDB0b600D607b52706776",
   agentRegistry: "0x08D1Fc808f1983d2Ea7B63a28ECD4d8C885Cd02A",
   councilPipeline: "0xB890e1274eE308cBC8348a7E032394406215fd52",
+  delegatedCouncilPipeline: "0xd01f2e924A0846fdC7cEF677e8887CEE589DCa64",
 };
 
 const llmAgentId = "12847293847561029384";
@@ -125,6 +126,7 @@ const stewardSystemPrompt =
   "You are Steward, an autonomous DAO voting delegate. Choose exactly one allowed value.";
 const allowedVoteOutputs = ["YES", "NO", "ABSTAIN"];
 const councilProofCommand = "node scripts/verify-council-proof.mjs";
+const delegatedCouncilProofCommand = "node scripts/verify-delegated-council-proof.mjs";
 const defaultConsoleProposalUrl = "https://steward-ashy.vercel.app/proposals/community-grants.html";
 const defaultConsoleProposalText = "Approve a 500,000 USDC Q3 community grants program imported from a public URL.";
 const defaultConsoleCriteria =
@@ -260,6 +262,20 @@ const councilCases = [
 ];
 const councilProof = {
   deployTx: "0x0f9c058cb1d07c2885177e4e104c2115ccf6e87f37eb289a867005def970f1e3",
+};
+const delegatedCouncilProof = {
+  delegationId: "1",
+  executionId: "1",
+  proposalId: "9",
+  councilJobId: "6",
+  parseRequestId: "3578516",
+  tally: "YES=3 / NO=0 / ABSTAIN=0",
+  deploymentTx: "0x73cd19f6ba11f7dccb70ef8ed8e3afd321cc4aa2b3f99dd24fbb0658002031a9",
+  delegationTx: "0xac1cff99c68e12dfbf1ffe91533aa711da6f4ec30145ef2b611168fa4e8c9d2f",
+  proposalTx: "0xf6e7f52f3753fb8de8dc7eae0201fc76910bc4b484705e06d8dbc2a5a1565285",
+  startTx: "0xfd8eb6788a53a71ad7dc19239535446f22f807a65beab455a5ffda376e84087e",
+  parseTx: "0x4bd3e9eacc09d57f6fef12daa88d0e1707c2cf287ea3ffd312e1f92e8f9aae85",
+  finalVoteTx: "0xb47bf7b3cca5f28aa1cb80b6c7b96c6c6d8ae0def215fe4e719a58381991f166",
 };
 const externalCouncilCase = councilCases[councilCases.length - 1]!;
 
@@ -1349,27 +1365,79 @@ function App() {
       {isCouncilRoute ? (
       <section className="council" id="council">
         <div className="councilLead">
-          <p className="eyebrow">Live council path · Somnia agents</p>
-          <h2>Five proposals. Three reviewers each. Three outcomes.</h2>
+          <p className="eyebrow">Autonomous delegated council · live V2</p>
+          <h2>Delegate once. A watcher found a proposal. Somnia agents cast YES.</h2>
           <p>
-            The live council proof turns the single LLM decision into a small onchain
-            review council. Parse Website reads each public proposal URL, then budget,
-            risk, and participation reviewers independently return YES, NO, or ABSTAIN.
-            The contract proves five live runs spanning all three outcomes on Somnia, including
-            one external Developer DAO forum proposal.
+            Steward V2 stores the voting mandate onchain, then a watcher triggers the
+            stored delegation when a proposal source changes. The wrapper cannot replace
+            the criteria at execution time; it forwards the stored mandate into the live
+            Somnia council pipeline, where Parse Website plus three LLM reviewers produce
+            the final MiniGovernor vote.
           </p>
           <div className="txLinks">
+            <a href={explorerAddress(proofAddresses.delegatedCouncilPipeline)} target="_blank" rel="noreferrer">
+              Delegation wrapper
+            </a>
             <a href={explorerAddress(proofAddresses.councilPipeline)} target="_blank" rel="noreferrer">
               Council contract
             </a>
-            {councilCases.map((proof) => (
-              <a href={explorerTx(proof.finalVoteTx)} target="_blank" rel="noreferrer" key={`${proof.jobId}-final`}>
-                {proof.outcome} final vote
-              </a>
-            ))}
+            <a href={explorerTx(delegatedCouncilProof.startTx)} target="_blank" rel="noreferrer">
+              Watcher start
+            </a>
+            <a href={explorerTx(delegatedCouncilProof.finalVoteTx)} target="_blank" rel="noreferrer">
+              Final vote
+            </a>
           </div>
         </div>
         <div className="councilBoard">
+          <article className="yes">
+            <span>Watcher-triggered stored delegation</span>
+            <strong>YES</strong>
+            <small>
+              Delegation #{delegatedCouncilProof.delegationId} · execution #{delegatedCouncilProof.executionId}
+            </small>
+            <small>
+              Council job #{delegatedCouncilProof.councilJobId} · parse #{delegatedCouncilProof.parseRequestId}
+            </small>
+            <p>
+              A stored mandate approved the community grants URL without resupplying
+              criteria at runtime. The council reviewers returned {delegatedCouncilProof.tally}.
+            </p>
+            <div className="txLinks">
+              <a href={explorerTx(delegatedCouncilProof.delegationTx)} target="_blank" rel="noreferrer">
+                Store mandate
+              </a>
+              <a href={explorerTx(delegatedCouncilProof.proposalTx)} target="_blank" rel="noreferrer">
+                Proposal
+              </a>
+              <a href={explorerTx(delegatedCouncilProof.startTx)} target="_blank" rel="noreferrer">
+                Watcher
+              </a>
+              <a href={explorerTx(delegatedCouncilProof.parseTx)} target="_blank" rel="noreferrer">
+                Parse
+              </a>
+              <a href={explorerTx(delegatedCouncilProof.finalVoteTx)} target="_blank" rel="noreferrer">
+                Vote
+              </a>
+            </div>
+          </article>
+          <div className="councilCommand">
+            <span>Delegated council proof</span>
+            <code>{delegatedCouncilProofCommand}</code>
+            <p>
+              Verifies the stored delegation, watcher-created proposal, wrapper execution,
+              downstream council job, three successful reviewers, final YES tally, and the
+              MiniGovernor vote from the council pipeline.
+            </p>
+            <div className="txLinks">
+              <a href={explorerTx(delegatedCouncilProof.deploymentTx)} target="_blank" rel="noreferrer">
+                V2 deploy tx
+              </a>
+              <a href={explorerTx(delegatedCouncilProof.finalVoteTx)} target="_blank" rel="noreferrer">
+                V2 final vote
+              </a>
+            </div>
+          </div>
           {councilCases.map((proof) => (
             <article className={proof.outcome.toLowerCase()} key={proof.jobId}>
               <span>{proof.proposal}</span>
@@ -1393,7 +1461,7 @@ function App() {
             </article>
           ))}
           <div className="councilCommand">
-            <span>Batch council proof</span>
+            <span>Fallback batch council proof</span>
             <code>node scripts/verify-council-proof.mjs</code>
             <p>
               Verifies proposal ids 4, 5, 6, 7, and 8; parse requests; fifteen reviewer request ids;

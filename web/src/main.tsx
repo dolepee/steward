@@ -1019,9 +1019,9 @@ function App() {
 
         <div className="receipt" id="proof">
           <div className="opsHeader" aria-label="Steward command center status">
-            <span>STWD-05</span>
-            <strong>VERIFIED EXTERNAL RUN</strong>
-            <small>Somnia Testnet · live callbacks</small>
+            <span className="opsCode">STWD-05</span>
+            <small className="opsNetwork">Somnia Testnet · live callbacks</small>
+            <strong>Verified external run</strong>
           </div>
           <div className="proofSpotlight">
             <div className="spotlightTop">

@@ -78,7 +78,7 @@ STEWARD_SOURCE_VERIFICATION_VALID
 STEWARD_FULL_PROOF_VALID
 ```
 
-The command checks live onchain state, Somnia's public agent receipt service, validator receipt steps, runner quorum, token usage, transaction-level event logs for the proof txs, decoded `inferString` request payloads, the delegated watcher YES/NO/ABSTAIN proof set, the live council majority trail, and explorer source verification for `Steward`, `MiniGovernor`, and `StewardCouncilPipeline`.
+The command checks live onchain state, Somnia's public agent receipt service, validator receipt steps, runner quorum, token usage, transaction-level event logs for the proof txs, decoded `inferString` request payloads, the delegated watcher YES/NO/ABSTAIN proof set, the live council majority trail, and explorer source verification for `Steward`, `MiniGovernor`, `StewardCouncilPipeline`, and `StewardCouncilDelegationPipeline`.
 
 ## What Is Load-Bearing
 

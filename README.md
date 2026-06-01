@@ -11,9 +11,9 @@ Steward is a verifiable autonomous DAO governance proxy on Somnia. A user stores
 
 The strongest live proof is now the delegated council V2: `StewardCouncilDelegationPipeline` stores the mandate, `scripts/watch-delegated-council.mjs` detects changed proposal sources, and the wrapper forwards the stored criteria into the already-live `StewardCouncilPipeline`. The council asks Somnia's `LLM Parse Website` agent to read each proposal page, sends the parsed facts to three independent LLM reviewers (`budget`, `risk`, and `participation`), and casts the majority outcome into `MiniGovernor`. The V2 proof now shows the same stored delegation producing live watcher-triggered `YES`, `NO`, and `ABSTAIN` votes.
 
-Execution is permissionless on purpose. A delegation owner controls the mandate text, governor, expiry, and revocation; any executor or watcher can pay the Somnia request deposit to trigger evaluation for an active delegation. In the delegated V2 path, the executor cannot replace the stored criteria, governor, downstream council contract, authorized callback sender, agent ids, or final vote target. The model is closer to permissionless settlement than a private bot.
+Execution is permissionless on purpose. A delegation owner controls the mandate text, governor, expiry, and revocation; any executor or watcher can pay the Somnia request deposit to trigger evaluation for an active delegation. In the delegated V2 path, the executor cannot replace the stored criteria, governor, downstream council contract, authorized callback sender, agent ids, or final vote target. The executor does supply the proposal id and proposal URL for that run, so the proof model is best read as permissionless proposal-source execution against a stored mandate, not owner-only private automation.
 
-The base `Steward` proof remains as a lower-level receipt trail: it invokes the live Somnia LLM Inference agent, receives the async callback, casts a MiniGovernor vote, and stores the result onchain. The verifier decodes each live `inferString` request payload and checks the exact proposal text, voting criteria, system prompt, allowed vote outputs, validator receipt steps, runner quorum, timing, and token usage. The base proof contracts and live council pipeline are source-verified on the Somnia explorer.
+The base `Steward` proof remains as a lower-level receipt trail: it invokes the live Somnia LLM Inference agent, receives the async callback, casts a MiniGovernor vote, and stores the result onchain. The verifier decodes each live `inferString` request payload and checks the exact proposal text, voting criteria, system prompt, allowed vote outputs, validator receipt steps, runner quorum, timing, and token usage. The base proof contracts, delegated wrapper, and live council pipeline are source-verified on the Somnia explorer.
 
 ## 30-Second Judge Path
 
@@ -55,12 +55,14 @@ Removing Somnia removes the product: there is no auditable agent request, no val
 | Council pipeline | [`0xB890e1274eE308cBC8348a7E032394406215fd52`](https://shannon-explorer.somnia.network/address/0xB890e1274eE308cBC8348a7E032394406215fd52) |
 | Practical LLM request value | Current deployment used `0.24 STT`; current source quotes `SomniaAgents.getRequestDeposit() + 0.21 STT` per LLM vote/reviewer request. |
 
-## MVP Build Order
+## Implemented Proof Surfaces
 
-1. `HelloSomniaCallback`: contract-requested LLM inference, callback auth, decoded response, and callback status storage. Built and tested.
-2. `MiniGovernor`: minimal proposal and vote target. Built and tested.
-3. `Steward`: delegation criteria, vote request, LLM callback, onchain vote cast, and proof state storage. Built and tested.
-4. One-page frontend: delegation card, proposal feed, vote proof timeline.
+1. `HelloSomniaCallback`: contract-requested LLM inference, callback auth, decoded response, and callback status storage.
+2. `MiniGovernor`: minimal proposal and vote target used for repeatable live proof without Snapshot/Tally integration risk.
+3. `Steward`: stored delegation criteria, direct LLM callback, onchain vote cast, and proof state storage.
+4. `StewardCouncilPipeline`: proposal URL parsing, three LLM reviewer roles, majority vote, and refund-safe callback handling.
+5. `StewardCouncilDelegationPipeline`: stored council delegation plus watcher-triggered execution into the live council.
+6. Live frontend: `/council` for the V2 delegated proof, `/proof` for the lower-level receipt trail, and proposal source pages used by the watcher.
 
 ## Proposal URL Source Layer
 
@@ -167,7 +169,7 @@ Fastest judge path:
 ./scripts/verify-steward-proof.sh
 ```
 
-Expected final marker: `STEWARD_FULL_PROOF_VALID`. This command asserts live onchain Steward/MiniGovernor state, Somnia's public LLM receipt service for all three YES, NO, and ABSTAIN requests, validator runner quorum, receipt timing, LLM token usage, decoded `inferString` request payloads, transaction-level event logs for the proof txs, the delegated council V2 YES/NO/ABSTAIN proof set, the five-case live council fallback proof set, and explorer source verification for `Steward`, `MiniGovernor`, and `StewardCouncilPipeline`. If `STEWARD_URL_PIPELINE` is set, the source verifier also checks that deployed URL pipeline contract.
+Expected final marker: `STEWARD_FULL_PROOF_VALID`. This command asserts live onchain Steward/MiniGovernor state, Somnia's public LLM receipt service for all three YES, NO, and ABSTAIN requests, validator runner quorum, receipt timing, LLM token usage, decoded `inferString` request payloads, transaction-level event logs for the proof txs, the delegated council V2 YES/NO/ABSTAIN proof set, the five-case live council fallback proof set, and explorer source verification for `Steward`, `MiniGovernor`, `StewardCouncilPipeline`, and `StewardCouncilDelegationPipeline`. If `STEWARD_URL_PIPELINE` is set, the source verifier also checks that deployed URL pipeline contract.
 
 ```shell
 forge fmt --check
@@ -269,7 +271,7 @@ npm run build --prefix web
 | Steward | `0x6932C7827E7BFd9f0015Ed93fA120379E0d20541` |
 | Steward deploy tx | `0x723f8717b19a48b524858c5f1a1416be2016a2d393427a788e9e7b80af506147` |
 | Delegation tx | `0xdf49c68c630deef7a319b8d0f6daaefa392be433343784295c8833f9460fd45b` |
-| Source verification | `Steward` and `MiniGovernor` verified on Somnia explorer |
+| Source verification | `Steward`, `MiniGovernor`, `StewardCouncilPipeline`, and `StewardCouncilDelegationPipeline` verified on Somnia explorer |
 
 ### Steward vote proofs
 
@@ -299,8 +301,12 @@ Somnia testnet contract creation consumed far more gas than local estimates, and
 
 ```shell
 cp .env.example .env
-# fill PRIVATE_KEY
-source .env
+# fill PRIVATE_KEY, then export only the values used by the raw commands below.
+# Do not source .env blindly if you add unquoted values containing spaces.
+export SOMNIA_TESTNET_RPC=https://dream-rpc.somnia.network
+export SOMNIA_AGENTS=0x037Bb9C718F3f7fe5eCBDB0b600D607b52706776
+export LLM_AGENT_ID=12847293847561029384
+export PRIVATE_KEY=<funded-testnet-private-key>
 
 BYTECODE=$(node -e 'const fs=require("fs"); console.log(JSON.parse(fs.readFileSync("out/HelloSomniaCallback.sol/HelloSomniaCallback.json","utf8")).bytecode.object)')
 ARGS=$(cast abi-encode "constructor(address,uint256)" "$SOMNIA_AGENTS" "$LLM_AGENT_ID")
@@ -400,13 +406,16 @@ Current execution path:
 
 In scope for the current proof set:
 
-- One Somnia LLM agent path.
-- One minimal governor.
-- Three proposal outcomes: YES, NO, ABSTAIN.
-- One frontend route.
+- Stored delegated council execution through `StewardCouncilDelegationPipeline`.
+- Somnia `LLM Parse Website` plus three LLM reviewer callbacks through `StewardCouncilPipeline`.
+- Lower-level direct `Steward` LLM callback proof.
+- Minimal source-verified `MiniGovernor` target.
+- Live YES, NO, and ABSTAIN examples for the delegated council path.
+- Public frontend routes for the council proof, direct proof, source pages, and explainer surfaces.
 
 Out of scope for this MVP:
 
+- Monitoring a production Snapshot/Tally/Governor Bravo feed directly.
 - Snapshot/Tally integrations.
 - Delegate marketplace.
 - Reputation scores.

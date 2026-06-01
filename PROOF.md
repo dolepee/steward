@@ -15,7 +15,7 @@ Steward's strongest claim is simple: one stored onchain delegation was executed 
 | Transaction-level event trail | The council verifier checks `ProposalCreated`, `RequestCreated`, `CouncilPipelineStarted`, `CouncilProposalParsed`, `CouncilReviewerRequested`, `CouncilReviewerDecided`, `CouncilVoteCast`, and `VoteCast` logs for all five council jobs. |
 | Verifiable final state | `MiniGovernor.votes(proposalId, StewardCouncilPipeline)` matches the majority support value. |
 | Council proof | `StewardCouncilPipeline` parsed five public proposal URLs, requested fifteen LLM reviewer decisions, and cast live YES, NO, and ABSTAIN majority votes into MiniGovernor. |
-| Delegated V2 proof | `StewardCouncilDelegationPipeline` executions `1`, `2`, and `3` forward stored delegation `1` into council jobs `6`, `7`, and `8`; final MiniGovernor votes are YES, NO, and ABSTAIN. |
+| Delegated V2 proof | `StewardCouncilDelegationPipeline` executions `1`, `2`, and `3` forward stored delegation `1` into council jobs `6`, `7`, and `8`; the verifier checks wrapper start logs, Parse Website requests, reviewer request logs, final council vote logs, and final MiniGovernor votes for YES, NO, and ABSTAIN. |
 
 ## Fast Verification
 
@@ -204,14 +204,15 @@ The verifier intentionally requires at least two runner addresses per request, n
 | Steward | [`0x6932C7827E7BFd9f0015Ed93fA120379E0d20541`](https://shannon-explorer.somnia.network/address/0x6932C7827E7BFd9f0015Ed93fA120379E0d20541) |
 | MiniGovernor | [`0xa3773Ff7B2008bAb2E553E13e1E0ADE08a15f389`](https://shannon-explorer.somnia.network/address/0xa3773Ff7B2008bAb2E553E13e1E0ADE08a15f389) |
 | StewardCouncilPipeline | [`0xB890e1274eE308cBC8348a7E032394406215fd52`](https://shannon-explorer.somnia.network/address/0xB890e1274eE308cBC8348a7E032394406215fd52) |
+| StewardCouncilDelegationPipeline | [`0xd01f2e924A0846fdC7cEF677e8887CEE589DCa64`](https://shannon-explorer.somnia.network/address/0xd01f2e924A0846fdC7cEF677e8887CEE589DCa64) |
 | SomniaAgents requester | [`0x037Bb9C718F3f7fe5eCBDB0b600D607b52706776`](https://shannon-explorer.somnia.network/address/0x037Bb9C718F3f7fe5eCBDB0b600D607b52706776) |
 | LLM Inference agent | [`12847293847561029384`](https://agents.testnet.somnia.network/agent/12847293847561029384) |
 | LLM Parse Website agent | [`12875401142070969085`](https://agents.testnet.somnia.network/agent/12875401142070969085) |
 
-`Steward`, `MiniGovernor`, and `StewardCouncilPipeline` are source-verified on
-the Somnia explorer. After `StewardUrlPipeline` is deployed, setting
-`STEWARD_URL_PIPELINE` makes `scripts/verify-source.mjs` check that source
-verification too.
+`Steward`, `MiniGovernor`, `StewardCouncilPipeline`, and
+`StewardCouncilDelegationPipeline` are source-verified on the Somnia explorer.
+After `StewardUrlPipeline` is deployed, setting `STEWARD_URL_PIPELINE` makes
+`scripts/verify-source.mjs` check that source verification too.
 
 ## Important Limitation
 

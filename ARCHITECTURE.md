@@ -87,6 +87,27 @@ Steward guards the callback path with:
 - Agent output must start with one allowed vote value.
 - Governor rejection moves the request to failed instead of pretending the vote cast.
 
+## Delegated Council Wrapper
+
+`StewardCouncilDelegationPipeline` is the current V2 autonomy wrapper. It stores a council mandate once, then lets a watcher or third-party executor pay for proposal evaluation without resupplying the criteria.
+
+```mermaid
+sequenceDiagram
+    participant Owner
+    participant Watcher
+    participant Wrapper as StewardCouncilDelegationPipeline
+    participant Council as StewardCouncilPipeline
+    participant Governor as MiniGovernor
+
+    Owner->>Wrapper: createCouncilDelegation(governor, criteria, validUntil)
+    Watcher->>Governor: createProposal(imported source text)
+    Watcher->>Wrapper: executeDelegatedCouncilVote(delegationId, proposalId, proposalUrl)
+    Wrapper->>Council: startCouncilVote(stored criteria, proposalUrl)
+    Council-->>Governor: castVoteWithReason(majority YES / NO / ABSTAIN)
+```
+
+This wrapper deliberately keeps execution permissionless. The owner controls the stored mandate, governor, expiry, and revocation. The executor supplies the proposal id and proposal URL for a specific run, which is why production deployments should add authenticated proposal registries or DAO-native adapters before using this against real governance.
+
 ## Scope Boundaries
 
 This is a hackathon MVP, not a production DAO delegate marketplace.
@@ -94,10 +115,11 @@ This is a hackathon MVP, not a production DAO delegate marketplace.
 In scope:
 
 - Live Somnia testnet contracts.
-- Live LLM Inference agent requests.
-- Async callback into Steward.
-- YES, NO, and ABSTAIN examples.
-- Public verifier scripts and proof page.
+- Stored delegated council execution.
+- Live Parse Website and LLM Inference agent requests.
+- Async callbacks into Steward and the council pipeline.
+- YES, NO, and ABSTAIN examples through both the delegated council path and the direct lower-level path.
+- Public verifier scripts and proof pages.
 
 Out of scope:
 

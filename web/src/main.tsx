@@ -316,6 +316,12 @@ const delegatedCouncilCases = [
   },
 ];
 const delegatedCouncilProof = delegatedCouncilCases[0]!;
+const delegatedAutonomySteps = [
+  ["01", "Stored mandate", "Criteria and governor live onchain before execution."],
+  ["02", "Watcher detects", "A proposal URL changes; the watcher pays to execute."],
+  ["03", "Agent council", "Parse Website plus three LLM reviewers apply the mandate."],
+  ["04", "Vote lands", "MiniGovernor receives YES, NO, or ABSTAIN from the council."],
+] as const;
 const externalCouncilCase = councilCases[councilCases.length - 1]!;
 
 const stewardAbi = [
@@ -1405,14 +1411,22 @@ function App() {
       <section className="council" id="council">
         <div className="councilLead">
           <p className="eyebrow">Autonomous delegated council · live V2</p>
-          <h2>Delegate once. Watchers found proposals. Somnia agents cast YES, NO, and ABSTAIN.</h2>
+          <h2>One stored mandate produced YES, NO, and ABSTAIN.</h2>
           <p>
-            Steward V2 stores the voting mandate onchain, then a watcher triggers the
-            stored delegation when a proposal source changes. The wrapper cannot replace
-            the criteria at execution time; it forwards the stored mandate into the live
-            Somnia council pipeline, where Parse Website plus three LLM reviewers produce
-            the final MiniGovernor vote.
+            The owner stored criteria and governor once. Watchers detected changed proposal
+            URLs and executed that stored mandate; the wrapper forwards the original
+            criteria into Parse Website plus three LLM reviewers, then the council casts
+            the MiniGovernor vote.
           </p>
+          <div className="autonomyChain" aria-label="Steward autonomous council execution path">
+            {delegatedAutonomySteps.map(([num, title, copy]) => (
+              <article key={num}>
+                <span>{num}</span>
+                <strong>{title}</strong>
+                <p>{copy}</p>
+              </article>
+            ))}
+          </div>
           <div className="txLinks">
             <a href={explorerAddress(proofAddresses.delegatedCouncilPipeline)} target="_blank" rel="noreferrer">
               Delegation wrapper

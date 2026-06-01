@@ -1763,10 +1763,10 @@ main {
 }
 
 .opsHeader {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  display: flex;
   gap: 14px;
   align-items: center;
+  justify-content: space-between;
   margin-bottom: 18px;
   padding: 12px 14px;
   border: 1px solid rgba(128, 255, 210, 0.14);
@@ -1774,13 +1774,29 @@ main {
   background: rgba(0, 0, 0, 0.16);
 }
 
-.opsHeader strong {
-  color: var(--green);
-  font-size: 12px;
+.opsHeader span,
+.opsHeader strong,
+.opsHeader small {
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.opsHeader span {
+  color: rgba(237, 245, 239, 0.54);
+  font-size: 11px;
   letter-spacing: 0.14em;
 }
 
+.opsHeader strong {
+  flex: 1 1 auto;
+  color: var(--green);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-align: center;
+}
+
 .opsHeader small {
+  flex: 0 0 auto;
   color: rgba(237, 245, 239, 0.5);
   font-size: 11px;
   font-weight: 700;
@@ -2100,6 +2116,20 @@ main {
     max-width: 620px;
     font-size: clamp(42px, 11vw, 64px);
     line-height: 0.98;
+  }
+
+  .opsHeader {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    border-radius: 22px;
+  }
+
+  .opsHeader strong {
+    text-align: left;
+  }
+
+  .opsHeader small {
+    flex-basis: 100%;
   }
 }
 

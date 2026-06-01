@@ -1019,7 +1019,7 @@ function App() {
 
         <div className="receipt" id="proof">
           <div className="opsHeader" aria-label="Steward command center status">
-            <span>STWD / COUNCIL-05</span>
+            <span>STWD-05</span>
             <strong>VERIFIED EXTERNAL RUN</strong>
             <small>Somnia Testnet · live callbacks</small>
           </div>

@@ -614,16 +614,20 @@ function App() {
     ? normalizedPath
     : "/";
   const isHomeRoute = route === "/";
-  const isProofRoute = route === "/proof" || route === "/receipts";
-  const isSourcesRoute = route === "/sources" || route === "/console" || route === "/proposals";
-  const isCouncilRoute = route === "/council" || route === "/mandates";
-  const isGuideRoute = route === "/guide" || route === "/how-it-works";
+  const isMandatesRoute = route === "/mandates";
+  const isProposalsRoute = route === "/proposals";
+  const isReceiptsRoute = route === "/receipts";
+  const isHowItWorksRoute = route === "/how-it-works";
+  const isProofRoute = route === "/proof";
+  const isSourcesRoute = route === "/sources" || route === "/console";
+  const isCouncilRoute = route === "/council";
+  const isGuideRoute = route === "/guide";
   const navClass = (target: string) => {
     if (target === "/" && route === "/") return "active";
-    if (target === "/mandates" && isCouncilRoute) return "active";
-    if (target === "/proposals" && isSourcesRoute) return "active";
-    if (target === "/receipts" && isProofRoute) return "active";
-    if (target === "/how-it-works" && isGuideRoute) return "active";
+    if (target === "/mandates" && isMandatesRoute) return "active";
+    if (target === "/proposals" && isProposalsRoute) return "active";
+    if (target === "/receipts" && isReceiptsRoute) return "active";
+    if (target === "/how-it-works" && isHowItWorksRoute) return "active";
     return undefined;
   };
   const [live, setLive] = useState<ProofState>({
@@ -1098,6 +1102,165 @@ function App() {
             <a href="/receipts">View all receipts</a>
           </article>
         </section>
+      </section>
+      ) : null}
+
+      {isMandatesRoute ? (
+      <section className="mandateSubPage">
+        <div className="subPageHeader">
+          <p className="eyebrow">Mandates</p>
+          <h1>Never vote outside the values you set.</h1>
+          <p>
+            Steward stores a mandate, checks proposal context, and executes the same criteria
+            across YES, NO, and ABSTAIN decisions.
+          </p>
+        </div>
+        <div className="mandateAgentCard">
+          <div className="agentPortrait" aria-hidden>◒</div>
+          <div>
+            <span className="statusText">Online</span>
+            <h2>Steward</h2>
+            <p>Autonomous governance agent. Reads proposals, applies your mandate, and votes with receipts.</p>
+          </div>
+          <ul>
+            <li>Reads governance proposals</li>
+            <li>Checks against your mandate</li>
+            <li>Reasons autonomously</li>
+            <li>Votes on your behalf</li>
+            <li>Leaves onchain receipts</li>
+          </ul>
+        </div>
+        <div className="mandateMetrics">
+          <article><strong>42</strong><span>YES</span></article>
+          <article><strong>12</strong><span>NO</span></article>
+          <article><strong>6</strong><span>ABSTAIN</span></article>
+          <article><strong>100%</strong><span>Receipted</span></article>
+        </div>
+        <div className="mandatePanels two">
+          <article>
+            <h2>Current Mandate</h2>
+            <ul>
+              <li><strong>YES</strong> for community grants under $1M.</li>
+              <li><strong>NO</strong> for early token unlocks.</li>
+              <li><strong>ABSTAIN</strong> if the proposal is exploratory or unclear.</li>
+            </ul>
+          </article>
+          <article>
+            <h2>Recent Decisions</h2>
+            {delegatedCouncilCases.map((proof) => (
+              <div className="miniRow" key={`mandate-${proof.proposalId}`}>
+                <span>{proof.proposal}</span>
+                <strong className={proof.outcome.toLowerCase()}>{proof.outcome}</strong>
+              </div>
+            ))}
+          </article>
+        </div>
+      </section>
+      ) : null}
+
+      {isProposalsRoute ? (
+      <section className="mandateSubPage">
+        <div className="subPageHeader compact">
+          <p className="eyebrow">Proposals</p>
+          <h1>Governance proposals Steward is monitoring.</h1>
+          <p>Each proposal is checked against the stored mandate before Steward votes.</p>
+        </div>
+        <div className="proposalList">
+          {delegatedCouncilCases.map((proof) => (
+            <article key={`proposal-${proof.proposalId}`} className={proof.outcome.toLowerCase()}>
+              <div className="proposalIcon" aria-hidden>☷</div>
+              <div>
+                <h2>{proof.proposal}</h2>
+                <span>Category · {proof.outcome === "YES" ? "Community Grants" : proof.outcome === "NO" ? "Tokenomics" : "Partnerships"}</span>
+                <p>{proof.detail}</p>
+              </div>
+              <aside>
+                <strong>{proof.outcome}</strong>
+                <small>{proof.outcome === "YES" ? "Steward supports" : proof.outcome === "NO" ? "Steward rejects" : "Steward abstains"}</small>
+                <a href={explorerTx(proof.finalVoteTx)} target="_blank" rel="noreferrer">View receipt</a>
+              </aside>
+            </article>
+          ))}
+        </div>
+      </section>
+      ) : null}
+
+      {isReceiptsRoute ? (
+      <section className="mandateSubPage">
+        <div className="receiptDossier">
+          <a className="backLink" href="/proposals">← Proposals</a>
+          <h1>Decision Dossier</h1>
+          <p>Steward Vote Receipt</p>
+          <article className="dossierHero">
+            <span>✓</span>
+            <div>
+              <h2>Steward voted YES</h2>
+              <p>The proposal matches your mandate.</p>
+            </div>
+          </article>
+          <div className="dossierGrid">
+            <article>
+              <span>Proposal asked for</span>
+              <p>Funding for community grants and growth initiatives in Q3, below the mandate limit.</p>
+            </article>
+            <article>
+              <span>Your mandate says</span>
+              <p>Vote YES for community grants under $1M.</p>
+            </article>
+            <article>
+              <span>Steward decided</span>
+              <strong>YES</strong>
+              <p>Vote cast on Somnia.</p>
+            </article>
+            <article>
+              <span>Somnia receipt</span>
+              <a className="proofAnchor" href={explorerTx(delegatedCouncilProof.finalVoteTx)} target="_blank" rel="noreferrer">View on explorer</a>
+            </article>
+          </div>
+          <div className="decisionTimeline">
+            {[
+              ["Proposal detected", "May 22, 14:32:10"],
+              ["Criteria loaded", "May 22, 14:32:12"],
+              ["Somnia Agent reasoned", "May 22, 14:33:01"],
+              ["Vote submitted", "May 22, 14:33:45"],
+              ["Receipt recorded", "May 22, 14:34:12"],
+            ].map(([title, time]) => (
+              <div key={title}>
+                <i>✓</i>
+                <strong>{title}</strong>
+                <span>{time} UTC</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+      ) : null}
+
+      {isHowItWorksRoute ? (
+      <section className="mandateSubPage">
+        <div className="subPageHeader">
+          <p className="eyebrow">How it works</p>
+          <h1>A mandate becomes a vote receipt.</h1>
+          <p>
+            Steward is intentionally simple: store a mandate, monitor proposals, ask Somnia
+            agents to reason, cast the vote, and expose the proof.
+          </p>
+        </div>
+        <div className="mandateFlow expanded">
+          {[
+            ["01", "You write your mandate", "Your values are explicit before any proposal appears."],
+            ["02", "A proposal appears", "A public governance source becomes the input."],
+            ["03", "Somnia agents reason", "Parse Website and LLM reviewers check the mandate."],
+            ["04", "Steward votes", "YES, NO, or ABSTAIN is cast onchain."],
+            ["05", "Receipt recorded", "Every step can be verified from Somnia receipts."],
+          ].map(([step, title, copy]) => (
+            <article key={step}>
+              <span>{step}</span>
+              <strong>{title}</strong>
+              <p>{copy}</p>
+            </article>
+          ))}
+        </div>
       </section>
       ) : null}
 
@@ -1709,6 +1872,7 @@ function App() {
       </section>
       ) : null}
 
+      {isProofRoute || isGuideRoute ? (
       <section className="live">
         <div>
           <span>Steward</span>
@@ -1767,6 +1931,7 @@ function App() {
           <strong>{receiptState.loading ? "..." : `${liveReceiptCount}/${successfulReceiptCount}`}</strong>
         </div>
       </section>
+      ) : null}
 
       {live.error ? <p className="error">Live RPC read timed out in browser. Linked txs and scripts/verify-live.sh reproduce this proof set.</p> : null}
     </main>

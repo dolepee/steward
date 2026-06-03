@@ -2786,6 +2786,29 @@ main {
   box-shadow: 0 24px 80px rgba(7, 19, 51, 0.09);
 }
 
+.live {
+  border: 1px solid var(--line);
+  background:
+    linear-gradient(180deg, rgba(255, 253, 248, 0.96), rgba(247, 241, 230, 0.9)),
+    var(--surface);
+}
+
+.live div {
+  border: 1px solid rgba(7, 19, 51, 0.08);
+  background: rgba(255, 253, 248, 0.72);
+}
+
+.live strong {
+  color: var(--ink);
+  opacity: 1;
+}
+
+.live a {
+  color: var(--somnia-violet);
+  font-weight: 900;
+  text-decoration-thickness: 2px;
+}
+
 .receipt::after {
   background:
     linear-gradient(rgba(7, 19, 51, 0.04) 1px, transparent 1px),

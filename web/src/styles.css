@@ -2204,3 +2204,810 @@ main {
     margin-top: 4px;
   }
 }
+
+/* Mandate OS: final light civic product skin. This is the source of truth. */
+:root {
+  --ink: #071333;
+  --ink-soft: rgba(7, 19, 51, 0.68);
+  --paper: #fbf7ef;
+  --surface: #fffdf8;
+  --surface-soft: #f5efe3;
+  --surface-muted: #efe7d7;
+  --line: rgba(7, 19, 51, 0.12);
+  --line-strong: rgba(7, 19, 51, 0.18);
+  --somnia-violet: #5b3df3;
+  --yes-green: #0aa36b;
+  --no-red: #e35252;
+  --abstain-amber: #ef9f2e;
+  --proof-blue: #3362f6;
+  --panel: rgba(255, 253, 248, 0.84);
+  font-family:
+    Inter,
+    Avenir Next,
+    ui-sans-serif,
+    system-ui,
+    sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+}
+
+body {
+  background:
+    radial-gradient(circle at 5% 3%, rgba(91, 61, 243, 0.1), transparent 25%),
+    radial-gradient(circle at 88% 18%, rgba(10, 163, 107, 0.08), transparent 28%),
+    linear-gradient(135deg, #fffaf0 0%, #fbf7ef 52%, #f7f0e5 100%);
+  color: var(--ink);
+}
+
+body::before {
+  background-image:
+    linear-gradient(rgba(7, 19, 51, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(7, 19, 51, 0.055) 1px, transparent 1px);
+  background-size: 104px 104px;
+  mask-image: linear-gradient(to bottom, black, transparent 88%);
+}
+
+main {
+  width: min(1510px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 28px 0 72px;
+}
+
+.nav {
+  position: sticky;
+  top: 18px;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 14px 18px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 253, 248, 0.88);
+  color: var(--ink);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 18px 48px rgba(7, 19, 51, 0.08);
+  scrollbar-width: none;
+}
+
+.nav::-webkit-scrollbar {
+  display: none;
+}
+
+.nav::after {
+  display: none !important;
+}
+
+.brandLink {
+  display: inline-grid;
+  grid-template-columns: 48px auto;
+  grid-template-rows: auto auto;
+  column-gap: 12px;
+  align-items: center;
+  margin-right: auto;
+  text-decoration: none;
+}
+
+.brandLink .mark {
+  grid-row: 1 / span 2;
+}
+
+.brandLink small {
+  display: block;
+  color: rgba(7, 19, 51, 0.56);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.mark {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fffdf8;
+  color: var(--somnia-violet);
+  font-size: 24px;
+  box-shadow: 0 10px 28px rgba(7, 19, 51, 0.08);
+}
+
+.brand {
+  color: var(--ink);
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 25px;
+  font-weight: 800;
+  letter-spacing: -0.055em;
+}
+
+.nav a:not(.brandLink),
+.networkPill,
+.walletPill {
+  color: rgba(7, 19, 51, 0.76);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+
+.nav a.active {
+  color: var(--somnia-violet);
+}
+
+.networkPill,
+.walletPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fffdf8;
+}
+
+.networkPill::before {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--somnia-violet);
+  content: "";
+}
+
+.walletPill {
+  border: 0;
+  background: var(--ink);
+  color: #fffdf8;
+  cursor: pointer;
+}
+
+.mandateHome {
+  display: grid;
+  gap: 24px;
+  padding-top: 64px;
+}
+
+.mandateHero {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(480px, 1.08fr);
+  gap: clamp(34px, 5vw, 72px);
+  align-items: center;
+}
+
+.mandateCopy h1 {
+  max-width: 720px;
+  margin: 0;
+  color: var(--ink);
+  font-family: "Newsreader", Georgia, serif;
+  font-size: clamp(72px, 7vw, 126px);
+  font-weight: 700;
+  line-height: 0.86;
+  letter-spacing: -0.075em;
+}
+
+.mandateCopy h1 em {
+  color: var(--somnia-violet);
+  font-style: italic;
+  font-weight: 500;
+}
+
+.mandateCopy > p {
+  max-width: 560px;
+  margin: 28px 0 0;
+  color: rgba(7, 19, 51, 0.74);
+  font-size: clamp(18px, 1.7vw, 23px);
+  line-height: 1.42;
+}
+
+.mandateActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 34px;
+}
+
+.mandateActions a {
+  display: inline-flex;
+  min-height: 50px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 24px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.mandateActions a:first-child {
+  border-color: transparent;
+  background: var(--ink);
+  color: #fffdf8;
+  box-shadow: 0 18px 36px rgba(7, 19, 51, 0.18);
+}
+
+.mandateTrust {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 42px;
+}
+
+.mandateTrust article,
+.liveDecisionCard,
+.mandateFlow,
+.mandatePanels article {
+  border: 1px solid var(--line);
+  background: rgba(255, 253, 248, 0.72);
+  box-shadow:
+    0 18px 55px rgba(7, 19, 51, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.mandateTrust article {
+  padding: 18px;
+  border-radius: 20px;
+}
+
+.mandateTrust strong {
+  display: block;
+  color: var(--somnia-violet);
+  font-size: 14px;
+}
+
+.mandateTrust span {
+  display: block;
+  margin-top: 5px;
+  color: rgba(7, 19, 51, 0.62);
+  font-size: 12px;
+}
+
+.liveDecisionCard {
+  padding: clamp(20px, 3vw, 30px);
+  border-radius: 28px;
+}
+
+.liveDecisionTop,
+.proposalLine,
+.decisionGrid,
+.agentChips,
+.mandateTimeline,
+.miniRow {
+  border: 1px solid var(--line);
+  background: rgba(255, 253, 248, 0.66);
+}
+
+.liveDecisionTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: -4px -4px 18px;
+  padding: 13px 16px;
+  border-radius: 18px;
+}
+
+.liveDecisionTop strong {
+  font-size: 16px;
+  letter-spacing: -0.02em;
+}
+
+.liveDecisionTop span {
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: rgba(10, 163, 107, 0.1);
+  color: var(--yes-green);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.proposalLine {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 7px 14px;
+  padding: 16px;
+  border-radius: 18px;
+}
+
+.proposalLine span,
+.decisionGrid span,
+.mandatePanels p,
+.mandateFlow span {
+  color: rgba(7, 19, 51, 0.56);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.proposalLine b {
+  font-size: clamp(20px, 2vw, 28px);
+  letter-spacing: -0.045em;
+}
+
+.proposalLine small {
+  align-self: center;
+  color: rgba(7, 19, 51, 0.58);
+  font-weight: 800;
+}
+
+.mandateQuote {
+  margin-top: 12px;
+  padding: 14px 16px;
+  border: 1px solid rgba(10, 163, 107, 0.18);
+  border-radius: 16px;
+  background: rgba(10, 163, 107, 0.06);
+  color: var(--yes-green);
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.decisionGrid {
+  display: grid;
+  grid-template-columns: 0.78fr 1.22fr;
+  margin-top: 12px;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.decisionGrid > div {
+  padding: 17px;
+}
+
+.decisionGrid > div + div {
+  border-left: 1px solid var(--line);
+}
+
+.decisionGrid strong {
+  display: block;
+  margin-top: 10px;
+  color: var(--yes-green);
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 54px;
+  line-height: 0.9;
+  letter-spacing: -0.08em;
+}
+
+.decisionGrid p {
+  margin: 10px 0 0;
+  color: rgba(7, 19, 51, 0.76);
+  font-weight: 700;
+  line-height: 1.42;
+}
+
+.agentChips {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 18px;
+}
+
+.agentChips span {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid rgba(91, 61, 243, 0.13);
+  border-radius: 14px;
+  background: rgba(91, 61, 243, 0.055);
+  color: var(--somnia-violet);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.mandateTimeline {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+  padding: 14px;
+  border-radius: 18px;
+}
+
+.mandateTimeline div {
+  min-width: 0;
+  text-align: center;
+}
+
+.mandateTimeline i {
+  display: inline-grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border: 1px solid rgba(10, 163, 107, 0.2);
+  border-radius: 999px;
+  background: rgba(10, 163, 107, 0.08);
+  color: var(--yes-green);
+  font-style: normal;
+  font-weight: 900;
+}
+
+.mandateTimeline span {
+  display: block;
+  margin-top: 8px;
+  color: rgba(7, 19, 51, 0.7);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.receiptLink {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+  color: var(--somnia-violet);
+  font-size: 14px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.mandateFlow {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  padding: 18px;
+  border-radius: 22px;
+}
+
+.mandateFlow article {
+  padding: 14px;
+  text-align: center;
+}
+
+.mandateFlow strong {
+  display: block;
+  margin-top: 10px;
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+.mandatePanels {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.mandatePanels article {
+  min-width: 0;
+  padding: 24px;
+  border-radius: 22px;
+}
+
+.mandatePanels h2 {
+  margin: 0;
+  color: var(--ink);
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 28px;
+  letter-spacing: -0.055em;
+}
+
+.mandatePanels ul {
+  display: grid;
+  gap: 12px;
+  margin: 20px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mandatePanels li {
+  color: rgba(7, 19, 51, 0.72);
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.mandatePanels li strong,
+.miniRow strong.yes,
+.miniRow strong.no,
+.miniRow strong.abstain {
+  font-weight: 950;
+}
+
+.mandatePanels li strong:first-child,
+.miniRow strong.yes {
+  color: var(--yes-green);
+}
+
+.miniRow strong.no {
+  color: var(--no-red);
+}
+
+.miniRow strong.abstain {
+  color: var(--abstain-amber);
+}
+
+.miniRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 14px;
+}
+
+.miniRow span {
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.miniRow a,
+.mandatePanels > article > a {
+  color: var(--somnia-violet);
+  font-size: 13px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.mandatePanels > article > a {
+  display: inline-flex;
+  margin-top: 18px;
+}
+
+.hero,
+.product,
+.council,
+.urlPipeline,
+.judge {
+  color: var(--ink);
+}
+
+.copy h1,
+.councilLead h2,
+.urlPipelineLead h2,
+.urlConsoleCopy h2,
+.productLead h2,
+.judge h2 {
+  color: var(--ink);
+}
+
+.eyebrow {
+  color: var(--somnia-violet);
+}
+
+.dek,
+.councilLead p:not(.eyebrow),
+.urlPipelineLead p:not(.eyebrow),
+.urlConsoleCopy p:not(.eyebrow),
+.productLead p:not(.eyebrow),
+.judge > div:first-child p:not(.eyebrow) {
+  color: var(--ink-soft);
+}
+
+.receipt,
+.councilCommand,
+.urlProofCommand,
+.scorecard article,
+.live {
+  border-color: rgba(7, 19, 51, 0.1);
+  background:
+    linear-gradient(145deg, rgba(255, 253, 248, 0.94), rgba(245, 239, 227, 0.8)),
+    var(--surface);
+  color: var(--ink);
+  box-shadow: 0 24px 80px rgba(7, 19, 51, 0.09);
+}
+
+.receipt::after {
+  background:
+    linear-gradient(rgba(7, 19, 51, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(7, 19, 51, 0.04) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+.proofSpotlight,
+.criteria,
+.decision,
+.voteCard,
+.decodedPayloads,
+.receiptQuorum,
+.quorumDeck article,
+.payloadDeck article,
+.proofMeter article,
+.reviewerBoard article,
+.councilLead,
+.councilBoard article,
+.urlPipelineLead,
+.urlConsole,
+.proposalSources article,
+.pipelineSteps article,
+.productLead,
+.useCases article,
+.judge,
+.proofCommand {
+  border-color: var(--line);
+  background: rgba(255, 253, 248, 0.76);
+  color: var(--ink);
+}
+
+.receipt span,
+.live span,
+.grid span,
+.judge span,
+.councilBoard span,
+.councilCommand span,
+.pipelineSteps span,
+.urlProofCommand span,
+.proposalSources span,
+.useCases span,
+.consoleStatus span,
+.consoleOutput span {
+  color: rgba(7, 19, 51, 0.52);
+}
+
+.proofSpotlight p,
+.criteria p,
+.decodedPayloads > p,
+.receiptQuorum > p,
+.voteCard p,
+.payloadDeck p,
+.quorumDeck p,
+.councilCommand p,
+.urlProofCommand p,
+.consoleOutput p,
+.reviewerBoard p {
+  color: var(--ink-soft);
+}
+
+.spotlightTop strong,
+.voteCard strong,
+.payloadDeck strong,
+.quorumDeck strong,
+.decision strong,
+.scorecard strong,
+.councilCommand code,
+.urlProofCommand code,
+.proofMeter strong,
+.criteria code,
+.decodedPayloads code,
+.reviewerBoard strong {
+  color: var(--yes-green);
+}
+
+.txLinks a,
+.urlActions a,
+.proposalSources a,
+.productLead a,
+.actions a,
+.payloadDeck a,
+.proofCoverage span,
+.consoleButtons button,
+.councilLead .txLinks a,
+.councilBoard article .txLinks a {
+  border-color: var(--line);
+  background: rgba(255, 253, 248, 0.82);
+  color: var(--somnia-violet);
+}
+
+.actions a:first-child,
+.urlActions a:first-child,
+.consoleButtons button + button {
+  background: var(--ink);
+  color: #fffdf8;
+}
+
+.opsHeader {
+  border-color: var(--line);
+  background: rgba(255, 253, 248, 0.72);
+}
+
+.opsCode,
+.opsNetwork {
+  color: rgba(7, 19, 51, 0.5);
+}
+
+.opsHeader strong {
+  color: var(--yes-green);
+}
+
+@media (min-width: 1120px) {
+  main {
+    width: min(1510px, calc(100% - 40px));
+    padding-left: 0;
+  }
+
+  .nav {
+    position: sticky;
+    top: 18px;
+    bottom: auto;
+    left: auto;
+    width: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 22px;
+    padding: 14px 18px;
+    border-radius: 999px;
+  }
+
+  .brandLink {
+    margin: 0 auto 0 0;
+  }
+
+  .nav a:not(.brandLink) {
+    width: auto;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .nav a.active {
+    border: 0;
+    background: transparent;
+  }
+}
+
+@media (max-width: 980px) {
+  main {
+    width: min(100% - 24px, 760px);
+  }
+
+  .nav {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    border-radius: 28px;
+  }
+
+  .brandLink small,
+  .networkPill {
+    display: none;
+  }
+
+  .mandateHome {
+    padding-top: 34px;
+  }
+
+  .mandateHero,
+  .mandatePanels,
+  .mandateFlow,
+  .mandateTrust,
+  .agentChips,
+  .decisionGrid,
+  .mandateTimeline {
+    grid-template-columns: 1fr;
+  }
+
+  .mandateCopy h1 {
+    font-size: clamp(56px, 13vw, 86px);
+  }
+
+  .decisionGrid > div + div {
+    border-top: 1px solid var(--line);
+    border-left: 0;
+  }
+}
+
+@media (max-width: 560px) {
+  main {
+    width: min(100% - 18px, 430px);
+    padding-top: 14px;
+  }
+
+  .nav {
+    gap: 12px;
+    padding: 10px;
+  }
+
+  .mark {
+    width: 38px;
+    height: 38px;
+    font-size: 19px;
+  }
+
+  .brand {
+    font-size: 20px;
+  }
+
+  .walletPill {
+    min-height: 38px;
+    padding-inline: 12px;
+  }
+
+  .mandateCopy h1 {
+    font-size: clamp(50px, 15vw, 66px);
+    line-height: 0.9;
+  }
+
+  .liveDecisionCard,
+  .mandatePanels article,
+  .mandateFlow {
+    border-radius: 22px;
+  }
+}

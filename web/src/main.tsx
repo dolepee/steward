@@ -599,15 +599,33 @@ async function ensureSomniaWallet() {
 
 function App() {
   const normalizedPath = window.location.pathname.replace(/\/+$/, "") || "/";
-  const route = ["/", "/proof", "/sources", "/council", "/guide", "/console"].includes(normalizedPath)
+  const route = [
+    "/",
+    "/mandates",
+    "/proposals",
+    "/receipts",
+    "/how-it-works",
+    "/proof",
+    "/sources",
+    "/council",
+    "/guide",
+    "/console",
+  ].includes(normalizedPath)
     ? normalizedPath
     : "/";
   const isHomeRoute = route === "/";
-  const isProofRoute = route === "/proof";
-  const isSourcesRoute = route === "/sources" || route === "/console";
-  const isCouncilRoute = route === "/council";
-  const isGuideRoute = route === "/guide";
-  const navClass = (target: string) => (route === target ? "active" : undefined);
+  const isProofRoute = route === "/proof" || route === "/receipts";
+  const isSourcesRoute = route === "/sources" || route === "/console" || route === "/proposals";
+  const isCouncilRoute = route === "/council" || route === "/mandates";
+  const isGuideRoute = route === "/guide" || route === "/how-it-works";
+  const navClass = (target: string) => {
+    if (target === "/" && route === "/") return "active";
+    if (target === "/mandates" && isCouncilRoute) return "active";
+    if (target === "/proposals" && isSourcesRoute) return "active";
+    if (target === "/receipts" && isProofRoute) return "active";
+    if (target === "/how-it-works" && isGuideRoute) return "active";
+    return undefined;
+  };
   const [live, setLive] = useState<ProofState>({
     loading: false,
     proofs: linkedProofs(),
@@ -937,15 +955,19 @@ function App() {
   return (
     <main>
       <nav className="nav">
-        <div className="mark">S</div>
         <a className="brandLink" href="/">
+          <span className="mark" aria-hidden>◒</span>
           <strong className="brand">Steward</strong>
+          <small>Autonomous governance on Somnia</small>
         </a>
-        <a className={navClass("/proof")} href="/proof">Proof</a>
-        <a className={navClass("/sources")} href="/sources">Sources</a>
-        <a className={navClass("/council")} href="/council">Council</a>
+        <a className={navClass("/")} href="/">Home</a>
+        <a className={navClass("/mandates")} href="/mandates">Mandates</a>
+        <a className={navClass("/proposals")} href="/proposals">Proposals</a>
+        <a className={navClass("/receipts")} href="/receipts">Receipts</a>
         {configuredUrlPipeline ? <a className={navClass("/console")} href="/console">Console</a> : null}
-        <a className={navClass("/guide")} href="/guide">Guide</a>
+        <a className={navClass("/how-it-works")} href="/how-it-works">How it works</a>
+        <span className="networkPill">Live on Somnia</span>
+        <button className="walletPill" type="button">Connect Wallet</button>
         <a href={judgeGuideUrl} target="_blank" rel="noreferrer">
           Docs
         </a>
@@ -954,7 +976,132 @@ function App() {
         </a>
       </nav>
 
-      {isHomeRoute || isProofRoute ? (
+      {isHomeRoute ? (
+      <section className="mandateHome">
+        <div className="mandateHero">
+          <div className="mandateCopy">
+            <h1>Your values vote while <em>you sleep.</em></h1>
+            <p>
+              Create a voting mandate once. Steward watches proposals, reasons against your
+              criteria, casts YES / NO / ABSTAIN, and leaves a receipt on Somnia.
+            </p>
+            <div className="mandateActions">
+              <a href="/receipts">Watch Steward vote</a>
+              <a href="/mandates">Create mandate</a>
+            </div>
+            <div className="mandateTrust">
+              <article>
+                <strong>Autonomous</strong>
+                <span>Not a bot. A delegate.</span>
+              </article>
+              <article>
+                <strong>Transparent</strong>
+                <span>Every vote has a receipt.</span>
+              </article>
+              <article>
+                <strong>Onchain</strong>
+                <span>Verified on Somnia.</span>
+              </article>
+            </div>
+          </div>
+
+          <article className="liveDecisionCard">
+            <div className="liveDecisionTop">
+              <strong>Live Mandate Decision</strong>
+              <span>Recorded</span>
+            </div>
+            <div className="proposalLine">
+              <span>Proposal</span>
+              <b>Q3 Community Grants Program</b>
+              <small>ID: 0x7a3...9F2B</small>
+            </div>
+            <div className="mandateQuote">Vote YES for community grants under $1M.</div>
+            <div className="decisionGrid">
+              <div>
+                <span>Steward Decision</span>
+                <strong>YES</strong>
+              </div>
+              <div>
+                <span>Reason</span>
+                <p>The proposal funds community grants and stays below the user's stated treasury limit.</p>
+              </div>
+            </div>
+            <div className="agentChips">
+              <span>Delegated Agent</span>
+              <span>Somnia Agent v1</span>
+              <span>Somnia</span>
+            </div>
+            <div className="mandateTimeline" aria-label="Steward mandate decision timeline">
+              {[
+                "Proposal appeared",
+                "Mandate checked",
+                "Steward reasoned",
+                "Vote cast",
+                "Receipt recorded",
+              ].map((step, index) => (
+                <div key={step}>
+                  <i>{index + 1}</i>
+                  <span>{step}</span>
+                </div>
+              ))}
+            </div>
+            <a className="receiptLink" href="/receipts">View full receipt</a>
+          </article>
+        </div>
+
+        <section className="mandateFlow" aria-label="How Steward works">
+          {[
+            ["01", "You write your mandate"],
+            ["02", "A proposal appears"],
+            ["03", "Steward reasons against your values"],
+            ["04", "Steward votes YES / NO / ABSTAIN"],
+            ["05", "Somnia records the receipt"],
+          ].map(([step, copy]) => (
+            <article key={step}>
+              <span>{step}</span>
+              <strong>{copy}</strong>
+            </article>
+          ))}
+        </section>
+
+        <section className="mandatePanels">
+          <article>
+            <h2>Your Mandate</h2>
+            <p>Steward follows the rules you set.</p>
+            <ul>
+              <li><strong>YES</strong> when community grants stay under $1M.</li>
+              <li><strong>NO</strong> when team unlocks arrive early.</li>
+              <li><strong>ABSTAIN</strong> when the action is unclear.</li>
+            </ul>
+            <a href="/mandates">View mandate</a>
+          </article>
+          <article>
+            <h2>Proposal Inbox</h2>
+            <p>Recent proposals and Steward decisions.</p>
+            {delegatedCouncilCases.map((proof) => (
+              <div className="miniRow" key={proof.proposalId}>
+                <span>{proof.proposal}</span>
+                <strong className={proof.outcome.toLowerCase()}>{proof.outcome}</strong>
+              </div>
+            ))}
+            <a href="/proposals">View all proposals</a>
+          </article>
+          <article>
+            <h2>Recent Receipts</h2>
+            <p>Latest Steward votes with onchain proof.</p>
+            {delegatedCouncilCases.map((proof) => (
+              <div className="miniRow" key={proof.finalVoteTx}>
+                <span>{proof.proposal}</span>
+                <a href={explorerTx(proof.finalVoteTx)} target="_blank" rel="noreferrer">Somnia ↗</a>
+              </div>
+            ))}
+            <a href="/receipts">View all receipts</a>
+          </article>
+        </section>
+      </section>
+      ) : null}
+
+      {isProofRoute ? (
       <section className={`hero ${isProofRoute ? "heroProof" : ""}`}>
         <div className="copy">
           <p className="eyebrow">{isProofRoute ? "Proof room · live receipts" : "Somnia Agentathon · live on testnet"}</p>
@@ -1204,31 +1351,6 @@ function App() {
       </section>
       ) : null}
 
-      {isHomeRoute ? (
-      <section className="grid" id="loop">
-        <article>
-          <span>1</span>
-          <h2>Delegate</h2>
-          <p>User anchors voting criteria onchain. The criteria hash and text become the mandate.</p>
-        </article>
-        <article>
-          <span>2</span>
-          <h2>Invoke</h2>
-          <p>Steward calls SomniaAgents request #{primaryProof.requestId.toString()} with proposal text, criteria, and allowed votes.</p>
-        </article>
-        <article>
-          <span>3</span>
-          <h2>Callback</h2>
-          <p>The LLM agent returns YES, NO, or ABSTAIN through the platform callback.</p>
-        </article>
-        <article>
-          <span>4</span>
-          <h2>Vote</h2>
-          <p>Steward casts the vote in MiniGovernor and emits an indexable audit trail.</p>
-        </article>
-      </section>
-      ) : null}
-
       {isSourcesRoute ? (
       <section className="urlPipeline" id="url-pipeline" aria-labelledby="url-pipeline-heading">
         <div className="urlPipelineLead">
@@ -1367,7 +1489,7 @@ function App() {
       </section>
       ) : null}
 
-      {isHomeRoute || isGuideRoute ? (
+      {isGuideRoute ? (
       <section className="product" id="product">
         <div className="productLead">
           <p className="eyebrow">Product wedge</p>

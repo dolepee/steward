@@ -658,6 +658,11 @@ function App() {
   });
 
   async function connectHeaderWallet() {
+    if (headerWallet.account) {
+      setHeaderWallet({ connecting: false });
+      return;
+    }
+
     setHeaderWallet({ connecting: true });
     try {
       const { account } = await ensureSomniaWallet();
@@ -1000,11 +1005,11 @@ function App() {
         <a className={`navItem ${navClass("/how-it-works")}`} href="/how-it-works">How it works</a>
         <span className="networkPill">Live on Somnia</span>
         <button
-          aria-label={headerWallet.account ? `Connected wallet ${headerWallet.account}` : walletButtonLabel}
+          aria-label={headerWallet.account ? `Disconnect wallet ${headerWallet.account}` : walletButtonLabel}
           className="walletPill"
           disabled={headerWallet.connecting}
           onClick={connectHeaderWallet}
-          title={headerWallet.error ?? (headerWallet.account ? `Connected to ${headerWallet.account}` : "Connect to Somnia Testnet")}
+          title={headerWallet.error ?? (headerWallet.account ? "Disconnect wallet from Steward UI" : "Connect to Somnia Testnet")}
           type="button"
         >
           {walletButtonLabel}

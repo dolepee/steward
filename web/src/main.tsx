@@ -964,11 +964,11 @@ function App() {
           <strong className="brand">Steward</strong>
           <small>Autonomous governance on Somnia</small>
         </a>
-        <a className={navClass("/mandates")} href="/mandates">Mandates</a>
-        <a className={navClass("/proposals")} href="/proposals">Proposals</a>
-        <a className={navClass("/receipts")} href="/receipts">Receipts</a>
-        {configuredUrlPipeline ? <a className={navClass("/console")} href="/console">Console</a> : null}
-        <a className={navClass("/how-it-works")} href="/how-it-works">How it works</a>
+        <a className={`navItem ${navClass("/mandates")}`} href="/mandates">Mandates</a>
+        <a className={`navItem ${navClass("/proposals")}`} href="/proposals">Proposals</a>
+        <a className={`navItem mobilePrimary ${navClass("/receipts")}`} href="/receipts">Receipts</a>
+        {configuredUrlPipeline ? <a className={`navItem ${navClass("/console")}`} href="/console">Console</a> : null}
+        <a className={`navItem ${navClass("/how-it-works")}`} href="/how-it-works">How it works</a>
         <span className="networkPill">Live on Somnia</span>
         <button className="walletPill" type="button">Connect Wallet</button>
       </nav>

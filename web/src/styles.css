@@ -3396,13 +3396,47 @@ main {
   }
 
   .nav {
-    gap: 12px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 8px;
+    align-items: center;
+    overflow: visible;
     padding: 10px;
+    border-radius: 28px;
   }
 
-  .nav .walletPill,
+  .nav .navItem {
+    display: none;
+  }
+
+  .nav .mobilePrimary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    padding: 0 12px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #fffdf8;
+    color: var(--ink);
+    font-size: 12px;
+    font-weight: 900;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .nav .mobilePrimary.active {
+    color: var(--somnia-violet);
+  }
+
   .nav .networkPill {
     display: none;
+  }
+
+  .brandLink {
+    grid-template-columns: 38px minmax(0, auto);
+    column-gap: 8px;
+    min-width: 0;
   }
 
   .mark {
@@ -3416,8 +3450,19 @@ main {
   }
 
   .walletPill {
+    justify-content: center;
+    min-width: 38px;
     min-height: 38px;
-    padding-inline: 12px;
+    padding: 0 12px;
+    color: #fffdf8;
+    background: var(--ink);
+    font-size: 0;
+  }
+
+  .walletPill::before {
+    content: "↗";
+    font-size: 16px;
+    line-height: 1;
   }
 
   .mandateCopy h1 {

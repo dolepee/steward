@@ -7,21 +7,21 @@ Delegate DAO voting criteria once onchain; Steward's Somnia agent council watche
 [![Live app](https://img.shields.io/badge/live-steward--ashy.vercel.app-6bff7d)](https://steward-ashy.vercel.app)
 [![Somnia Testnet](https://img.shields.io/badge/Somnia-Testnet%2050312-10120d)](https://shannon-explorer.somnia.network/address/0x6932C7827E7BFd9f0015Ed93fA120379E0d20541)
 
-Steward is a verifiable autonomous DAO governance proxy on Somnia. A user stores voting criteria onchain once. When a proposal URL appears, a watcher executes that stored mandate, Somnia agents parse and review the proposal, and the callback path records a YES, NO, or ABSTAIN decision onchain.
+Steward is autonomous governance delegation for DAOs, built on Somnia. A member writes their values once as an onchain mandate. From then on, Steward's execution layer watches proposal sources, Somnia's Parse Website agent reads each proposal, three reviewer agents reason against the mandate, and an authenticated callback casts a verifiable YES, NO, or ABSTAIN vote onchain.
 
-The strongest live proof is now the delegated council V2: `StewardCouncilDelegationPipeline` stores the mandate, `scripts/watch-delegated-council.mjs` detects changed proposal sources, and the wrapper forwards the stored criteria into the already-live `StewardCouncilPipeline`. The council asks Somnia's `LLM Parse Website` agent to read each proposal page, sends the parsed facts to three independent LLM reviewers (`budget`, `risk`, and `participation`), and casts the majority outcome into `MiniGovernor`. The V2 proof now shows the same stored delegation producing live watcher-triggered `YES`, `NO`, and `ABSTAIN` votes.
+The strongest live proof is now the delegated council V2: `StewardCouncilDelegationPipeline` stores the mandate, `scripts/watch-delegated-council.mjs` detects changed proposal sources, and the wrapper forwards the stored criteria into the already-live `StewardCouncilPipeline`. The council asks Somnia's `LLM Parse Website` agent to read each proposal page, sends the parsed facts to three independent LLM reviewers (`budget`, `risk`, and `participation`), and casts the majority outcome into `MiniGovernor`, a minimal proof governor used to demonstrate the vote target without claiming production DAO governance. The V2 proof shows the same stored delegation producing live watcher-triggered `YES`, `NO`, and `ABSTAIN` votes.
 
 Execution is permissionless on purpose. A delegation owner controls the mandate text, governor, expiry, and revocation; any executor or watcher can pay the Somnia request deposit to trigger evaluation for an active delegation. In the delegated V2 path, the executor cannot replace the stored criteria, governor, downstream council contract, authorized callback sender, agent ids, or final vote target. The executor does supply the proposal id and proposal URL for that run, so the proof model is best read as permissionless proposal-source execution against a stored mandate, not owner-only private automation.
 
 The base `Steward` proof remains as a lower-level receipt trail: it invokes the live Somnia LLM Inference agent, receives the async callback, casts a MiniGovernor vote, and stores the result onchain. The verifier decodes each live `inferString` request payload and checks the exact proposal text, voting criteria, system prompt, allowed vote outputs, validator receipt steps, runner quorum, timing, and token usage. The base proof contracts, delegated wrapper, and live council pipeline are source-verified on the Somnia explorer.
 
-## 30-Second Judge Path
+## Demo-First Review Path
 
-1. Open the live page: `https://steward-ashy.vercel.app/council`.
-2. Start with the V2 card: delegation `1` was stored onchain once, then watcher executions `1`, `2`, and `3` produced `YES`, `NO`, and `ABSTAIN`.
-3. Open any V2 final-vote tx and confirm the council contract, not the frontend, cast into `MiniGovernor`.
-4. Clone the repo and run `node scripts/verify-delegated-council-proofs.mjs`. The expected marker is `STEWARD_DELEGATED_COUNCIL_PROOFS_VALID`.
-5. Run `./scripts/verify-steward-proof.sh` for the full proof packet. The expected final marker is `STEWARD_FULL_PROOF_VALID`.
+1. Open the live product path: `https://steward-ashy.vercel.app/council`.
+2. Start with the stored mandate: delegation `1` was written onchain once, then watcher executions `1`, `2`, and `3` produced `YES`, `NO`, and `ABSTAIN`.
+3. Show the agent council: Parse Website reads the proposal source, three reviewer agents reason against the mandate, and the majority result becomes the final vote.
+4. Open any V2 final-vote tx and confirm the council contract, not the frontend, cast into the minimal `MiniGovernor` proof target.
+5. Then verify the proof: `node scripts/verify-delegated-council-proofs.mjs` should print `STEWARD_DELEGATED_COUNCIL_PROOFS_VALID`; `./scripts/verify-steward-proof.sh` should print `STEWARD_FULL_PROOF_VALID`.
 
 For the fastest review path, see [`JUDGE_GUIDE.md`](./JUDGE_GUIDE.md). For product/market framing, see [`PRODUCT.md`](./PRODUCT.md). For the direct receipt map, see [`PROOF.md`](./PROOF.md). For the contract and callback flow, see [`ARCHITECTURE.md`](./ARCHITECTURE.md). For trust assumptions and failure behavior, see [`THREAT_MODEL.md`](./THREAT_MODEL.md).
 
@@ -82,7 +82,7 @@ The repo also includes an optional two-agent `StewardUrlPipeline` implementation
 
 This single-reviewer path is additive and does not replace the live council proof above.
 
-The frontend publishes four plain-HTML proposal source pages for deterministic proof coverage, and the live council proof also includes one external governance forum page:
+The frontend publishes four plain-HTML proposal source pages for stable proof coverage, and the live council proof also includes one external governance forum page:
 
 | Expected vote | Source URL |
 | --- | --- |
@@ -324,7 +324,7 @@ After deployment, set `HELLO_CALLBACK` and request one LLM decision:
 cast send "$HELLO_CALLBACK" \
   "requestDecision(string,string,string[])(uint256)" \
   "Proposal: allocate 500K USDC to community grants. Criteria: vote YES for grants under 1M, NO for team token unlocks, ABSTAIN if unclear. Return exactly one allowed value." \
-  "You are Steward, a deterministic DAO voting agent. Return only YES, NO, or ABSTAIN." \
+  "You are Steward, a schema-constrained DAO voting agent. Return only YES, NO, or ABSTAIN." \
   '["YES","NO","ABSTAIN"]' \
   --value 0.24ether \
   --rpc-url "$SOMNIA_TESTNET_RPC" \

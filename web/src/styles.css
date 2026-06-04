@@ -3431,3 +3431,112 @@ main {
     border-radius: 22px;
   }
 }
+
+/* Final light-theme readability guard for legacy proof/guide surfaces. */
+.productLead,
+.useCases article,
+.judge,
+.scorecard article,
+.proofCommand,
+.councilCommand,
+.urlProofCommand,
+.chainOfCustody,
+.heroStats article,
+.pipelineSteps article,
+.proposalSources article,
+.councilBoard article,
+.autonomyChain article,
+.reviewerBoard article,
+.quorumDeck article,
+.payloadDeck article,
+.proofMeter article,
+.voteCard {
+  color: var(--ink);
+}
+
+.useCases strong,
+.chainOfCustody strong,
+.heroStats strong,
+.pipelineSteps strong,
+.proposalSources h3,
+.proposalSources strong,
+.councilBoard strong,
+.autonomyChain strong,
+.reviewerBoard strong,
+.quorumDeck strong,
+.payloadDeck strong,
+.proofMeter strong,
+.voteCard strong,
+.proofCommand code,
+.councilCommand code,
+.urlProofCommand code {
+  color: var(--ink);
+}
+
+.scorecard strong,
+.councilBoard .yes strong,
+.proposalSources .yes strong {
+  color: var(--yes-green);
+}
+
+.councilBoard .no strong,
+.proposalSources .no strong {
+  color: var(--no-red);
+}
+
+.councilBoard .abstain strong,
+.proposalSources .abstain strong {
+  color: var(--abstain-amber);
+}
+
+.useCases p,
+.scorecard p,
+.chainOfCustody p,
+.pipelineSteps p,
+.proposalSources p,
+.councilBoard p,
+.autonomyChain p,
+.reviewerBoard p,
+.quorumDeck p,
+.payloadDeck p,
+.proofMeter p,
+.voteCard p,
+.proofCommand p,
+.proofCommand small,
+.councilCommand p,
+.urlProofCommand p {
+  color: var(--ink-soft);
+}
+
+.useCases span,
+.scorecard span,
+.chainOfCustody span,
+.heroStats span,
+.pipelineSteps span,
+.proposalSources span,
+.councilBoard span,
+.autonomyChain span,
+.reviewerBoard span,
+.quorumDeck span,
+.payloadDeck span,
+.proofMeter span,
+.voteCard span,
+.proofCommand span,
+.councilCommand span,
+.urlProofCommand span {
+  color: rgba(7, 19, 51, 0.58);
+}
+
+.councilBoard small,
+.quorumDeck small,
+.payloadDeck small,
+.voteCard small {
+  color: rgba(7, 19, 51, 0.64);
+}
+
+.actions .secondary,
+.urlActions a + a {
+  border-color: var(--line);
+  background: rgba(255, 253, 248, 0.82);
+  color: var(--somnia-violet);
+}

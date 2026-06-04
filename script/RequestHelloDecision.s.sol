@@ -16,7 +16,7 @@ contract RequestHelloDecision is Script {
 
         string memory prompt =
             "Proposal: allocate 500K USDC to community grants. Criteria: vote YES for grants under 1M, NO for token unlocks, ABSTAIN if unclear. Return exactly one allowed value.";
-        string memory system = "You are Steward, a deterministic DAO voting agent. Return only YES, NO, or ABSTAIN.";
+        string memory system = "You are Steward, a constrained DAO voting agent. Return only YES, NO, or ABSTAIN.";
 
         vm.startBroadcast();
         requestId = callback.requestDecision{value: requestValue}(prompt, system, allowedValues);

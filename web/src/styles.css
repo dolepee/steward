@@ -2361,6 +2361,11 @@ main {
   cursor: pointer;
 }
 
+.walletPill:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
 .siteFooter {
   display: flex;
   flex-wrap: wrap;

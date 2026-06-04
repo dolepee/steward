@@ -640,6 +640,13 @@ function App() {
     summaries: linkedReceiptSummaries(),
     source: "linked",
   });
+  const [headerWallet, setHeaderWallet] = useState<{
+    account?: Address;
+    connecting: boolean;
+    error?: string;
+  }>({
+    connecting: false,
+  });
   const [urlConsoleForm, setUrlConsoleForm] = useState<UrlConsoleForm>({
     proposalUrl: defaultConsoleProposalUrl,
     proposalText: defaultConsoleProposalText,
@@ -649,6 +656,28 @@ function App() {
     status: "Ready to quote the two-agent URL vote deposit.",
     busy: false,
   });
+
+  async function connectHeaderWallet() {
+    setHeaderWallet({ connecting: true });
+    try {
+      const { account } = await ensureSomniaWallet();
+      setHeaderWallet({ account, connecting: false });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Wallet connection failed.";
+      setHeaderWallet({
+        connecting: false,
+        error: message,
+      });
+    }
+  }
+
+  const walletButtonLabel = headerWallet.connecting
+    ? "Connecting..."
+    : headerWallet.account
+      ? `${headerWallet.account.slice(0, 6)}...${headerWallet.account.slice(-4)}`
+      : headerWallet.error?.startsWith("No injected wallet")
+        ? "Install wallet"
+        : "Connect Wallet";
 
   async function quoteUrlPipeline() {
     if (!configuredUrlPipeline) return;
@@ -970,7 +999,16 @@ function App() {
         {configuredUrlPipeline ? <a className={`navItem ${navClass("/console")}`} href="/console">Console</a> : null}
         <a className={`navItem ${navClass("/how-it-works")}`} href="/how-it-works">How it works</a>
         <span className="networkPill">Live on Somnia</span>
-        <button className="walletPill" type="button">Connect Wallet</button>
+        <button
+          aria-label={headerWallet.account ? `Connected wallet ${headerWallet.account}` : walletButtonLabel}
+          className="walletPill"
+          disabled={headerWallet.connecting}
+          onClick={connectHeaderWallet}
+          title={headerWallet.error ?? (headerWallet.account ? `Connected to ${headerWallet.account}` : "Connect to Somnia Testnet")}
+          type="button"
+        >
+          {walletButtonLabel}
+        </button>
       </nav>
 
       {isHomeRoute ? (

@@ -964,7 +964,6 @@ function App() {
           <strong className="brand">Steward</strong>
           <small>Autonomous governance on Somnia</small>
         </a>
-        <a className={navClass("/")} href="/">Home</a>
         <a className={navClass("/mandates")} href="/mandates">Mandates</a>
         <a className={navClass("/proposals")} href="/proposals">Proposals</a>
         <a className={navClass("/receipts")} href="/receipts">Receipts</a>
@@ -972,12 +971,6 @@ function App() {
         <a className={navClass("/how-it-works")} href="/how-it-works">How it works</a>
         <span className="networkPill">Live on Somnia</span>
         <button className="walletPill" type="button">Connect Wallet</button>
-        <a href={judgeGuideUrl} target="_blank" rel="noreferrer">
-          Docs
-        </a>
-        <a href="https://github.com/dolepee/steward" target="_blank" rel="noreferrer">
-          GitHub
-        </a>
       </nav>
 
       {isHomeRoute ? (
@@ -1934,6 +1927,13 @@ function App() {
       ) : null}
 
       {live.error ? <p className="error">Live RPC read timed out in browser. Linked txs and scripts/verify-live.sh reproduce this proof set.</p> : null}
+      <footer className="siteFooter">
+        <span>Resources</span>
+        <a href="/guide">Judge guide</a>
+        <a href="/proof">Live proof</a>
+        <a href={judgeGuideUrl} target="_blank" rel="noreferrer">Docs</a>
+        <a href="https://github.com/dolepee/steward" target="_blank" rel="noreferrer">GitHub</a>
+      </footer>
     </main>
   );
 }

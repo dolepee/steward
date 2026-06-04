@@ -2361,6 +2361,35 @@ main {
   cursor: pointer;
 }
 
+.siteFooter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px 18px;
+  margin: 28px auto 0;
+  padding: 18px 20px;
+  color: rgba(7, 19, 51, 0.58);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.siteFooter span {
+  color: rgba(7, 19, 51, 0.42);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.siteFooter a {
+  color: rgba(7, 19, 51, 0.72);
+  text-decoration: none;
+}
+
+.siteFooter a:hover {
+  color: var(--somnia-violet);
+}
+
 .mandateHome {
   display: grid;
   gap: 24px;
